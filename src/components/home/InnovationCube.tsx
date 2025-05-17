@@ -1,70 +1,61 @@
 
 import { useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
 
-// Simple cube component with fixed positioning
+// CSS-based animated cube component
 const CubeMesh = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <mesh
-      position={[-2, 0, 0]}
-      scale={hovered ? 1.1 : 1}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-      rotation={[Math.PI / 4, Math.PI / 4, 0]}
+    <div
+      className={`relative transform-gpu transition-all duration-300 ease-in-out ${
+        hovered ? 'scale-110' : 'scale-100'
+      }`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial 
-        color={hovered ? '#7E69AB' : '#9b87f5'}
-        metalness={0.5}
-        roughness={0.2}
-      />
-    </mesh>
+      <div className="w-32 h-32 md:w-40 md:h-40 rotate-cube bg-gradient-to-br from-primary/70 to-purple-500/80 rounded-lg shadow-xl">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-lg" />
+      </div>
+    </div>
   );
 };
 
-// Simple sphere component with fixed positioning
+// CSS-based animated sphere component
 const InnovationSphere = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <mesh
-      position={[2, 0, 0]}
-      scale={hovered ? 1.1 : 1}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-      rotation={[Math.PI / 6, Math.PI / 3, 0]}
+    <div
+      className={`relative transform-gpu transition-all duration-300 ease-in-out ${
+        hovered ? 'scale-110' : 'scale-100'
+      }`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <sphereGeometry args={[1.2, 32, 32]} />
-      <meshStandardMaterial 
-        color={hovered ? '#1EAEDB' : '#D6BCFA'}
-        metalness={0.7}
-        roughness={0.3}
-        wireframe={true}
-      />
-    </mesh>
+      <div className="w-28 h-28 md:w-36 md:h-36 rounded-full rotate-sphere bg-gradient-to-br from-blue-400/90 to-purple-500/80 shadow-lg opacity-90">
+        <div className="absolute inset-0 border-2 border-dashed border-white/20 rounded-full" />
+      </div>
+    </div>
   );
 };
 
 export default function InnovationCube() {
   return (
-    <div className="h-full w-full min-h-[300px]">
-      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
-        <ambientLight intensity={0.5} />
-        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-        <pointLight position={[-10, -10, -10]} />
-        
+    <div className="h-full w-full min-h-[300px] flex items-center justify-center relative overflow-hidden">
+      {/* Add animated background pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-background/80 z-0" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-10 animate-grid z-0" />
+      
+      {/* Container for the shapes */}
+      <div className="relative z-10 flex flex-row items-center justify-around w-full px-8">
         <CubeMesh />
         <InnovationSphere />
-        
-        <OrbitControls 
-          enableZoom={false} 
-          autoRotate={true}
-          autoRotateSpeed={0.5}
-        />
-      </Canvas>
+      </div>
+      
+      {/* Add some floating particles */}
+      <div className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-primary/50 animate-float-slow" />
+      <div className="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-secondary/50 animate-float-medium" />
+      <div className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-primary/30 animate-float-fast" />
     </div>
   );
 }
