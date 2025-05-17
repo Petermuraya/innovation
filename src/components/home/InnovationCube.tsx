@@ -2,10 +2,10 @@
 import { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { Mesh } from 'three';
 
-const CubeMesh = ({ position = [0, 0, 0] }: { position?: [number, number, number] }) => {
-  const meshRef = useRef<Mesh>(null!);
+// Simplified cube component without type annotations that might cause issues
+const CubeMesh = ({ position = [0, 0, 0] }) => {
+  const meshRef = useRef(null);
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -27,8 +27,9 @@ const CubeMesh = ({ position = [0, 0, 0] }: { position?: [number, number, number
   );
 };
 
-const InnovationSphere = ({ position = [0, 0, 0] }: { position?: [number, number, number] }) => {
-  const meshRef = useRef<Mesh>(null!);
+// Simplified sphere component
+const InnovationSphere = ({ position = [0, 0, 0] }) => {
+  const meshRef = useRef(null);
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -54,7 +55,7 @@ const InnovationSphere = ({ position = [0, 0, 0] }: { position?: [number, number
 export default function InnovationCube() {
   return (
     <div className="h-full w-full min-h-[300px]">
-      <Canvas>
+      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
