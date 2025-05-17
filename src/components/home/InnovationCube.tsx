@@ -2,10 +2,11 @@
 import { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 
 // Properly typed cube component
 const CubeMesh = ({ position = [0, 0, 0] as [number, number, number] }) => {
-  const meshRef = useRef(null);
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -29,7 +30,7 @@ const CubeMesh = ({ position = [0, 0, 0] as [number, number, number] }) => {
 
 // Properly typed sphere component
 const InnovationSphere = ({ position = [0, 0, 0] as [number, number, number] }) => {
-  const meshRef = useRef(null);
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
   return (
