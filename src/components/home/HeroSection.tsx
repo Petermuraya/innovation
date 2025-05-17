@@ -1,8 +1,8 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MoveIn, FadeIn, ScaleIn } from "@/components/ui/animations";
-import { Box, ArrowRight, Users, Code, Lightbulb, ChevronDown } from "lucide-react";
+import { MoveIn, FadeIn } from "@/components/ui/animations";
+import { ChevronDown, Users, Code, Lightbulb } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Carousel,
@@ -58,44 +58,44 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pb-16 md:pb-24">
-      {/* Enhanced dynamic background with parallax effect */}
+    <section className="relative overflow-hidden pb-16 md:pb-24 bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Dynamic overlays and patterns */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10 z-0"
-        style={{ transform: `translateY(${scrollY * 0.05}px)` }}
+        className="absolute inset-0 bg-grid-pattern opacity-10 animate-grid z-0" 
+        style={{ transform: `translateY(${scrollY * 0.02}px)` }}
       />
       
-      {/* Animated pattern overlay */}
-      <div 
-        className="absolute inset-0 pattern-bg opacity-50 z-0"
-        style={{ transform: `translateY(${scrollY * -0.02}px)` }}
-      />
+      <div className="absolute inset-0 pattern-bg opacity-5 z-0 rotate-180" />
       
-      {/* Moving grid background */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-10 animate-grid z-0" />
-      
-      {/* Floating bubbles background */}
+      {/* Floating gold particles */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full bg-primary/5 animate-float-slow" 
+        <div className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full bg-[#b28d49]/10 animate-float-slow" 
              style={{ transform: `translateY(${scrollY * 0.1}px)` }} />
-        <div className="absolute bottom-1/4 right-1/3 w-60 h-60 rounded-full bg-secondary/5 animate-float-medium" 
+        <div className="absolute bottom-1/4 right-1/3 w-60 h-60 rounded-full bg-[#b28d49]/5 animate-float-medium" 
              style={{ transform: `translateY(${scrollY * -0.05}px)` }} />
-        <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-innovation-300/10 animate-float-fast" 
+        <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-[#fefefe]/10 animate-float-fast" 
              style={{ transform: `translateY(${scrollY * 0.08}px)` }} />
       </div>
+      
+      {/* Gold accent line */}
+      <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#b28d49]/80 via-[#b28d49]/30 to-transparent" />
       
       {/* Hero content */}
       <div className="relative container-custom pt-8 md:pt-16 lg:pt-24 z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Text content - spans 6 columns on large screens */}
-          <div className="lg:col-span-6 text-center lg:text-left z-10">
+          {/* Text content - spans 5 columns on large screens */}
+          <div className="lg:col-span-5 text-center lg:text-left z-10">
+            {/* Club logo or identifier */}
             <div 
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6 transition-all duration-500 transform ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#b28d49]/20 text-[#b28d49] mb-8 transition-all duration-500 transform ${
                 isVisible.title ? "opacity-100" : "opacity-0 translate-y-4"
               }`}
             >
-              <Box size={16} className="animate-pulse" />
-              <span className="text-sm font-medium">Innovate • Create • Transform</span>
+              <div className="flex items-center gap-1">
+                <span className="text-white font-bold">K</span>
+                <span className="text-[#b28d49]">IC</span>
+              </div>
+              <span className="text-sm font-medium text-[#fefefe]">Karatina Innovation Club</span>
             </div>
             
             <div 
@@ -103,9 +103,9 @@ export default function HeroSection() {
                 isVisible.title ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <h1 className="font-bold mb-6 leading-tight">
-                <span className="block text-foreground dark:text-white">Building the future</span>
-                <span className="gradient-text">one innovation at a time</span>
+              <h1 className="font-bold mb-4 leading-tight text-[#ffffff]">
+                <span className="block text-[#ffffff]">Revealing the</span>
+                <span className="text-[#b28d49]">Treasures of Innovation</span>
               </h1>
             </div>
             
@@ -114,9 +114,8 @@ export default function HeroSection() {
                 isVisible.subtitle ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0">
-                Join Karatina Innovation Club to collaborate on exciting tech projects,
-                learn new skills, and connect with like-minded innovators in our thriving community.
+              <p className="text-lg md:text-xl text-[#fefefe] mb-8 max-w-xl mx-auto lg:mx-0 font-light">
+                Dream, Create and Inspire for a Better Future
               </p>
             </div>
             
@@ -127,11 +126,11 @@ export default function HeroSection() {
             >
               <Button 
                 size="lg" 
-                className="gap-2 px-6 relative overflow-hidden group" 
+                className="gap-2 px-6 relative overflow-hidden group bg-[#b28d49] hover:bg-[#b28d49]/90 text-white" 
                 asChild
               >
                 <Link to="/register">
-                  Join Us <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  Get Involved
                   <span className="absolute inset-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
               </Button>
@@ -139,151 +138,117 @@ export default function HeroSection() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="gap-2 group hover:bg-secondary/10 relative overflow-hidden" 
+                className="gap-2 group border-[#b28d49] text-[#b28d49] hover:bg-[#b28d49]/10 relative overflow-hidden" 
                 asChild
               >
-                <Link to="/projects">
-                  View Projects
-                  <span className="absolute inset-0 w-0 bg-secondary/20 group-hover:w-full transition-all duration-300" />
-                </Link>
-              </Button>
-              
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                className="gap-2 group relative overflow-hidden" 
-                asChild
-              >
-                <Link to="/events">
-                  See Events
-                  <span className="absolute bottom-0 left-0 w-full h-0 bg-white/20 group-hover:h-full transition-all duration-300" />
+                <Link to="/about">
+                  Learn More
+                  <span className="absolute inset-0 w-0 bg-[#b28d49]/10 group-hover:w-full transition-all duration-300" />
                 </Link>
               </Button>
             </div>
 
-            {/* Feature highlights with enhanced animations */}
+            {/* Community highlights with enhanced animations */}
             <div 
-              className={`grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 transition-all duration-700 delay-400 transform ${
+              className={`grid grid-cols-1 md:grid-cols-3 gap-3 mt-10 transition-all duration-700 delay-400 transform ${
                 isVisible.features ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <div className="bg-background/50 backdrop-blur-sm p-4 rounded-lg border border-primary/10 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-primary/30 hover:bg-background/80">
+              <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#b28d49]/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-[#b28d49]/40">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <Users size={18} className="text-primary" />
+                  <div className="bg-[#b28d49]/20 p-2 rounded-full">
+                    <Users size={18} className="text-[#b28d49]" />
                   </div>
-                  <p className="font-medium text-sm text-left">Community-driven</p>
+                  <p className="font-medium text-sm text-left text-[#fefefe]">Tech Community</p>
                 </div>
               </div>
               
-              <div className="bg-background/50 backdrop-blur-sm p-4 rounded-lg border border-primary/10 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-primary/30 hover:bg-background/80">
+              <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#b28d49]/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-[#b28d49]/40">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <Code size={18} className="text-primary" />
+                  <div className="bg-[#b28d49]/20 p-2 rounded-full">
+                    <Code size={18} className="text-[#b28d49]" />
                   </div>
-                  <p className="font-medium text-sm text-left">Hands-on Projects</p>
+                  <p className="font-medium text-sm text-left text-[#fefefe]">Code & Create</p>
                 </div>
               </div>
               
-              <div className="bg-background/50 backdrop-blur-sm p-4 rounded-lg border border-primary/10 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-primary/30 hover:bg-background/80">
+              <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#b28d49]/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-[#b28d49]/40">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <Lightbulb size={18} className="text-primary" />
+                  <div className="bg-[#b28d49]/20 p-2 rounded-full">
+                    <Lightbulb size={18} className="text-[#b28d49]" />
                   </div>
-                  <p className="font-medium text-sm text-left">Innovative Ideas</p>
+                  <p className="font-medium text-sm text-left text-[#fefefe]">Ideation Hub</p>
                 </div>
               </div>
             </div>
 
             {/* Scroll indicator */}
-            <div className="mt-12 hidden md:flex justify-center lg:justify-start">
+            <div className="mt-10 hidden md:flex justify-center lg:justify-start">
               <button 
                 onClick={scrollToNextSection} 
-                className="flex flex-col items-center text-muted-foreground hover:text-primary transition-colors"
+                className="flex flex-col items-center text-[#fefefe]/70 hover:text-[#b28d49] transition-colors"
               >
-                <span className="text-sm mb-1">Scroll to explore</span>
+                <span className="text-sm mb-1">Explore More</span>
                 <ChevronDown className="animate-bounce" size={20} />
               </button>
             </div>
           </div>
           
-          {/* Image carousel - spans 6 columns on large screens */}
+          {/* Visual content - spans 7 columns on large screens */}
           <div 
-            className={`lg:col-span-6 z-10 transition-all duration-700 delay-500 transform ${
+            className={`lg:col-span-7 z-10 transition-all duration-700 delay-500 transform ${
               isVisible.image ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
             }`}
           >
-            <div className="relative rounded-xl overflow-hidden border border-primary/10 shadow-2xl">
-              <Carousel 
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                className="w-full"
-              >
-                <CarouselContent>
-                  <CarouselItem>
-                    <div className="relative aspect-[16/9] md:aspect-[16/10] overflow-hidden group">
-                      <img 
-                        src="https://images.unsplash.com/photo-1492551557933-34265f7af79e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
-                        alt="Students working together on innovation projects"
-                        className="object-cover w-full h-full rounded-lg transform transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-                        <p className="text-white font-medium text-sm md:text-base">Collaborative learning environment</p>
-                      </div>
-                      <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                  </CarouselItem>
-                  <CarouselItem>
-                    <div className="relative aspect-[16/9] md:aspect-[16/10] overflow-hidden group">
-                      <img 
-                        src="https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
-                        alt="Tech innovation showcase"
-                        className="object-cover w-full h-full rounded-lg transform transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-                        <p className="text-white font-medium text-sm md:text-base">Showcasing innovative projects</p>
-                      </div>
-                      <div className="absolute inset-0 bg-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                  </CarouselItem>
-                  <CarouselItem>
-                    <div className="relative aspect-[16/9] md:aspect-[16/10] overflow-hidden group">
-                      <img 
-                        src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
-                        alt="Coding workshop"
-                        className="object-cover w-full h-full rounded-lg transform transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
-                        <p className="text-white font-medium text-sm md:text-base">Hands-on coding workshops</p>
-                      </div>
-                      <div className="absolute inset-0 bg-innovation-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                  </CarouselItem>
-                </CarouselContent>
-                <div className="absolute bottom-4 right-4 flex gap-2 z-20">
-                  <CarouselPrevious className="relative h-8 w-8 rounded-full bg-black/30 hover:bg-black/50 border-0 text-white inset-auto transform-none left-0 top-0" />
-                  <CarouselNext className="relative h-8 w-8 rounded-full bg-black/30 hover:bg-black/50 border-0 text-white inset-auto transform-none right-0 top-0" />
+            <div className="relative rounded-xl overflow-hidden border border-[#b28d49]/30 shadow-2xl">
+              {/* Main visual with innovative glass panels */}
+              <div className="relative aspect-[16/9] md:aspect-[16/10] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 overflow-hidden">
+                {/* Futuristic figure silhouette */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <img 
+                    src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                    alt="Innovation figure"
+                    className="object-cover w-full h-full opacity-60"
+                  />
                 </div>
-              </Carousel>
-
-              {/* Interactive innovation cube */}
-              <div className="absolute -left-16 -top-16 z-20 hidden lg:block opacity-80 hover:opacity-100 transition-opacity">
-                <InnovationCube />
+                
+                {/* Dynamic glowing lines */}
+                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100,50 Q200,150 300,100 T500,100" stroke="#b28d49" strokeWidth="2" fill="none" className="animate-float-slow" />
+                  <path d="M50,200 Q150,50 250,200 T450,200" stroke="#ffffff" strokeWidth="1" strokeDasharray="5,5" fill="none" className="animate-float-medium" />
+                  <path d="M200,400 Q300,200 400,400" stroke="#b28d49" strokeWidth="1.5" fill="none" className="animate-float-fast" />
+                </svg>
+                
+                {/* Floating glass panels */}
+                <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rotate-6 animate-float-medium">
+                  <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#b28d49]/30 w-36 h-24">
+                    <p className="text-[#fefefe] text-xs font-medium mb-1">Prototype Tests</p>
+                    <div className="h-10 flex items-end gap-1">
+                      {[1, 4, 2, 6, 3, 5, 7].map((h, i) => (
+                        <div 
+                          key={i}
+                          className="w-2 bg-gradient-to-t from-[#b28d49] to-[#ffffff]" 
+                          style={{ height: `${h * 10}%` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-1/3 right-1/4 transform translate-x-1/2 translate-y-1/2 -rotate-3 animate-float-slow">
+                  <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#b28d49]/30 w-36 h-24">
+                    <p className="text-[#fefefe] text-xs font-medium mb-1">Innovation Metrics</p>
+                    <svg className="h-10 w-full" viewBox="0 0 100 20">
+                      <path d="M0,10 Q10,5 20,10 T40,15 T60,5 T80,10 T100,5" stroke="#b28d49" strokeWidth="1" fill="none" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Interactive innovation cube overlay */}
+                <div className="absolute -right-10 -top-10 z-20 opacity-80 hover:opacity-100 transition-opacity hidden lg:block scale-75">
+                  <InnovationCube />
+                </div>
               </div>
-
-              {/* Floating feature cards over the image with hover effects */}
-              {!isMobile && (
-                <>
-                  <div className="absolute -left-12 top-1/4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-primary/10 animate-float-medium z-20 hidden lg:block hover:scale-105 transition-transform cursor-pointer backdrop-blur-sm">
-                    <p className="font-medium text-sm">20+ Active Projects</p>
-                  </div>
-                  <div className="absolute -right-12 bottom-1/4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-primary/10 animate-float-slow z-20 hidden lg:block hover:scale-105 transition-transform cursor-pointer backdrop-blur-sm">
-                    <p className="font-medium text-sm">Weekly Workshops</p>
-                  </div>
-                </>
-              )}
             </div>
           </div>
         </div>
@@ -293,7 +258,7 @@ export default function HeroSection() {
           className="absolute bottom-0 left-0 w-full"
           style={{ transform: `translateY(${scrollY * 0.1}px)` }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="text-background">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="text-gray-800">
             <path fill="currentColor" fillOpacity="1" d="M0,288L48,272C96,256,192,224,288,208C384,192,480,192,576,197.3C672,203,768,213,864,229.3C960,245,1056,267,1152,266.7C1248,267,1344,245,1392,234.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
           </svg>
         </div>

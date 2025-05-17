@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { MoveIn } from "@/components/ui/animations";
 
-// Enhanced CSS-based animated cube component with better styling and hover effects
+// Enhanced CSS-based animated cube component with gold/bronze color scheme
 const CubeMesh = () => {
   const [hovered, setHovered] = useState(false);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
@@ -37,7 +37,7 @@ const CubeMesh = () => {
       onMouseMove={handleMouseMove}
     >
       <div 
-        className="w-32 h-32 md:w-40 md:h-40 rotate-cube bg-gradient-to-br from-innovation-600 to-innovation-800 rounded-lg shadow-xl border border-white/10"
+        className="w-32 h-32 md:w-40 md:h-40 rotate-cube bg-gradient-to-br from-[#b28d49] to-[#90908e] rounded-lg shadow-xl border border-white/10"
         style={{ 
           transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
           transition: 'transform 0.2s ease-out' 
@@ -46,18 +46,18 @@ const CubeMesh = () => {
         <div className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-lg" />
         
         {/* Faces of the cube with hover highlight */}
-        <div className={`absolute inset-0 border-2 ${hovered ? 'border-innovation-400' : 'border-white/10'} rounded-lg transition-colors`}></div>
+        <div className={`absolute inset-0 border-2 ${hovered ? 'border-[#b28d49]' : 'border-white/10'} rounded-lg transition-colors`}></div>
         
         {/* Glow effect on hover */}
         <div className={`absolute inset-0 rounded-lg transition-opacity duration-300 ${
           hovered ? 'opacity-100' : 'opacity-0'
-        }`} style={{ boxShadow: '0 0 15px 5px rgba(98, 113, 236, 0.3)' }}></div>
+        }`} style={{ boxShadow: '0 0 15px 5px rgba(178, 141, 73, 0.3)' }}></div>
       </div>
     </div>
   );
 };
 
-// Enhanced CSS-based animated sphere component with better styling and interactive effects
+// Enhanced CSS-based animated sphere component with gold/bronze color scheme
 const InnovationSphere = () => {
   const [hovered, setHovered] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -97,7 +97,7 @@ const InnovationSphere = () => {
         transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.3s ease-out'
       }}
     >
-      <div className="w-28 h-28 md:w-36 md:h-36 rounded-full rotate-sphere bg-gradient-to-br from-blue-400/90 to-innovation-500/80 shadow-lg opacity-90 border border-white/10 overflow-hidden">
+      <div className="w-28 h-28 md:w-36 md:h-36 rounded-full rotate-sphere bg-gradient-to-br from-[#b28d49]/90 to-[#90908e]/80 shadow-lg opacity-90 border border-white/10 overflow-hidden">
         {/* Inner sphere details */}
         <div className={`absolute inset-0 border-2 border-dashed ${
           hovered ? 'border-white/40' : 'border-white/20'
@@ -140,7 +140,7 @@ export default function InnovationCube() {
   return (
     <div className="h-full w-full min-h-[300px] flex items-center justify-center relative overflow-hidden">
       {/* Enhanced animated background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background/50 to-background/80 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/80 z-0" />
       <div className="absolute inset-0 bg-grid-pattern opacity-10 animate-grid z-0" />
       
       {/* Container for the shapes */}
@@ -149,37 +149,37 @@ export default function InnovationCube() {
         <InnovationSphere />
       </div>
       
-      {/* Enhanced floating particles with better animation and mouse interaction */}
+      {/* Enhanced floating particles with gold color theme */}
       <div 
-        className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-innovation-500/50 animate-float-slow" 
+        className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-[#b28d49]/50 animate-float-slow" 
         style={{ 
           transform: `translate(${mousePosition.x * 20}px, ${mousePosition.y * 20}px)`,
           transition: 'transform 0.5s ease-out'
         }}
       />
       <div 
-        className="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-secondary/50 animate-float-medium"
+        className="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-[#fefefe]/50 animate-float-medium"
         style={{ 
           transform: `translate(${mousePosition.x * -15}px, ${mousePosition.y * -15}px)`,
           transition: 'transform 0.8s ease-out'
         }}
       />
       <div 
-        className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-innovation-300/30 animate-float-fast"
+        className="absolute top-1/2 right-1/4 w-2 h-2 rounded-full bg-[#b28d49]/30 animate-float-fast"
         style={{ 
           transform: `translate(${mousePosition.x * 25}px, ${mousePosition.y * 25}px)`,
           transition: 'transform 0.3s ease-out'
         }}
       />
       <div 
-        className="absolute bottom-1/4 left-1/3 w-3 h-3 rounded-full bg-innovation-400/40 animate-float-slow"
+        className="absolute bottom-1/4 left-1/3 w-3 h-3 rounded-full bg-[#90908e]/40 animate-float-slow"
         style={{ 
           transform: `translate(${mousePosition.x * -10}px, ${mousePosition.y * -10}px)`,
           transition: 'transform 0.6s ease-out'
         }}
       />
       <div 
-        className="absolute top-1/3 right-1/2 w-2 h-2 rounded-full bg-innovation-200/50 animate-float-medium"
+        className="absolute top-1/3 right-1/2 w-2 h-2 rounded-full bg-[#fefefe]/50 animate-float-medium"
         style={{ 
           transform: `translate(${mousePosition.x * 12}px, ${mousePosition.y * 12}px)`,
           transition: 'transform 0.7s ease-out'
