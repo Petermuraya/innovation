@@ -1,20 +1,12 @@
 
 import { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Mesh } from 'three';
 
 const CubeMesh = ({ position = [0, 0, 0] }: { position?: [number, number, number] }) => {
   const meshRef = useRef<Mesh>(null!);
   const [hovered, setHovered] = useState(false);
-
-  // Rotate the mesh slowly on each frame
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.2;
-      meshRef.current.rotation.y += delta * 0.3;
-    }
-  });
 
   return (
     <mesh
@@ -23,6 +15,7 @@ const CubeMesh = ({ position = [0, 0, 0] }: { position?: [number, number, number
       scale={hovered ? 1.1 : 1}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
+      rotation={[Math.PI / 4, Math.PI / 4, 0]}
     >
       <boxGeometry args={[2, 2, 2]} />
       <meshStandardMaterial 
@@ -38,14 +31,6 @@ const InnovationSphere = ({ position = [0, 0, 0] }: { position?: [number, number
   const meshRef = useRef<Mesh>(null!);
   const [hovered, setHovered] = useState(false);
 
-  // Rotate the mesh slowly on each frame, opposite direction to cube
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x -= delta * 0.3;
-      meshRef.current.rotation.y -= delta * 0.2;
-    }
-  });
-
   return (
     <mesh
       ref={meshRef}
@@ -53,6 +38,7 @@ const InnovationSphere = ({ position = [0, 0, 0] }: { position?: [number, number
       scale={hovered ? 1.1 : 1}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
+      rotation={[Math.PI / 6, Math.PI / 3, 0]}
     >
       <sphereGeometry args={[1.2, 32, 32]} />
       <meshStandardMaterial 
