@@ -22,7 +22,7 @@ export const HeroHeadline = ({ isVisible, scrollToNextSection }: HeroHeadlinePro
       >
         <h1 className="font-bold mb-4 leading-tight text-[#ffffff]">
           <span className="block text-[#ffffff]">Revealing the</span>
-          <span className="text-[#b28d49]">Treasures of Innovation</span>
+          <span className="text-[#2c7a4d]">Treasures of Innovation</span>
         </h1>
       </div>
       
@@ -43,7 +43,7 @@ export const HeroHeadline = ({ isVisible, scrollToNextSection }: HeroHeadlinePro
       >
         <Button 
           size="lg" 
-          className="gap-2 px-6 relative overflow-hidden group bg-[#b28d49] hover:bg-[#b28d49]/90 text-white" 
+          className="gap-2 px-6 relative overflow-hidden group bg-[#2c7a4d] hover:bg-[#2c7a4d]/90 text-white" 
           asChild
         >
           <Link to="/register">
@@ -55,12 +55,12 @@ export const HeroHeadline = ({ isVisible, scrollToNextSection }: HeroHeadlinePro
         <Button 
           size="lg" 
           variant="outline" 
-          className="gap-2 group border-[#b28d49] text-[#b28d49] hover:bg-[#b28d49]/10 relative overflow-hidden" 
+          className="gap-2 group border-[#2c7a4d] text-[#2c7a4d] hover:bg-[#2c7a4d]/10 relative overflow-hidden" 
           asChild
         >
           <Link to="/about">
             Learn More
-            <span className="absolute inset-0 w-0 bg-[#b28d49]/10 group-hover:w-full transition-all duration-300" />
+            <span className="absolute inset-0 w-0 bg-[#2c7a4d]/10 group-hover:w-full transition-all duration-300" />
           </Link>
         </Button>
       </div>
@@ -69,7 +69,7 @@ export const HeroHeadline = ({ isVisible, scrollToNextSection }: HeroHeadlinePro
       <div className="mt-10 hidden md:flex justify-center lg:justify-start">
         <button 
           onClick={scrollToNextSection} 
-          className="flex flex-col items-center text-[#fefefe]/70 hover:text-[#b28d49] transition-colors"
+          className="flex flex-col items-center text-[#fefefe]/70 hover:text-[#2c7a4d] transition-colors"
         >
           <span className="text-sm mb-1">Explore More</span>
           <ChevronDown className="animate-bounce" size={20} />

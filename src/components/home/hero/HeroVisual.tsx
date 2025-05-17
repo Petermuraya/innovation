@@ -12,9 +12,9 @@ export const HeroVisual = ({ isVisible }: HeroVisualProps) => {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
       }`}
     >
-      <div className="relative rounded-xl overflow-hidden border border-[#b28d49]/30 shadow-2xl">
+      <div className="relative rounded-xl overflow-hidden border border-[#2c7a4d]/30 shadow-2xl">
         {/* Main visual with innovative glass panels */}
-        <div className="relative aspect-[16/9] md:aspect-[16/10] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 overflow-hidden">
+        <div className="relative aspect-[16/9] md:aspect-[16/10] bg-gradient-to-br from-[#194d30] via-[#216e44] to-[#2c7a4d] overflow-hidden">
           {/* Futuristic figure silhouette */}
           <div className="absolute inset-0 flex items-center justify-center">
             <img 
@@ -26,20 +26,20 @@ export const HeroVisual = ({ isVisible }: HeroVisualProps) => {
           
           {/* Dynamic glowing lines */}
           <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100,50 Q200,150 300,100 T500,100" stroke="#b28d49" strokeWidth="2" fill="none" className="animate-float-slow" />
+            <path d="M100,50 Q200,150 300,100 T500,100" stroke="#2c7a4d" strokeWidth="2" fill="none" className="animate-float-slow" />
             <path d="M50,200 Q150,50 250,200 T450,200" stroke="#ffffff" strokeWidth="1" strokeDasharray="5,5" fill="none" className="animate-float-medium" />
-            <path d="M200,400 Q300,200 400,400" stroke="#b28d49" strokeWidth="1.5" fill="none" className="animate-float-fast" />
+            <path d="M200,400 Q300,200 400,400" stroke="#2c7a4d" strokeWidth="1.5" fill="none" className="animate-float-fast" />
           </svg>
           
           {/* Floating glass panels */}
           <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rotate-6 animate-float-medium">
-            <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#b28d49]/30 w-36 h-24">
+            <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#2c7a4d]/30 w-36 h-24">
               <p className="text-[#fefefe] text-xs font-medium mb-1">Prototype Tests</p>
               <div className="h-10 flex items-end gap-1">
                 {[1, 4, 2, 6, 3, 5, 7].map((h, i) => (
                   <div 
                     key={i}
-                    className="w-2 bg-gradient-to-t from-[#b28d49] to-[#ffffff]" 
+                    className="w-2 bg-gradient-to-t from-[#2c7a4d] to-[#ffffff]" 
                     style={{ height: `${h * 10}%` }}
                   />
                 ))}
@@ -48,10 +48,10 @@ export const HeroVisual = ({ isVisible }: HeroVisualProps) => {
           </div>
           
           <div className="absolute bottom-1/3 right-1/4 transform translate-x-1/2 translate-y-1/2 -rotate-3 animate-float-slow">
-            <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#b28d49]/30 w-36 h-24">
+            <div className="bg-white/5 backdrop-blur-md p-4 rounded-lg border border-[#2c7a4d]/30 w-36 h-24">
               <p className="text-[#fefefe] text-xs font-medium mb-1">Innovation Metrics</p>
               <svg className="h-10 w-full" viewBox="0 0 100 20">
-                <path d="M0,10 Q10,5 20,10 T40,15 T60,5 T80,10 T100,5" stroke="#b28d49" strokeWidth="1" fill="none" />
+                <path d="M0,10 Q10,5 20,10 T40,15 T60,5 T80,10 T100,5" stroke="#2c7a4d" strokeWidth="1" fill="none" />
               </svg>
             </div>
           </div>

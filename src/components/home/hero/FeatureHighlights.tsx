@@ -8,15 +8,15 @@ interface FeatureHighlightsProps {
 export const FeatureHighlights = ({ isVisible }: FeatureHighlightsProps) => {
   const features = [
     {
-      icon: <Users size={18} className="text-[#b28d49]" />,
+      icon: <Users size={18} className="text-[#2c7a4d]" />,
       title: "Tech Community"
     },
     {
-      icon: <Code size={18} className="text-[#b28d49]" />,
+      icon: <Code size={18} className="text-[#2c7a4d]" />,
       title: "Code & Create"
     },
     {
-      icon: <Lightbulb size={18} className="text-[#b28d49]" />,
+      icon: <Lightbulb size={18} className="text-[#2c7a4d]" />,
       title: "Ideation Hub"
     }
   ];
@@ -30,10 +30,10 @@ export const FeatureHighlights = ({ isVisible }: FeatureHighlightsProps) => {
       {features.map((feature, index) => (
         <div 
           key={index} 
-          className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#b28d49]/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-[#b28d49]/40"
+          className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#2c7a4d]/20 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-105 hover:border-[#2c7a4d]/40"
         >
           <div className="flex items-center gap-3">
-            <div className="bg-[#b28d49]/20 p-2 rounded-full">
+            <div className="bg-[#2c7a4d]/20 p-2 rounded-full">
               {feature.icon}
             </div>
             <p className="font-medium text-sm text-left text-[#fefefe]">{feature.title}</p>

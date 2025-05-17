@@ -52,7 +52,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden pb-16 md:pb-24 bg-gradient-to-b from-gray-900 to-gray-800">
+    <section className="relative overflow-hidden pb-16 md:pb-24 bg-gradient-to-b from-[#194d30] to-[#2c7a4d]">
       {/* Background overlays */}
       <HeroOverlays scrollY={scrollY} />
       
