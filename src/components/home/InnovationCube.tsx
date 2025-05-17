@@ -1,18 +1,15 @@
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
 
-// Properly typed cube component
-const CubeMesh = ({ position = [0, 0, 0] as [number, number, number] }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Simple cube component
+const CubeMesh = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <mesh
-      ref={meshRef}
-      position={position}
+      position={[-2, 0, 0]}
       scale={hovered ? 1.1 : 1}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
@@ -28,15 +25,13 @@ const CubeMesh = ({ position = [0, 0, 0] as [number, number, number] }) => {
   );
 };
 
-// Properly typed sphere component
-const InnovationSphere = ({ position = [0, 0, 0] as [number, number, number] }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Simple sphere component
+const InnovationSphere = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <mesh
-      ref={meshRef}
-      position={position}
+      position={[2, 0, 0]}
       scale={hovered ? 1.1 : 1}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
@@ -61,8 +56,8 @@ export default function InnovationCube() {
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
         
-        <CubeMesh position={[-2, 0, 0]} />
-        <InnovationSphere position={[2, 0, 0]} />
+        <CubeMesh />
+        <InnovationSphere />
         
         <OrbitControls 
           enableZoom={false} 
