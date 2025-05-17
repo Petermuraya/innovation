@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
-// Simple cube component
+// Simple cube component with fixed positioning
 const CubeMesh = () => {
   const [hovered, setHovered] = useState(false);
 
@@ -25,7 +25,7 @@ const CubeMesh = () => {
   );
 };
 
-// Simple sphere component
+// Simple sphere component with fixed positioning
 const InnovationSphere = () => {
   const [hovered, setHovered] = useState(false);
 
