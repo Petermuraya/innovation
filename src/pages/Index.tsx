@@ -9,7 +9,9 @@ const Index = () => {
   return (
     <div className="flex flex-col w-full">
       <HeroSection />
-      <StatsSection />
+      <div id="stats-section">
+        <StatsSection />
+      </div>
       <FeaturedProjects />
       <UpcomingEvents />
       <CommunitiesSection />

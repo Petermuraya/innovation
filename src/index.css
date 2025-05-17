@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -213,6 +214,25 @@
   }
 }
 
+/* New animations for enhanced hero section */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px 0 rgba(98, 113, 236, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(98, 113, 236, 0.7);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .rotate-cube {
   animation: rotate-cube 15s infinite linear;
   transform-style: preserve-3d;
@@ -236,6 +256,16 @@
   animation: float-fast 3s infinite ease-in-out;
 }
 
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
 .bg-grid-pattern {
   background-size: 50px 50px;
   background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
@@ -244,4 +274,36 @@
 
 .animate-grid {
   animation: grid-move 20s infinite linear;
+}
+
+/* Parallax scroll effect */
+.parallax {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.parallax-layer {
+  transition: transform 0.1s ease-out;
+}
+
+/* Enhanced hover effects */
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(98, 113, 236, 0.5);
+}
+
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Mouse interactive elements */
+.mouse-follow {
+  transition: transform 0.2s ease-out;
 }
