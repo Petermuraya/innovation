@@ -3,8 +3,8 @@ import { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
-// Simplified cube component without type annotations that might cause issues
-const CubeMesh = ({ position = [0, 0, 0] }) => {
+// Properly typed cube component
+const CubeMesh = ({ position = [0, 0, 0] as [number, number, number] }) => {
   const meshRef = useRef(null);
   const [hovered, setHovered] = useState(false);
 
@@ -27,8 +27,8 @@ const CubeMesh = ({ position = [0, 0, 0] }) => {
   );
 };
 
-// Simplified sphere component
-const InnovationSphere = ({ position = [0, 0, 0] }) => {
+// Properly typed sphere component
+const InnovationSphere = ({ position = [0, 0, 0] as [number, number, number] }) => {
   const meshRef = useRef(null);
   const [hovered, setHovered] = useState(false);
 
