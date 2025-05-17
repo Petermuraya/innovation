@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import InnovationCube from "./InnovationCube";
 import { MoveIn } from "@/components/ui/animations";
-import { Cube } from "lucide-react";
+import { Box } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -16,7 +16,7 @@ export default function HeroSection() {
           {/* Text content */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6 animate-fade-in">
-              <Cube size={16} className="animate-pulse" />
+              <Box size={16} className="animate-pulse" />
               <span className="text-sm font-medium">Innovate • Create • Transform</span>
             </div>
             
