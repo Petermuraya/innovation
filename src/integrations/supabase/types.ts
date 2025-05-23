@@ -167,15 +167,55 @@ export type Database = {
         }
         Relationships: []
       }
+      mpesa_configurations: {
+        Row: {
+          business_short_code: string
+          callback_url: string
+          consumer_key: string
+          consumer_secret: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          passkey: string
+          updated_at: string | null
+        }
+        Insert: {
+          business_short_code: string
+          callback_url: string
+          consumer_key: string
+          consumer_secret: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          passkey: string
+          updated_at?: string | null
+        }
+        Update: {
+          business_short_code?: string
+          callback_url?: string
+          consumer_key?: string
+          consumer_secret?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          passkey?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       mpesa_payments: {
         Row: {
           amount: number
+          checkout_request_id: string | null
           created_at: string | null
           id: string
+          merchant_request_id: string | null
           mpesa_receipt_number: string | null
           payment_type: string
           phone_number: string
           reference_id: string | null
+          result_code: string | null
+          result_desc: string | null
           status: string | null
           transaction_id: string
           updated_at: string | null
@@ -183,12 +223,16 @@ export type Database = {
         }
         Insert: {
           amount: number
+          checkout_request_id?: string | null
           created_at?: string | null
           id?: string
+          merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
           payment_type: string
           phone_number: string
           reference_id?: string | null
+          result_code?: string | null
+          result_desc?: string | null
           status?: string | null
           transaction_id: string
           updated_at?: string | null
@@ -196,12 +240,16 @@ export type Database = {
         }
         Update: {
           amount?: number
+          checkout_request_id?: string | null
           created_at?: string | null
           id?: string
+          merchant_request_id?: string | null
           mpesa_receipt_number?: string | null
           payment_type?: string
           phone_number?: string
           reference_id?: string | null
+          result_code?: string | null
+          result_desc?: string | null
           status?: string | null
           transaction_id?: string
           updated_at?: string | null
@@ -235,6 +283,48 @@ export type Database = {
           message?: string
           title?: string
           type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_requests: {
+        Row: {
+          amount: number
+          checkout_request_id: string | null
+          created_at: string | null
+          id: string
+          merchant_request_id: string | null
+          payment_type: string
+          phone_number: string
+          reference_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          checkout_request_id?: string | null
+          created_at?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          payment_type: string
+          phone_number: string
+          reference_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          checkout_request_id?: string | null
+          created_at?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          payment_type?: string
+          phone_number?: string
+          reference_id?: string | null
+          status?: string | null
+          updated_at?: string | null
           user_id?: string | null
         }
         Relationships: []
