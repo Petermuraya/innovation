@@ -25,15 +25,15 @@ export default function Navbar() {
   const location = useLocation();
   
   return (
-    <nav className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
+    <nav className="bg-kic-white/80 backdrop-blur-sm border-b border-kic-lightGray sticky top-0 z-50">
       <div className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-innovation-600 text-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
+            <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
               K
             </div>
-            <span className="font-semibold text-xl hidden sm:block">
+            <span className="font-semibold text-xl hidden sm:block text-kic-gray">
               Karatina Innovation Club
             </span>
           </Link>
@@ -46,8 +46,8 @@ export default function Navbar() {
               key={item.name}
               to={item.href}
               className={cn(
-                "nav-link",
-                location.pathname === item.href ? "nav-link-active" : ""
+                "nav-link text-kic-gray hover:text-primary",
+                location.pathname === item.href ? "text-primary font-semibold" : ""
               )}
             >
               {item.name}
@@ -57,22 +57,22 @@ export default function Navbar() {
         
         {/* Auth Buttons */}
         <div className="hidden md:flex md:items-center md:space-x-2">
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
             <Link to="/login">Login</Link>
           </Button>
-          <Button asChild>
+          <Button asChild className="bg-primary hover:bg-primary/90">
             <Link to="/register">Join Us</Link>
           </Button>
         </div>
         
         {/* Mobile Navigation */}
         <div className="flex md:hidden items-center space-x-2">
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild className="border-primary text-primary">
             <Link to="/login">Login</Link>
           </Button>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="border-primary text-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                   <line x1="4" x2="20" y1="12" y2="12" />
                   <line x1="4" x2="20" y1="6" y2="6" />
@@ -80,14 +80,14 @@ export default function Navbar() {
                 </svg>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="bg-kic-white">
               <SheetHeader>
                 <SheetTitle>
                   <div className="flex items-center space-x-2">
-                    <div className="bg-innovation-600 text-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
+                    <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
                       K
                     </div>
-                    <span className="font-semibold text-xl">Innovation Club</span>
+                    <span className="font-semibold text-xl text-kic-gray">Innovation Club</span>
                   </div>
                 </SheetTitle>
               </SheetHeader>
@@ -97,15 +97,15 @@ export default function Navbar() {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "text-foreground/70 hover:text-foreground transition-colors py-2 text-lg",
-                      location.pathname === item.href ? "font-medium text-foreground" : ""
+                      "text-kic-gray hover:text-primary transition-colors py-2 text-lg",
+                      location.pathname === item.href ? "font-medium text-primary" : ""
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
-                <Button className="mt-4" asChild>
+                <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
                   <Link to="/register">Join Us</Link>
                 </Button>
               </div>

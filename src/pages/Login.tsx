@@ -38,21 +38,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-kic-lightGray py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <div className="bg-innovation-600 text-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
+            <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
               K
             </div>
           </Link>
-          <h1 className="mt-6 text-3xl font-bold text-gray-900">Sign in to your account</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="mt-6 text-3xl font-bold text-kic-gray">Sign in to your account</h1>
+          <p className="mt-2 text-kic-gray/70">
             Access your Karatina Innovation Club member dashboard
           </p>
         </div>
         
-        <Card>
+        <Card className="bg-kic-white border-kic-lightGray">
           <CardContent className="pt-6">
             {error && (
               <Alert variant="destructive" className="mb-6">
@@ -62,7 +62,7 @@ const Login = () => {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email" className="text-kic-gray">Email address</Label>
                 <Input 
                   id="email"
                   type="email" 
@@ -70,12 +70,13 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="border-kic-lightGray focus:border-primary"
                 />
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-kic-gray">Password</Label>
                   <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                     Forgot your password?
                   </Link>
@@ -87,17 +88,18 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="border-kic-lightGray focus:border-primary"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </CardContent>
           
-          <CardFooter className="flex justify-center border-t p-6">
-            <p className="text-center text-sm text-gray-600">
+          <CardFooter className="flex justify-center border-t border-kic-lightGray p-6">
+            <p className="text-center text-sm text-kic-gray">
               Don't have an account?{" "}
               <Link to="/register" className="text-primary font-medium hover:underline">
                 Sign up

@@ -63,19 +63,27 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Innovation Club Colors
-				innovation: {
-					"50": "#f0f4fe",
-					"100": "#dfe7fd",
-					"200": "#c8d5fb",
-					"300": "#a7bbf8",
-					"400": "#8096f3",
-					"500": "#6271ec",
-					"600": "#4b4ce0",
-					"700": "#403cc7",
-					"800": "#3535a1",
-					"900": "#2f327f",
-					"950": "#1c1d49",
+				// Custom color palette
+				kic: {
+					green: {
+						50: '#f0fdf4',
+						100: '#dcfce7',
+						200: '#bbf7d0',
+						300: '#86efac',
+						400: '#4ade80',
+						500: '#22c55e',
+						600: '#16a34a',
+						700: '#15803d',
+						800: '#166534',
+						900: '#14532d',
+						950: '#052e16',
+					},
+					gold: '#b28d49',
+					white: '#ffffff',
+					lightGray: '#fefefe',
+					gray: '#90908e',
+					nearWhite: '#fffeff',
+					offWhite: '#feffff',
 				},
 			},
 			borderRadius: {

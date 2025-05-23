@@ -7,7 +7,7 @@ import StatsSection from "@/components/home/StatsSection";
 
 const Index = () => {
   return (
-    <div className="flex flex-col w-full bg-gray-800">
+    <div className="flex flex-col w-full bg-kic-lightGray">
       <HeroSection />
       <div id="stats-section">
         <StatsSection />
