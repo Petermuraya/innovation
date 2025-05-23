@@ -9,32 +9,74 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      certificate_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          fields: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          template_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          fields?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          fields?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_url?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
+          certificate_type: string | null
           certificate_url: string
           created_at: string | null
           created_by: string | null
           event_id: string | null
           id: string
           issue_date: string | null
+          metadata: Json | null
+          template_used: string | null
           user_id: string | null
         }
         Insert: {
+          certificate_type?: string | null
           certificate_url: string
           created_at?: string | null
           created_by?: string | null
           event_id?: string | null
           id?: string
           issue_date?: string | null
+          metadata?: Json | null
+          template_used?: string | null
           user_id?: string | null
         }
         Update: {
+          certificate_type?: string | null
           certificate_url?: string
           created_at?: string | null
           created_by?: string | null
           event_id?: string | null
           id?: string
           issue_date?: string | null
+          metadata?: Json | null
+          template_used?: string | null
           user_id?: string | null
         }
         Relationships: [

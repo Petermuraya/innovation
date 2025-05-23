@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, GitBranch, CreditCard, FileText, Bell } from 'lucide-react';
+import CertificateManager from '@/components/certificates/CertificateManager';
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -16,7 +16,7 @@ const AdminDashboard = () => {
     totalEvents: 0,
     pendingProjects: 0,
     totalPayments: 0,
-    unreadNotifications: 0
+    totalCertificates: 0
   });
 
   const [members, setMembers] = useState<any[]>([]);
@@ -60,6 +60,11 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false });
       setPayments(paymentsData || []);
 
+      // Fetch certificates count
+      const { data: certificatesData } = await supabase
+        .from('certificates')
+        .select('id');
+
       // Calculate stats
       setStats({
         totalMembers: membersData?.length || 0,
@@ -67,7 +72,7 @@ const AdminDashboard = () => {
         totalEvents: eventsData?.length || 0,
         pendingProjects: projectsData?.filter(p => p.status === 'pending').length || 0,
         totalPayments: paymentsData?.length || 0,
-        unreadNotifications: 0 // Will implement later
+        totalCertificates: certificatesData?.length || 0
       });
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -178,10 +183,10 @@ const AdminDashboard = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
-              <Bell className="h-5 w-5 text-kic-green-500" />
+              <FileText className="h-5 w-5 text-kic-green-500" />
               <div>
-                <p className="text-sm text-kic-gray/70">Notifications</p>
-                <p className="text-xl font-bold text-kic-gray">{stats.unreadNotifications}</p>
+                <p className="text-sm text-kic-gray/70">Certificates</p>
+                <p className="text-xl font-bold text-kic-gray">{stats.totalCertificates}</p>
               </div>
             </div>
           </CardContent>
@@ -391,20 +396,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="certificates">
-          <Card>
-            <CardHeader>
-              <CardTitle>Certificate Management</CardTitle>
-              <CardDescription>Upload and manage member certificates</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Button className="bg-kic-green-500 hover:bg-kic-green-600">
-                  Upload Certificate
-                </Button>
-                <p className="text-kic-gray/70">Certificate management will be implemented soon</p>
-              </div>
-            </CardContent>
-          </Card>
+          <CertificateManager />
         </TabsContent>
       </Tabs>
     </div>
