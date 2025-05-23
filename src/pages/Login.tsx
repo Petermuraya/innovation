@@ -1,17 +1,21 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,18 +23,21 @@ const Login = () => {
     setError("");
     
     try {
-      // This is a placeholder for actual authentication logic
-      // In a real implementation, you would connect to a backend API
-      console.log("Logging in with:", { email, password });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to dashboard after successful login
-      // In a real app, you would store authentication tokens and user info
-      window.location.href = "/dashboard";
-    } catch (err) {
-      setError("Login failed. Please check your email and password.");
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "You have been logged in successfully.",
+      });
+
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please check your email and password.");
       console.error("Login error:", err);
     } finally {
       setLoading(false);
@@ -42,7 +49,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
+            <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
               K
             </div>
           </Link>
@@ -70,14 +77,14 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="border-kic-lightGray focus:border-primary"
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-kic-gray">Password</Label>
-                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                  <Link to="/forgot-password" className="text-sm text-kic-green-500 hover:underline">
                     Forgot your password?
                   </Link>
                 </div>
@@ -88,11 +95,11 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="border-kic-lightGray focus:border-primary"
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={loading}>
+              <Button type="submit" className="w-full bg-kic-green-500 hover:bg-kic-green-600" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
@@ -101,7 +108,7 @@ const Login = () => {
           <CardFooter className="flex justify-center border-t border-kic-lightGray p-6">
             <p className="text-center text-sm text-kic-gray">
               Don't have an account?{" "}
-              <Link to="/register" className="text-primary font-medium hover:underline">
+              <Link to="/register" className="text-kic-green-500 font-medium hover:underline">
                 Sign up
               </Link>
             </p>

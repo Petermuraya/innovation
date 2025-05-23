@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -26,6 +28,8 @@ const Register = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,16 +53,28 @@ const Register = () => {
     }
     
     try {
-      // This is a placeholder for actual registration logic
-      console.log("Registering with:", formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to verification page or login
-      window.location.href = "/verification";
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            phone: formData.phone,
+            course: formData.course,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Account created successfully. Please check your email for verification.",
+      });
+
+      navigate("/login");
+    } catch (err: any) {
+      setError(err.message || "Registration failed. Please try again.");
       console.error("Registration error:", err);
     } finally {
       setLoading(false);
@@ -66,21 +82,21 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-kic-lightGray py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center">
-            <div className="bg-innovation-600 text-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
+            <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
               K
             </div>
           </Link>
-          <h1 className="mt-6 text-3xl font-bold text-gray-900">Join Karatina Innovation Club</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="mt-6 text-3xl font-bold text-kic-gray">Join Karatina Innovation Club</h1>
+          <p className="mt-2 text-kic-gray/70">
             Create your account to become a member
           </p>
         </div>
         
-        <Card>
+        <Card className="bg-kic-white">
           <CardContent className="pt-6">
             {error && (
               <Alert variant="destructive" className="mb-6">
@@ -90,7 +106,7 @@ const Register = () => {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name" className="text-kic-gray">Full Name</Label>
                 <Input 
                   id="name"
                   name="name"
@@ -99,11 +115,12 @@ const Register = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email" className="text-kic-gray">Email address</Label>
                 <Input 
                   id="email"
                   name="email"
@@ -112,11 +129,12 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone" className="text-kic-gray">Phone Number</Label>
                 <Input 
                   id="phone"
                   name="phone"
@@ -125,16 +143,17 @@ const Register = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="course">Course</Label>
+                <Label htmlFor="course" className="text-kic-gray">Course</Label>
                 <Select 
                   value={formData.course} 
                   onValueChange={handleCourseChange}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-kic-lightGray focus:border-kic-green-500">
                     <SelectValue placeholder="Select your course" />
                   </SelectTrigger>
                   <SelectContent>
@@ -148,7 +167,7 @@ const Register = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-kic-gray">Password</Label>
                 <Input 
                   id="password"
                   name="password"
@@ -157,11 +176,12 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-kic-gray">Confirm Password</Label>
                 <Input 
                   id="confirmPassword"
                   name="confirmPassword"
@@ -170,19 +190,20 @@ const Register = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
+                  className="border-kic-lightGray focus:border-kic-green-500"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full bg-kic-green-500 hover:bg-kic-green-600" disabled={loading}>
                 {loading ? "Creating account..." : "Create account"}
               </Button>
             </form>
           </CardContent>
           
-          <CardFooter className="flex justify-center border-t p-6">
-            <p className="text-center text-sm text-gray-600">
+          <CardFooter className="flex justify-center border-t border-kic-lightGray p-6">
+            <p className="text-center text-sm text-kic-gray">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary font-medium hover:underline">
+              <Link to="/login" className="text-kic-green-500 font-medium hover:underline">
                 Sign in
               </Link>
             </p>

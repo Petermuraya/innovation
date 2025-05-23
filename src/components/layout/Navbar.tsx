@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigationItems = [
   { name: "Home", href: "/" },
@@ -23,6 +24,7 @@ const navigationItems = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, loading, signOut } = useAuth();
   
   return (
     <nav className="bg-kic-white/80 backdrop-blur-sm border-b border-kic-lightGray sticky top-0 z-50">
@@ -30,7 +32,7 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
+            <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
               K
             </div>
             <span className="font-semibold text-xl hidden sm:block text-kic-gray">
@@ -46,8 +48,8 @@ export default function Navbar() {
               key={item.name}
               to={item.href}
               className={cn(
-                "nav-link text-kic-gray hover:text-primary",
-                location.pathname === item.href ? "text-primary font-semibold" : ""
+                "nav-link text-kic-gray hover:text-kic-green-500",
+                location.pathname === item.href ? "text-kic-green-500 font-semibold" : ""
               )}
             >
               {item.name}
@@ -57,22 +59,47 @@ export default function Navbar() {
         
         {/* Auth Buttons */}
         <div className="hidden md:flex md:items-center md:space-x-2">
-          <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary/10">
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button asChild className="bg-primary hover:bg-primary/90">
-            <Link to="/register">Join Us</Link>
-          </Button>
+          {loading ? (
+            <div className="w-20 h-9 bg-gray-200 animate-pulse rounded"></div>
+          ) : user ? (
+            <>
+              <Button variant="outline" asChild className="border-kic-green-500 text-kic-green-500 hover:bg-kic-green-50">
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+              <Button onClick={signOut} variant="outline" className="border-kic-gray text-kic-gray hover:bg-gray-50">
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" asChild className="border-kic-green-500 text-kic-green-500 hover:bg-kic-green-50">
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild className="bg-kic-green-500 hover:bg-kic-green-600">
+                <Link to="/register">Join Us</Link>
+              </Button>
+            </>
+          )}
         </div>
         
         {/* Mobile Navigation */}
         <div className="flex md:hidden items-center space-x-2">
-          <Button variant="outline" size="sm" asChild className="border-primary text-primary">
-            <Link to="/login">Login</Link>
-          </Button>
+          {!loading && (
+            <>
+              {user ? (
+                <Button variant="outline" size="sm" asChild className="border-kic-green-500 text-kic-green-500">
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" asChild className="border-kic-green-500 text-kic-green-500">
+                  <Link to="/login">Login</Link>
+                </Button>
+              )}
+            </>
+          )}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="border-primary text-primary">
+              <Button variant="outline" size="icon" className="border-kic-green-500 text-kic-green-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                   <line x1="4" x2="20" y1="12" y2="12" />
                   <line x1="4" x2="20" y1="6" y2="6" />
@@ -84,7 +111,7 @@ export default function Navbar() {
               <SheetHeader>
                 <SheetTitle>
                   <div className="flex items-center space-x-2">
-                    <div className="bg-primary text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
+                    <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
                       K
                     </div>
                     <span className="font-semibold text-xl text-kic-gray">Innovation Club</span>
@@ -97,17 +124,32 @@ export default function Navbar() {
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "text-kic-gray hover:text-primary transition-colors py-2 text-lg",
-                      location.pathname === item.href ? "font-medium text-primary" : ""
+                      "text-kic-gray hover:text-kic-green-500 transition-colors py-2 text-lg",
+                      location.pathname === item.href ? "font-medium text-kic-green-500" : ""
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
-                <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
-                  <Link to="/register">Join Us</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className="text-kic-gray hover:text-kic-green-500 transition-colors py-2 text-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Button onClick={signOut} variant="outline" className="mt-4">
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Button className="mt-4 bg-kic-green-500 hover:bg-kic-green-600" asChild>
+                    <Link to="/register">Join Us</Link>
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>
