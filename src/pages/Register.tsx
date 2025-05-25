@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -94,6 +93,12 @@ const Register = () => {
           <p className="mt-2 text-kic-gray/70">
             Create your account to become a member
           </p>
+          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-medium">Security Notice:</span> All registrations require admin approval. 
+              You'll receive an email notification once your account is reviewed.
+            </p>
+          </div>
         </div>
         
         <Card className="bg-kic-white">

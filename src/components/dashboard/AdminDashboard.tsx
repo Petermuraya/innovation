@@ -7,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, GitBranch, CreditCard, FileText, Bell } from 'lucide-react';
 import CertificateManager from '@/components/certificates/CertificateManager';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [stats, setStats] = useState({
     totalMembers: 0,
     pendingMembers: 0,
@@ -86,9 +88,19 @@ const AdminDashboard = () => {
         .update({ registration_status: status })
         .eq('id', memberId);
       
+      toast({
+        title: "Member status updated",
+        description: `Registration ${status} successfully.`,
+      });
+      
       fetchAdminData(); // Refresh data
     } catch (error) {
       console.error('Error updating member status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update member status. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

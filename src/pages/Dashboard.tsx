@@ -1,35 +1,20 @@
 
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import UserDashboard from '@/components/dashboard/UserDashboard';
-import AdminDashboard from '@/components/dashboard/AdminDashboard';
-import { Card, CardContent } from '@/components/ui/card';
+import SecureDashboard from '@/components/dashboard/SecureDashboard';
 
 const Dashboard = () => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
-          <CardContent className="p-6">
-            <p>Loading dashboard...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return null; // SecureDashboard will handle loading state
   }
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  return (
-    <div className="min-h-screen bg-kic-lightGray">
-      {isAdmin ? <AdminDashboard /> : <UserDashboard />}
-    </div>
-  );
+  return <SecureDashboard />;
 };
 
 export default Dashboard;
