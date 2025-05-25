@@ -4,11 +4,21 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, Users, Code, Lightbulb, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TypingEffect } from "@/components/ui/typing-effect";
+import HeroImageCarousel from "./hero/HeroImageCarousel";
 
 export default function HeroSection() {
   const isMobile = useIsMobile();
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+
+  const typingWords = [
+    "Innovation",
+    "Technology",
+    "Creativity", 
+    "Future",
+    "Excellence"
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -80,7 +90,7 @@ export default function HeroSection() {
                 <span className="text-emerald-100 text-sm font-medium">Karatina University Innovation Club</span>
               </div>
 
-              {/* Headline */}
+              {/* Headline with Typing Effect */}
               <div 
                 className={`space-y-6 transition-all duration-700 delay-200 ${
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -88,8 +98,15 @@ export default function HeroSection() {
               >
                 <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight">
                   <span className="block">Revealing the</span>
-                  <span className="bg-gradient-to-r from-emerald-300 to-emerald-400 bg-clip-text text-transparent">
-                    Treasures of Innovation
+                  <span className="block">Treasures of</span>
+                  <span className="block bg-gradient-to-r from-emerald-300 to-emerald-400 bg-clip-text text-transparent">
+                    <TypingEffect 
+                      words={typingWords}
+                      className="inline-block min-h-[1.2em]"
+                      typingSpeed={150}
+                      deletingSpeed={100}
+                      pauseDuration={2000}
+                    />
                   </span>
                 </h1>
                 <p className="text-xl text-emerald-100/90 max-w-xl leading-relaxed">
@@ -145,34 +162,8 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Visual Content */}
-            <div 
-              className={`relative transition-all duration-700 delay-500 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-              }`}
-            >
-              <div className="relative">
-                {/* Main image container */}
-                <div className="relative aspect-square rounded-3xl overflow-hidden border border-emerald-400/30 shadow-2xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
-                    alt="Innovation and technology"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/60 via-transparent to-emerald-500/20" />
-                </div>
-
-                {/* Floating elements */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 bg-emerald-400/20 rounded-2xl backdrop-blur-sm border border-emerald-300/30 flex items-center justify-center animate-float-slow">
-                  <Code className="w-10 h-10 text-emerald-300" />
-                </div>
-                
-                <div className="absolute -bottom-4 -left-4 w-32 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-emerald-300/30 p-4 animate-float-medium">
-                  <div className="text-emerald-100 text-sm font-medium">Innovation Score</div>
-                  <div className="text-white text-lg font-bold">98%</div>
-                </div>
-              </div>
-            </div>
+            {/* Visual Content - Image Carousel */}
+            <HeroImageCarousel isVisible={isVisible} />
           </div>
 
           {/* Scroll Indicator */}
