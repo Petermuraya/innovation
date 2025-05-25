@@ -14,6 +14,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payments";
+import Careers from "./pages/Careers";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
               <Route path="/about" element={<About />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
