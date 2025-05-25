@@ -11,14 +11,15 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { Menu, X } from "lucide-react";
 
 const navigationItems = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Projects", href: "/projects" },
   { name: "Events", href: "/events" },
-  { name: "Blog", href: "/blog" },
-  { name: "Communities", href: "/communities" },
+  { name: "Careers", href: "/careers" },
+  { name: "Leaderboard", href: "/leaderboard" },
 ];
 
 export default function Navbar() {
@@ -27,132 +28,181 @@ export default function Navbar() {
   const { user, loading, signOut } = useAuth();
   
   return (
-    <nav className="bg-kic-white/80 backdrop-blur-sm border-b border-kic-lightGray sticky top-0 z-50">
-      <div className="container-custom flex h-16 items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
-              K
+    <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <div className="container-custom">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:shadow-emerald-200 transition-shadow duration-300">
+                <span className="text-white font-bold text-lg">K</span>
+              </div>
+              <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 -z-10"></div>
             </div>
-            <span className="font-semibold text-xl hidden sm:block text-kic-gray">
-              Karatina Innovation Club
-            </span>
+            <div className="hidden sm:block">
+              <h1 className="font-semibold text-gray-900 text-lg tracking-tight">
+                Karatina Innovation Club
+              </h1>
+              <p className="text-xs text-gray-500 font-medium">Building Tomorrow's Leaders</p>
+            </div>
           </Link>
-        </div>
-        
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:space-x-1">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "nav-link text-kic-gray hover:text-kic-green-500",
-                location.pathname === item.href ? "text-kic-green-500 font-semibold" : ""
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </div>
-        
-        {/* Auth Buttons */}
-        <div className="hidden md:flex md:items-center md:space-x-2">
-          {loading ? (
-            <div className="w-20 h-9 bg-gray-200 animate-pulse rounded"></div>
-          ) : user ? (
-            <>
-              <Button variant="outline" asChild className="border-kic-green-500 text-kic-green-500 hover:bg-kic-green-50">
-                <Link to="/dashboard">Dashboard</Link>
-              </Button>
-              <Button onClick={signOut} variant="outline" className="border-kic-gray text-kic-gray hover:bg-gray-50">
-                Sign Out
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" asChild className="border-kic-green-500 text-kic-green-500 hover:bg-kic-green-50">
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button asChild className="bg-kic-green-500 hover:bg-kic-green-600">
-                <Link to="/register">Join Us</Link>
-              </Button>
-            </>
-          )}
-        </div>
-        
-        {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center space-x-2">
-          {!loading && (
-            <>
-              {user ? (
-                <Button variant="outline" size="sm" asChild className="border-kic-green-500 text-kic-green-500">
+          
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-50",
+                  location.pathname === item.href 
+                    ? "text-emerald-600 bg-emerald-50" 
+                    : "text-gray-700 hover:text-gray-900"
+                )}
+              >
+                {item.name}
+                {location.pathname === item.href && (
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-emerald-500 rounded-full"></div>
+                )}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Auth Buttons - Desktop */}
+          <div className="hidden lg:flex items-center gap-3">
+            {loading ? (
+              <div className="flex gap-2">
+                <div className="w-20 h-9 bg-gray-100 animate-pulse rounded-lg"></div>
+                <div className="w-16 h-9 bg-gray-100 animate-pulse rounded-lg"></div>
+              </div>
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  asChild 
+                  className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50"
+                >
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
-              ) : (
-                <Button variant="outline" size="sm" asChild className="border-kic-green-500 text-kic-green-500">
+                <Button 
+                  onClick={signOut} 
+                  variant="outline" 
+                  size="sm"
+                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  asChild 
+                  className="text-gray-700 hover:text-emerald-600 hover:bg-emerald-50"
+                >
                   <Link to="/login">Login</Link>
                 </Button>
-              )}
-            </>
-          )}
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="border-kic-green-500 text-kic-green-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                  <line x1="4" x2="20" y1="12" y2="12" />
-                  <line x1="4" x2="20" y1="6" y2="6" />
-                  <line x1="4" x2="20" y1="18" y2="18" />
-                </svg>
+                <Button 
+                  asChild 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-emerald-200 transition-all duration-200"
+                >
+                  <Link to="/register">Join Club</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          {/* Mobile Controls */}
+          <div className="flex lg:hidden items-center gap-2">
+            {!loading && !user && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                asChild 
+                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+              >
+                <Link to="/login">Login</Link>
               </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="bg-kic-white">
-              <SheetHeader>
-                <SheetTitle>
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
-                      K
+            )}
+            
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-gray-700 hover:bg-gray-100"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader className="text-left">
+                  <SheetTitle className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">K</span>
                     </div>
-                    <span className="font-semibold text-xl text-kic-gray">Innovation Club</span>
-                  </div>
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-8 flex flex-col space-y-4">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      "text-kic-gray hover:text-kic-green-500 transition-colors py-2 text-lg",
-                      location.pathname === item.href ? "font-medium text-kic-green-500" : ""
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                {user ? (
-                  <>
+                    <span className="text-gray-900">Innovation Club</span>
+                  </SheetTitle>
+                </SheetHeader>
+                
+                <div className="mt-8 space-y-1">
+                  {navigationItems.map((item) => (
                     <Link
-                      to="/dashboard"
-                      className="text-kic-gray hover:text-kic-green-500 transition-colors py-2 text-lg"
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center px-3 py-3 rounded-lg text-base font-medium transition-colors",
+                        location.pathname === item.href 
+                          ? "bg-emerald-50 text-emerald-700 border-l-4 border-emerald-500" 
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Dashboard
+                      {item.name}
                     </Link>
-                    <Button onClick={signOut} variant="outline" className="mt-4">
-                      Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <Button className="mt-4 bg-kic-green-500 hover:bg-kic-green-600" asChild>
-                    <Link to="/register">Join Us</Link>
-                  </Button>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                  ))}
+                  
+                  {user && (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center px-3 py-3 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <div className="pt-4 border-t border-gray-100">
+                        <Button 
+                          onClick={() => {
+                            signOut();
+                            setIsMobileMenuOpen(false);
+                          }} 
+                          variant="outline" 
+                          className="w-full"
+                        >
+                          Sign Out
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                  
+                  {!loading && !user && (
+                    <div className="pt-4 border-t border-gray-100">
+                      <Button 
+                        className="w-full bg-emerald-600 hover:bg-emerald-700" 
+                        asChild
+                      >
+                        <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                          Join Club
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>

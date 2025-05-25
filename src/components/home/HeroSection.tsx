@@ -1,41 +1,21 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, ChevronDown, Users, Code, Lightbulb, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import HeroOverlays from "./hero/HeroOverlays";
-import HeroLogo from "./hero/HeroLogo";
-import HeroHeadline from "./hero/HeroHeadline";
-import FeatureHighlights from "./hero/FeatureHighlights";
-import HeroVisual from "./hero/HeroVisual";
-import WaveSeparator from "./hero/WaveSeparator";
 
 export default function HeroSection() {
   const isMobile = useIsMobile();
   const [scrollY, setScrollY] = useState(0);
-  const [isVisible, setIsVisible] = useState<Record<string, boolean>>({
-    title: false,
-    subtitle: false,
-    buttons: false,
-    features: false,
-    image: false
-  });
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Handle scroll effects
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-
-    // Trigger animations as soon as component mounts
-    const timer = setTimeout(() => {
-      setIsVisible({
-        title: true,
-        subtitle: true,
-        buttons: true,
-        features: true,
-        image: true
-      });
-    }, 100);
-
+    const handleScroll = () => setScrollY(window.scrollY);
+    
+    // Trigger entrance animations
+    const timer = setTimeout(() => setIsVisible(true), 200);
+    
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -43,7 +23,6 @@ export default function HeroSection() {
     };
   }, []);
 
-  // Scroll to next section
   const scrollToNextSection = () => {
     const nextSection = document.getElementById("stats-section");
     if (nextSection) {
@@ -51,39 +30,178 @@ export default function HeroSection() {
     }
   };
 
+  const features = [
+    { icon: Users, title: "Tech Community", description: "Connect with innovators" },
+    { icon: Code, title: "Code & Create", description: "Build amazing projects" },
+    { icon: Lightbulb, title: "Innovation Hub", description: "Turn ideas into reality" }
+  ];
+
   return (
-    <section className="relative overflow-hidden pb-16 md:pb-24 bg-gradient-to-b from-[#194d30] to-[#2c7a4d]">
-      {/* Background overlays */}
-      <HeroOverlays scrollY={scrollY} />
-      
-      {/* Hero content */}
-      <div className="relative container-custom pt-8 md:pt-16 lg:pt-24 z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Text content - spans 5 columns on large screens */}
-          <div className="lg:col-span-5 text-center lg:text-left z-10">
-            {/* Club logo or identifier */}
-            <HeroLogo isVisible={isVisible.title} />
-            
-            {/* Headline, subtitle, and buttons */}
-            <HeroHeadline 
-              isVisible={{
-                title: isVisible.title,
-                subtitle: isVisible.subtitle,
-                buttons: isVisible.buttons
-              }}
-              scrollToNextSection={scrollToNextSection}
-            />
-
-            {/* Community highlights */}
-            <FeatureHighlights isVisible={isVisible.features} />
-          </div>
-          
-          {/* Visual content */}
-          <HeroVisual isVisible={isVisible.image} />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900">
+      {/* Background Elements */}
+      <div className="absolute inset-0">
+        {/* Animated grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px',
+            transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.05}px)`
+          }}
+        />
+        
+        {/* Floating shapes */}
+        <div className="absolute inset-0">
+          <div 
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-pulse"
+            style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+          />
+          <div 
+            className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-emerald-300/10 rounded-full blur-3xl animate-pulse delay-1000"
+            style={{ transform: `translateY(${scrollY * -0.1}px)` }}
+          />
         </div>
+      </div>
 
-        {/* Wave separator */}
-        <WaveSeparator scrollY={scrollY} />
+      {/* Main Content */}
+      <div className="relative z-10 container-custom px-6 py-20">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Text Content */}
+            <div className="space-y-8">
+              {/* Badge */}
+              <div 
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-400/30 backdrop-blur-sm transition-all duration-700 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                }`}
+              >
+                <Star className="w-4 h-4 text-emerald-300 fill-emerald-300" />
+                <span className="text-emerald-100 text-sm font-medium">Karatina University Innovation Club</span>
+              </div>
+
+              {/* Headline */}
+              <div 
+                className={`space-y-6 transition-all duration-700 delay-200 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+              >
+                <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight">
+                  <span className="block">Revealing the</span>
+                  <span className="bg-gradient-to-r from-emerald-300 to-emerald-400 bg-clip-text text-transparent">
+                    Treasures of Innovation
+                  </span>
+                </h1>
+                <p className="text-xl text-emerald-100/90 max-w-xl leading-relaxed">
+                  Dream, Create and Inspire for a Better Future. Join our community of innovators shaping tomorrow's technology.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div 
+                className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 delay-400 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+              >
+                <Button 
+                  size="lg" 
+                  asChild
+                  className="group bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300"
+                >
+                  <Link to="/register">
+                    Join Our Community
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  asChild
+                  className="group border-2 border-emerald-400/50 text-emerald-300 hover:bg-emerald-500/10 hover:border-emerald-300 px-8 py-6 text-lg font-semibold rounded-xl backdrop-blur-sm transition-all duration-300"
+                >
+                  <Link to="/about">
+                    Learn More
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Feature Cards */}
+              <div 
+                className={`grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 transition-all duration-700 delay-600 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+              >
+                {features.map((feature, index) => (
+                  <div 
+                    key={index}
+                    className="group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-emerald-400/20 hover:bg-white/10 hover:border-emerald-300/40 transition-all duration-300"
+                  >
+                    <feature.icon className="w-6 h-6 text-emerald-300 mb-3 group-hover:scale-110 transition-transform" />
+                    <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
+                    <p className="text-sm text-emerald-100/70">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Visual Content */}
+            <div 
+              className={`relative transition-all duration-700 delay-500 ${
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+              }`}
+            >
+              <div className="relative">
+                {/* Main image container */}
+                <div className="relative aspect-square rounded-3xl overflow-hidden border border-emerald-400/30 shadow-2xl">
+                  <img 
+                    src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+                    alt="Innovation and technology"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/60 via-transparent to-emerald-500/20" />
+                </div>
+
+                {/* Floating elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-emerald-400/20 rounded-2xl backdrop-blur-sm border border-emerald-300/30 flex items-center justify-center animate-float-slow">
+                  <Code className="w-10 h-10 text-emerald-300" />
+                </div>
+                
+                <div className="absolute -bottom-4 -left-4 w-32 h-20 bg-white/10 rounded-2xl backdrop-blur-sm border border-emerald-300/30 p-4 animate-float-medium">
+                  <div className="text-emerald-100 text-sm font-medium">Innovation Score</div>
+                  <div className="text-white text-lg font-bold">98%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="flex justify-center mt-16">
+            <button 
+              onClick={scrollToNextSection}
+              className="group flex flex-col items-center text-emerald-200 hover:text-emerald-100 transition-colors"
+              aria-label="Scroll to next section"
+            >
+              <span className="text-sm font-medium mb-2">Explore More</span>
+              <ChevronDown className="w-6 h-6 animate-bounce group-hover:translate-y-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom wave separator */}
+      <div className="absolute bottom-0 left-0 w-full">
+        <svg 
+          className="w-full h-20 text-kic-lightGray" 
+          preserveAspectRatio="none" 
+          viewBox="0 0 1440 54"
+          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+        >
+          <path 
+            fill="currentColor" 
+            d="M0,22 C240,0 480,0 720,22 C960,44 1200,44 1440,22 L1440,54 L0,54 Z"
+          />
+        </svg>
       </div>
     </section>
   );
