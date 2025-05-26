@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Projects from "./pages/Projects";
 import Events from "./pages/Events";
+import Blogs from "./pages/Blogs";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/events" element={<Events />} />
+                <Route path="/blogs" element={<Blogs />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
               </Route>

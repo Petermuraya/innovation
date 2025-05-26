@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ const navigationItems = [
   { name: "About", href: "/about" },
   { name: "Projects", href: "/projects" },
   { name: "Events", href: "/events" },
+  { name: "Blog", href: "/blogs" },
   { name: "Careers", href: "/careers" },
   { name: "Leaderboard", href: "/leaderboard" },
 ];
