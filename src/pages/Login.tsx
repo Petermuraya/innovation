@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Shield } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -105,13 +106,23 @@ const Login = () => {
             </form>
           </CardContent>
           
-          <CardFooter className="flex justify-center border-t border-kic-lightGray p-6">
+          <CardFooter className="flex flex-col space-y-4 border-t border-kic-lightGray p-6">
             <p className="text-center text-sm text-kic-gray">
               Don't have an account?{" "}
               <Link to="/register" className="text-kic-green-500 font-medium hover:underline">
                 Sign up
               </Link>
             </p>
+            
+            <div className="border-t border-kic-lightGray pt-4 w-full">
+              <Link 
+                to="/admin-register" 
+                className="flex items-center justify-center gap-2 text-sm text-red-600 hover:text-red-700 font-medium"
+              >
+                <Shield className="w-4 h-4" />
+                Request Admin Access
+              </Link>
+            </div>
           </CardFooter>
         </Card>
       </div>

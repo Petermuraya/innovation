@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,8 @@ import Payments from "./pages/Payments";
 import Careers from "./pages/Careers";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
+import AdminRegister from "./pages/AdminRegister";
+import AdminRequestPending from "./pages/AdminRequestPending";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,8 @@ const App = () => (
               </Route>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/admin-register" element={<AdminRegister />} />
+              <Route path="/admin-request-pending" element={<AdminRequestPending />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="*" element={<NotFound />} />

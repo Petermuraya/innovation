@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +9,7 @@ import MembersManagement from './admin/MembersManagement';
 import EventsManagement from './admin/EventsManagement';
 import ProjectsManagement from './admin/ProjectsManagement';
 import PaymentsManagement from './admin/PaymentsManagement';
+import AdminRequestsManagement from '@/components/admin/AdminRequestsManagement';
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -19,7 +19,8 @@ const AdminDashboard = () => {
     totalEvents: 0,
     pendingProjects: 0,
     totalPayments: 0,
-    totalCertificates: 0
+    totalCertificates: 0,
+    pendingAdminRequests: 0
   });
 
   const [members, setMembers] = useState<any[]>([]);
@@ -66,6 +67,12 @@ const AdminDashboard = () => {
         .from('certificates')
         .select('id');
 
+      // Fetch admin requests count
+      const { data: adminRequestsData } = await supabase
+        .from('admin_requests')
+        .select('id, status')
+        .eq('status', 'pending');
+
       // Calculate stats
       setStats({
         totalMembers: membersData?.length || 0,
@@ -73,7 +80,8 @@ const AdminDashboard = () => {
         totalEvents: eventsData?.length || 0,
         pendingProjects: projectsData?.filter(p => p.status === 'pending').length || 0,
         totalPayments: paymentsData?.length || 0,
-        totalCertificates: certificatesData?.length || 0
+        totalCertificates: certificatesData?.length || 0,
+        pendingAdminRequests: adminRequestsData?.length || 0
       });
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -122,12 +130,20 @@ const AdminDashboard = () => {
       <AdminDashboardStats stats={stats} />
 
       <Tabs defaultValue="members" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="admin-requests">
+            Admin Requests
+            {stats.pendingAdminRequests > 0 && (
+              <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1">
+                {stats.pendingAdminRequests}
+              </span>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="members">
@@ -154,6 +170,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="certificates">
           <CertificateManager />
+        </TabsContent>
+
+        <TabsContent value="admin-requests">
+          <AdminRequestsManagement />
         </TabsContent>
       </Tabs>
     </div>
