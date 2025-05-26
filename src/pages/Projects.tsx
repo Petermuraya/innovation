@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import ProjectInteractions from "@/components/projects/ProjectInteractions";
+import SEOHead from "@/components/seo/SEOHead";
 
 // Sample projects data
 const projectsData = [
@@ -98,6 +99,13 @@ const Projects = () => {
 
   return (
     <div>
+      <SEOHead
+        title="Projects Gallery"
+        description="Discover innovative projects created by Karatina Innovation Club members. Explore IoT systems, mobile apps, AI solutions, and web applications built by our tech community."
+        canonical="/projects"
+        keywords="student projects, innovation, IoT, mobile apps, AI, web development, open source, tech showcase, Karatina University"
+      />
+
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container-custom">

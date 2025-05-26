@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SEOHead from "@/components/seo/SEOHead";
+import StructuredData from "@/components/seo/StructuredData";
 
 // Sample events data
 const eventsData = [
@@ -87,6 +88,15 @@ const Events = () => {
 
   return (
     <div>
+      <SEOHead
+        title="Events"
+        description="Join our workshops, hackathons, and tech talks to learn and network. Discover upcoming events and past activities from Karatina Innovation Club."
+        canonical="/events"
+        keywords="tech events, workshops, hackathons, career fair, innovation, Karatina University, technology training"
+      />
+      
+      <StructuredData type="events" events={upcomingEvents} />
+
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container-custom">
