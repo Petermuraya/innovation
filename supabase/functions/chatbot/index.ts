@@ -71,9 +71,11 @@ Be helpful, friendly, and concise. If users ask about specific features, guide t
     // Call Groq API
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
     if (!groqApiKey) {
+      console.error('GROQ_API_KEY not found in environment variables');
       throw new Error('GROQ_API_KEY not found');
     }
 
+    console.log('Making request to Groq API...');
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -81,7 +83,7 @@ Be helpful, friendly, and concise. If users ask about specific features, guide t
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mixtral-8x7b-32768',
+        model: 'llama3-8b-8192',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -91,39 +93,65 @@ Be helpful, friendly, and concise. If users ask about specific features, guide t
       }),
     });
 
+    console.log('Groq API response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Groq API error response:', errorText);
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Groq API response received successfully');
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid response structure from Groq API:', data);
+      throw new Error('Invalid response from AI service');
+    }
+
     const botResponse = data.choices[0].message.content;
 
     // Store conversation in database
-    await supabase.from('chatbot_conversations').insert({
-      session_id: sessionId,
-      user_id: userId,
-      message: message,
-      response: botResponse,
-      is_user_message: true
-    });
+    try {
+      await supabase.from('chatbot_conversations').insert({
+        session_id: sessionId,
+        user_id: userId,
+        message: message,
+        response: botResponse,
+        is_user_message: true
+      });
 
-    await supabase.from('chatbot_conversations').insert({
-      session_id: sessionId,
-      user_id: userId,
-      message: botResponse,
-      response: '',
-      is_user_message: false
-    });
+      await supabase.from('chatbot_conversations').insert({
+        session_id: sessionId,
+        user_id: userId,
+        message: botResponse,
+        response: '',
+        is_user_message: false
+      });
 
-    console.log('Chatbot response generated successfully');
+      console.log('Conversation stored successfully');
+    } catch (dbError) {
+      console.error('Error storing conversation:', dbError);
+      // Don't fail the request if database storage fails
+    }
 
     return new Response(JSON.stringify({ response: botResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in chatbot function:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Sorry, I encountered an error. Please try again later.';
+    
+    if (error.message.includes('GROQ_API_KEY')) {
+      errorMessage = 'AI service is not properly configured. Please contact support.';
+    } else if (error.message.includes('Groq API error')) {
+      errorMessage = 'AI service is temporarily unavailable. Please try again in a moment.';
+    }
+
     return new Response(JSON.stringify({ 
-      error: 'Sorry, I encountered an error. Please try again later.',
+      error: errorMessage,
       details: error.message 
     }), {
       status: 500,
