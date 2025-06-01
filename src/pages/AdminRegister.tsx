@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -89,7 +88,7 @@ const AdminRegister = () => {
       // Create admin request record
       if (data.user) {
         const { error: requestError } = await supabase
-          .from('admin_requests')
+          .from('admin_requests' as any)
           .insert({
             user_id: data.user.id,
             email: formData.email,

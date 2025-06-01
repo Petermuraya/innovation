@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -69,7 +70,7 @@ const AdminDashboard = () => {
 
       // Fetch admin requests count
       const { data: adminRequestsData } = await supabase
-        .from('admin_requests')
+        .from('admin_requests' as any)
         .select('id, status')
         .eq('status', 'pending');
 

@@ -33,7 +33,7 @@ const AdminRequestsManagement = () => {
   const fetchAdminRequests = async () => {
     try {
       const { data, error } = await supabase
-        .from('admin_requests')
+        .from('admin_requests' as any)
         .select('*')
         .order('created_at', { ascending: false });
       
@@ -58,7 +58,7 @@ const AdminRequestsManagement = () => {
 
       // Update request status
       const { error: updateError } = await supabase
-        .from('admin_requests')
+        .from('admin_requests' as any)
         .update({
           status: action === 'approve' ? 'approved' : 'rejected',
           reviewed_at: new Date().toISOString(),

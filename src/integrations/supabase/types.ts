@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_requests: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          justification: string
+          name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          justification: string
+          name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          justification?: string
+          name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       career_opportunities: {
         Row: {
           application_email: string | null
@@ -145,6 +184,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chatbot_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          is_user_message: boolean
+          message: string
+          response: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_user_message?: boolean
+          message: string
+          response: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_user_message?: boolean
+          message?: string
+          response?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       event_registrations: {
         Row: {
