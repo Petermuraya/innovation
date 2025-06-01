@@ -1,3 +1,4 @@
+
 import { Helmet } from 'react-helmet-async';
 
 interface SEOHeadProps {
@@ -32,7 +33,7 @@ const SEOHead = ({
   alternateUrls = []
 }: SEOHeadProps) => {
   const fullTitle = `${title} | Karatina Innovation Club`;
-  const baseUrl = process.env.REACT_APP_BASE_URL || "https://karatinatech.com";
+  const baseUrl = import.meta.env.VITE_BASE_URL || "https://karatinatech.com";
   const fullCanonical = canonical ? `${baseUrl}${canonical}` : baseUrl;
   const fullOgImage = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
 

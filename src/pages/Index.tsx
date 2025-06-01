@@ -14,7 +14,7 @@ const Index = () => {
         title="Home"
         description="Karatina University Innovation Club - Building technology leaders of tomorrow through innovation, collaboration, and cutting-edge projects. Join our community of tech enthusiasts."
         canonical="/"
-        keywords="Karatina University, innovation club, technology, programming, web development, AI, hackathons, tech community"
+        keywords={["Karatina University", "innovation club", "technology", "programming", "web development", "AI", "hackathons", "tech community"]}
       />
       
       <StructuredData type="organization" />
