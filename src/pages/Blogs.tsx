@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -111,11 +110,10 @@ const Blogs = () => {
   return (
     <div>
       <SEOHead
-        title="Tech Blog"
-        description="Stay updated with the latest trends in technology, programming tutorials, and insights from industry experts. Learn web development, AI, cybersecurity, and more."
+        title="Blog & News"
+        description="Stay updated with the latest tech trends, innovation stories, and insights from the Karatina University Innovation Club community."
         canonical="/blogs"
-        keywords="tech blog, programming tutorials, web development, AI, machine learning, cybersecurity, mobile development, cloud computing"
-        type="website"
+        keywords={["tech blog", "innovation news", "technology trends", "student articles", "programming tutorials"]}
       />
       
       <StructuredData type="webpage" />

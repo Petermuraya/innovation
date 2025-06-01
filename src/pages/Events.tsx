@@ -89,10 +89,10 @@ const Events = () => {
   return (
     <div>
       <SEOHead
-        title="Events"
-        description="Join our workshops, hackathons, and tech talks to learn and network. Discover upcoming events and past activities from Karatina Innovation Club."
+        title="Events & Workshops"
+        description="Join our upcoming tech events, workshops, hackathons, and networking sessions. Learn, build, and connect with fellow innovators at Karatina University."
         canonical="/events"
-        keywords="tech events, workshops, hackathons, career fair, innovation, Karatina University, technology training"
+        keywords={["tech events", "workshops", "hackathons", "networking", "programming bootcamp", "innovation meetups"]}
       />
       
       <StructuredData type="events" events={upcomingEvents} />

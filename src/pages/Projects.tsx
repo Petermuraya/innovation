@@ -100,10 +100,10 @@ const Projects = () => {
   return (
     <div>
       <SEOHead
-        title="Projects Gallery"
-        description="Discover innovative projects created by Karatina Innovation Club members. Explore IoT systems, mobile apps, AI solutions, and web applications built by our tech community."
+        title="Student Projects"
+        description="Explore innovative projects built by Karatina University Innovation Club members. From web apps to AI solutions, discover what our community is building."
         canonical="/projects"
-        keywords="student projects, innovation, IoT, mobile apps, AI, web development, open source, tech showcase, Karatina University"
+        keywords={["student projects", "innovation showcase", "web development", "mobile apps", "AI projects", "tech portfolio"]}
       />
 
       {/* Hero Section */}
