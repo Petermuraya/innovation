@@ -7,19 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Check, X, Clock, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Database } from '@/integrations/supabase/types';
 
-interface AdminRequest {
-  id: string;
-  user_id: string;
-  email: string;
-  name: string;
-  justification: string;
-  admin_code?: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  reviewed_by?: string;
-  reviewed_at?: string;
-}
+type AdminRequest = Database['public']['Tables']['admin_requests']['Row'];
 
 const AdminRequestsManagement = () => {
   const [requests, setRequests] = useState<AdminRequest[]>([]);
@@ -33,7 +23,7 @@ const AdminRequestsManagement = () => {
   const fetchAdminRequests = async () => {
     try {
       const { data, error } = await supabase
-        .from('admin_requests' as any)
+        .from('admin_requests')
         .select('*')
         .order('created_at', { ascending: false });
       
@@ -58,7 +48,7 @@ const AdminRequestsManagement = () => {
 
       // Update request status
       const { error: updateError } = await supabase
-        .from('admin_requests' as any)
+        .from('admin_requests')
         .update({
           status: action === 'approve' ? 'approved' : 'rejected',
           reviewed_at: new Date().toISOString(),
@@ -69,7 +59,7 @@ const AdminRequestsManagement = () => {
       if (updateError) throw updateError;
 
       // If approving, add admin role
-      if (action === 'approve') {
+      if (action === 'approve' && request.user_id) {
         const { error: roleError } = await supabase
           .from('user_roles')
           .insert({
@@ -163,15 +153,6 @@ const AdminRequestsManagement = () => {
                   </div>
                   {getStatusBadge(request.status)}
                 </div>
-
-                {request.admin_code && (
-                  <Alert className="mb-4">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      Admin code provided: <code className="bg-gray-100 px-1 rounded">{request.admin_code}</code>
-                    </AlertDescription>
-                  </Alert>
-                )}
 
                 <div className="mb-4">
                   <h4 className="font-medium mb-2">Justification:</h4>

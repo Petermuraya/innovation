@@ -1,14 +1,14 @@
+
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, Loader2, CreditCard } from 'lucide-react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  Badge,
-  Skeleton
-} from '@/components/ui';
+import { CheckCircle2, Clock, AlertCircle, Loader2, CreditCard, Calendar } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
+import { CardHeader } from '@/components/ui/card';
+import { CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';

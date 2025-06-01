@@ -1,14 +1,13 @@
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Zap, Users, Award, Calendar, LayoutGrid } from 'lucide-react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  Button,
-  Badge
-} from '@/components/ui';
+import { Card } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
+import { CardHeader } from '@/components/ui/card';
+import { CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import PaymentForm from './PaymentForm';
 
 const MembershipPayment = () => {
@@ -36,7 +35,6 @@ const MembershipPayment = () => {
         amount={membershipFee}
         paymentType="membership"
         onSuccess={handlePaymentSuccess}
-        onCancel={() => setShowPaymentForm(false)}
       />
     );
   }

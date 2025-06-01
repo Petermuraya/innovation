@@ -1,17 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageSquare, Award, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  Badge,
-  Button,
-  Skeleton
-} from '@/components/ui';
+import { Card } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
+import { CardHeader } from '@/components/ui/card';
+import { CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ProjectLeaderboard = () => {
   const [projects, setProjects] = useState<any[]>([]);
