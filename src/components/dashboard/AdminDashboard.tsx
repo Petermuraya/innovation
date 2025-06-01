@@ -11,6 +11,8 @@ import EventsManagement from './admin/EventsManagement';
 import ProjectsManagement from './admin/ProjectsManagement';
 import PaymentsManagement from './admin/PaymentsManagement';
 import AdminRequestsManagement from '@/components/admin/AdminRequestsManagement';
+import MPesaConfigManager from '@/components/admin/MPesaConfigManager';
+import UserManagement from '@/components/admin/UserManagement';
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -131,12 +133,14 @@ const AdminDashboard = () => {
       <AdminDashboardStats stats={stats} />
 
       <Tabs defaultValue="members" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="admin-requests">
             Admin Requests
             {stats.pendingAdminRequests > 0 && (
@@ -171,6 +175,14 @@ const AdminDashboard = () => {
 
         <TabsContent value="certificates">
           <CertificateManager />
+        </TabsContent>
+
+        <TabsContent value="mpesa">
+          <MPesaConfigManager />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserManagement />
         </TabsContent>
 
         <TabsContent value="admin-requests">
