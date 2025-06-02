@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,10 +14,25 @@ import DashboardPayments from './user/DashboardPayments';
 import DashboardCertificates from './user/DashboardCertificates';
 import DashboardBadges from './user/DashboardBadges';
 
+// Define types for better type safety
+interface MemberData {
+  id: string;
+  user_id: string;
+  // Add other member fields as needed
+  [key: string]: any;
+}
+
+interface UserStats {
+  totalProjects: number;
+  eventsAttended: number;
+  certificatesEarned: number;
+  totalPoints: number;
+}
+
 const UserDashboard = () => {
   const { user } = useAuth();
-  const [memberData, setMemberData] = useState<any>(null);
-  const [stats, setStats] = useState({
+  const [memberData, setMemberData] = useState<MemberData | null>(null);
+  const [stats, setStats] = useState<UserStats>({
     totalProjects: 0,
     eventsAttended: 0,
     certificatesEarned: 0,
@@ -81,7 +95,7 @@ const UserDashboard = () => {
         .select('points')
         .eq('user_id', user.id);
 
-      const totalPoints = pointsData?.reduce((sum, point) => sum + point.points, 0) || 0;
+      const totalPoints = pointsData?.reduce((sum, point) => sum + (point.points || 0), 0) || 0;
 
       setStats({
         totalProjects: projectCount || 0,
@@ -96,7 +110,7 @@ const UserDashboard = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <DashboardHeader memberData={memberData} />
+      {memberData && <DashboardHeader user={memberData} memberData={memberData} />}
       <DashboardStats stats={stats} />
 
       <Tabs defaultValue="overview" className="space-y-4">
@@ -116,11 +130,16 @@ const UserDashboard = () => {
         </TabsContent>
 
         <TabsContent value="profile">
-          <DashboardProfile memberData={memberData} onUpdate={fetchMemberData} />
+          {memberData && (
+            <DashboardProfile memberData={memberData} onUpdate={fetchMemberData} />
+          )}
         </TabsContent>
 
         <TabsContent value="projects">
-          <EnhancedDashboardProjects />
+          <EnhancedDashboardProjects 
+            projects={[]} 
+            onSuccess={() => fetchUserStats()} 
+          />
         </TabsContent>
 
         <TabsContent value="events">
@@ -136,12 +155,12 @@ const UserDashboard = () => {
         </TabsContent>
 
         <TabsContent value="payments">
-          <DashboardPayments />
+          <DashboardPayments payments={[]} />
         </TabsContent>
 
         <TabsContent value="certificates">
           <div className="grid gap-6">
-            <DashboardCertificates />
+            <DashboardCertificates certificates={[]} />
             <DashboardBadges />
           </div>
         </TabsContent>
