@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +18,12 @@ interface CommunityAdmin {
   role: string;
   assigned_at: string;
   is_active: boolean;
-  user_name?: string;
-  community_name?: string;
+  members?: {
+    name: string;
+  };
+  community_groups?: {
+    name: string;
+  };
 }
 
 interface Community {
@@ -56,26 +59,21 @@ const CommunityAdminManagement = () => {
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       // Fetch community admins with user and community names
       const { data: adminsData, error: adminsError } = await supabase
         .from('community_admin_roles')
         .select(`
           *,
-          members!inner(name),
-          community_groups!inner(name)
+          members:members(name),
+          community_groups:community_groups(name)
         `)
         .eq('is_active', true)
         .order('assigned_at', { ascending: false });
 
       if (adminsError) throw adminsError;
 
-      const enrichedAdmins = (adminsData || []).map(admin => ({
-        ...admin,
-        user_name: admin.members?.name || 'Unknown',
-        community_name: admin.community_groups?.name || 'Unknown'
-      }));
-
-      setCommunityAdmins(enrichedAdmins);
+      setCommunityAdmins(adminsData || []);
 
       // Fetch communities
       const { data: communitiesData, error: communitiesError } = await supabase
@@ -122,7 +120,7 @@ const CommunityAdminManagement = () => {
     setSubmitting(true);
     try {
       // Check if user is already an admin for this community
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from('community_admin_roles')
         .select('id')
         .eq('user_id', selectedMember)
@@ -130,6 +128,7 @@ const CommunityAdminManagement = () => {
         .eq('is_active', true)
         .single();
 
+      if (existingError && existingError.code !== 'PGRST116') throw existingError;
       if (existing) {
         toast({
           title: "Already assigned",
@@ -146,6 +145,7 @@ const CommunityAdminManagement = () => {
           community_id: selectedCommunity,
           role: adminRole,
           assigned_by: user?.id,
+          is_active: true,
         });
 
       if (error) throw error;
@@ -294,14 +294,14 @@ const CommunityAdminManagement = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4 text-blue-500" />
-                    <h4 className="font-medium text-kic-gray">{admin.user_name}</h4>
+                    <h4 className="font-medium text-kic-gray">{admin.members?.name || 'Unknown'}</h4>
                     <Badge variant="secondary">{admin.role}</Badge>
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm text-kic-gray/70">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {admin.community_name}
+                      {admin.community_groups?.name || 'Unknown'}
                     </div>
                     <div>
                       Assigned: {new Date(admin.assigned_at).toLocaleDateString()}
