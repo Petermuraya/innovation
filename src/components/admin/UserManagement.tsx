@@ -39,20 +39,32 @@ const UserManagement = () => {
           user_id,
           email,
           name,
-          registration_status,
-          user_roles(role)
+          registration_status
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedUsers = members?.map(member => ({
-        id: member.user_id || '',
-        email: member.email,
-        name: member.name,
-        roles: member.user_roles?.map((ur: any) => ur.role) || [],
-        registration_status: member.registration_status,
-      })) || [];
+      // For each member, fetch their roles separately to avoid relation issues
+      const formattedUsers = await Promise.all(
+        (members || []).map(async (member) => {
+          const { data: userRoles, error: rolesError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', member.user_id);
+
+          // Handle the case where user_roles query might fail
+          const roles = rolesError ? [] : (userRoles?.map(ur => ur.role) || []);
+
+          return {
+            id: member.user_id || '',
+            email: member.email,
+            name: member.name,
+            roles,
+            registration_status: member.registration_status,
+          };
+        })
+      );
 
       setUsers(formattedUsers);
     } catch (error) {

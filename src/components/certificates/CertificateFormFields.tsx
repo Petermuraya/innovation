@@ -36,12 +36,12 @@ const CertificateFormFields = ({ formData, members, events, onFormDataChange }: 
 
         <div>
           <Label htmlFor="event">Event (Optional)</Label>
-          <Select value={formData.event_id} onValueChange={(value) => onFormDataChange({...formData, event_id: value})}>
+          <Select value={formData.event_id} onValueChange={(value) => onFormDataChange({...formData, event_id: value === 'no-event' ? '' : value})}>
             <SelectTrigger>
               <SelectValue placeholder="Choose an event" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No specific event</SelectItem>
+              <SelectItem value="no-event">No specific event</SelectItem>
               {events.map((event) => (
                 <SelectItem key={event.id} value={event.id}>
                   {event.title} ({new Date(event.date).toLocaleDateString()})
