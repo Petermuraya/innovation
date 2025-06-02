@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Heart, MessageCircle, Eye, Calendar, User, Plus, Search, Filter } from 'lucide-react';
+import { Heart, MessageCircle, Eye, Calendar, User, Plus, Search, Filter, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,7 @@ interface Blog {
   created_at: string;
   view_count: number | null;
   user_id: string;
+  admin_verified: boolean;
   author_name?: string;
   likes_count?: number;
   comments_count?: number;
@@ -54,13 +55,12 @@ const BlogFeed = () => {
 
   const fetchBlogs = async () => {
     try {
-      // Get blogs with basic info first
+      // Get blogs with basic info first - only show published and verified blogs
       const { data: blogsData, error } = await supabase
         .from('blogs')
-        .select(`
-          *
-        `)
+        .select(`*`)
         .eq('status', 'published')
+        .eq('admin_verified', true)
         .order('published_at', { ascending: false });
 
       if (error) throw error;
@@ -127,7 +127,8 @@ const BlogFeed = () => {
       const { data, error } = await supabase
         .from('blogs')
         .select('tags')
-        .eq('status', 'published');
+        .eq('status', 'published')
+        .eq('admin_verified', true);
 
       if (error) throw error;
 
@@ -175,15 +176,15 @@ const BlogFeed = () => {
           excerpt: excerpt.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
           user_id: user.id,
-          status: 'published',
-          published_at: new Date().toISOString(),
+          status: 'pending', // Requires admin verification
+          admin_verified: false,
         });
 
       if (error) throw error;
 
       toast({
-        title: "Blog created",
-        description: "Your blog post has been published successfully",
+        title: "Blog submitted",
+        description: "Your blog post has been submitted for admin review",
       });
 
       // Reset form
@@ -285,6 +286,9 @@ const BlogFeed = () => {
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Create Blog Post</DialogTitle>
+                <p className="text-sm text-gray-600">
+                  All blog posts require admin verification before being published.
+                </p>
               </DialogHeader>
               <div className="space-y-4">
                 <Input
@@ -315,7 +319,7 @@ const BlogFeed = () => {
                     disabled={submitting}
                     className="flex-1"
                   >
-                    {submitting ? 'Publishing...' : 'Publish'}
+                    {submitting ? 'Submitting...' : 'Submit for Review'}
                   </Button>
                   <Button
                     variant="outline"
@@ -362,7 +366,12 @@ const BlogFeed = () => {
         {filteredBlogs.map((blog) => (
           <Card key={blog.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-xl">{blog.title}</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                {blog.title}
+                {blog.admin_verified && (
+                  <CheckCircle className="h-5 w-5 text-green-500" title="Admin Verified" />
+                )}
+              </CardTitle>
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />

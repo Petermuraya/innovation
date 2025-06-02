@@ -114,6 +114,7 @@ export type Database = {
       }
       blogs: {
         Row: {
+          admin_verified: boolean | null
           content: string
           created_at: string
           excerpt: string | null
@@ -126,9 +127,12 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          verified_at: string | null
+          verified_by: string | null
           view_count: number | null
         }
         Insert: {
+          admin_verified?: boolean | null
           content: string
           created_at?: string
           excerpt?: string | null
@@ -141,9 +145,12 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
           view_count?: number | null
         }
         Update: {
+          admin_verified?: boolean | null
           content?: string
           created_at?: string
           excerpt?: string | null
@@ -156,6 +163,8 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
           view_count?: number | null
         }
         Relationships: []
@@ -937,6 +946,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          course: string | null
+          created_at: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          course?: string | null
+          created_at?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          course?: string | null
+          created_at?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       project_comments: {
         Row: {
           content: string
@@ -1062,11 +1104,14 @@ export type Database = {
       }
       project_submissions: {
         Row: {
+          admin_feedback: string | null
           admin_notes: string | null
           created_at: string | null
           description: string
           github_url: string
           id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string | null
           tech_tags: string[] | null
           thumbnail_url: string | null
@@ -1075,11 +1120,14 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_feedback?: string | null
           admin_notes?: string | null
           created_at?: string | null
           description: string
           github_url: string
           id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
           tech_tags?: string[] | null
           thumbnail_url?: string | null
@@ -1088,11 +1136,14 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_feedback?: string | null
           admin_notes?: string | null
           created_at?: string | null
           description?: string
           github_url?: string
           id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
           tech_tags?: string[] | null
           thumbnail_url?: string | null

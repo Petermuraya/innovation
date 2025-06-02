@@ -6,12 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardHeader from './user/DashboardHeader';
 import DashboardStats from './user/DashboardStats';
 import DashboardOverview from './user/DashboardOverview';
-import DashboardProjects from './user/DashboardProjects';
+import EnhancedDashboardProjects from './user/EnhancedDashboardProjects';
 import DashboardEvents from './user/DashboardEvents';
 import DashboardCertificates from './user/DashboardCertificates';
 import DashboardPayments from './user/DashboardPayments';
 import DashboardProfile from './user/DashboardProfile';
 import DashboardBadges from './user/DashboardBadges';
+import DashboardBlogging from './user/DashboardBlogging';
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -30,13 +31,25 @@ const UserDashboard = () => {
 
   const fetchUserData = async () => {
     try {
-      // Fetch member data
+      // Fetch member data with profile information
       const { data: member } = await supabase
         .from('members')
         .select('*')
         .eq('user_id', user?.id)
         .single();
-      setMemberData(member);
+
+      // Fetch profile data
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      // Merge member and profile data
+      setMemberData({
+        ...member,
+        ...profile,
+      });
 
       // Fetch notifications
       const { data: notifs } = await supabase
@@ -96,9 +109,10 @@ const UserDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
+          <TabsTrigger value="blogs">Blogs</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
           <TabsTrigger value="badges">Badges</TabsTrigger>
@@ -111,7 +125,11 @@ const UserDashboard = () => {
         </TabsContent>
 
         <TabsContent value="projects">
-          <DashboardProjects projects={projects} onSuccess={fetchUserData} />
+          <EnhancedDashboardProjects projects={projects} onSuccess={fetchUserData} />
+        </TabsContent>
+
+        <TabsContent value="blogs">
+          <DashboardBlogging />
         </TabsContent>
 
         <TabsContent value="events">
