@@ -49,11 +49,13 @@ const BlogFeed = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    console.log('BlogFeed: Component mounted, starting data fetch');
     fetchBlogs();
     fetchTags();
   }, []);
 
   const fetchBlogs = async () => {
+    console.log('BlogFeed: Starting fetchBlogs');
     try {
       // Get blogs with basic info first - only show published and verified blogs
       const { data: blogsData, error } = await supabase
@@ -63,66 +65,97 @@ const BlogFeed = () => {
         .eq('admin_verified', true)
         .order('published_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('BlogFeed: Error fetching blogs:', error);
+        throw error;
+      }
+
+      console.log('BlogFeed: Fetched blogs data:', blogsData?.length || 0, 'blogs');
+
+      // Safely handle empty data
+      if (!blogsData || !Array.isArray(blogsData)) {
+        console.log('BlogFeed: No blogs data or invalid format, setting empty array');
+        setBlogs([]);
+        setLoading(false);
+        return;
+      }
 
       // Enrich blogs with author names and interaction counts
       const enrichedBlogs = await Promise.all(
-        (blogsData || []).map(async (blog) => {
-          // Get author name from members table
-          const { data: member } = await supabase
-            .from('members')
-            .select('name')
-            .eq('user_id', blog.user_id)
-            .single();
-
-          // Get likes count
-          const { count: likesCount } = await supabase
-            .from('blog_likes')
-            .select('*', { count: 'exact', head: true })
-            .eq('blog_id', blog.id);
-
-          // Get comments count
-          const { count: commentsCount } = await supabase
-            .from('blog_comments')
-            .select('*', { count: 'exact', head: true })
-            .eq('blog_id', blog.id);
-
-          // Check if current user liked this blog
-          let isLiked = false;
-          if (user) {
-            const { data: like } = await supabase
-              .from('blog_likes')
-              .select('id')
-              .eq('blog_id', blog.id)
-              .eq('user_id', user.id)
+        blogsData.map(async (blog, index) => {
+          console.log(`BlogFeed: Processing blog ${index + 1}/${blogsData.length}: ${blog.id}`);
+          
+          try {
+            // Get author name from members table
+            const { data: member } = await supabase
+              .from('members')
+              .select('name')
+              .eq('user_id', blog.user_id)
               .single();
-            isLiked = !!like;
-          }
 
-          return {
-            ...blog,
-            author_name: member?.name || 'Anonymous',
-            likes_count: likesCount || 0,
-            comments_count: commentsCount || 0,
-            is_liked: isLiked,
-          };
+            // Get likes count
+            const { count: likesCount } = await supabase
+              .from('blog_likes')
+              .select('*', { count: 'exact', head: true })
+              .eq('blog_id', blog.id);
+
+            // Get comments count
+            const { count: commentsCount } = await supabase
+              .from('blog_comments')
+              .select('*', { count: 'exact', head: true })
+              .eq('blog_id', blog.id);
+
+            // Check if current user liked this blog
+            let isLiked = false;
+            if (user) {
+              const { data: like } = await supabase
+                .from('blog_likes')
+                .select('id')
+                .eq('blog_id', blog.id)
+                .eq('user_id', user.id)
+                .single();
+              isLiked = !!like;
+            }
+
+            return {
+              ...blog,
+              author_name: member?.name || 'Anonymous',
+              likes_count: likesCount || 0,
+              comments_count: commentsCount || 0,
+              is_liked: isLiked,
+            };
+          } catch (enrichError) {
+            console.error(`BlogFeed: Error enriching blog ${blog.id}:`, enrichError);
+            // Return blog with default values if enrichment fails
+            return {
+              ...blog,
+              author_name: 'Anonymous',
+              likes_count: 0,
+              comments_count: 0,
+              is_liked: false,
+            };
+          }
         })
       );
 
+      console.log('BlogFeed: Successfully enriched blogs:', enrichedBlogs.length);
       setBlogs(enrichedBlogs);
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      console.error('BlogFeed: Error in fetchBlogs:', error);
       toast({
         title: "Error",
         description: "Failed to load blogs",
         variant: "destructive",
       });
+      // Set empty array on error to prevent undefined issues
+      setBlogs([]);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchTags = async () => {
+    console.log('BlogFeed: Starting fetchTags');
     try {
       const { data, error } = await supabase
         .from('blogs')
@@ -130,18 +163,30 @@ const BlogFeed = () => {
         .eq('status', 'published')
         .eq('admin_verified', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('BlogFeed: Error fetching tags:', error);
+        throw error;
+      }
 
       const tagSet = new Set<string>();
-      data?.forEach(blog => {
-        if (blog.tags) {
-          blog.tags.forEach((tag: string) => tagSet.add(tag));
-        }
-      });
+      if (data && Array.isArray(data)) {
+        data.forEach(blog => {
+          if (blog.tags && Array.isArray(blog.tags)) {
+            blog.tags.forEach((tag: string) => {
+              if (tag && typeof tag === 'string') {
+                tagSet.add(tag);
+              }
+            });
+          }
+        });
+      }
 
-      setAllTags(Array.from(tagSet));
+      const tagsArray = Array.from(tagSet);
+      console.log('BlogFeed: Fetched tags:', tagsArray.length);
+      setAllTags(tagsArray);
     } catch (error) {
-      console.error('Error fetching tags:', error);
+      console.error('BlogFeed: Error fetching tags:', error);
+      setAllTags([]);
     }
   };
 
@@ -198,7 +243,7 @@ const BlogFeed = () => {
       await fetchBlogs();
       await fetchTags();
     } catch (error) {
-      console.error('Error creating blog:', error);
+      console.error('BlogFeed: Error creating blog:', error);
       toast({
         title: "Error",
         description: "Failed to create blog post",
@@ -243,7 +288,7 @@ const BlogFeed = () => {
       // Refresh blogs to update counts
       await fetchBlogs();
     } catch (error) {
-      console.error('Error toggling like:', error);
+      console.error('BlogFeed: Error toggling like:', error);
       toast({
         title: "Error",
         description: "Failed to update like",
@@ -252,16 +297,20 @@ const BlogFeed = () => {
     }
   };
 
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (blog.author_name && blog.author_name.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Safely filter blogs with defensive checks
+  const filteredBlogs = Array.isArray(blogs) ? blogs.filter(blog => {
+    if (!blog) return false;
+    
+    const titleMatch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const contentMatch = blog.content?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const authorMatch = blog.author_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchesSearch = titleMatch || contentMatch || authorMatch;
     
     const matchesTag = selectedTag === 'all' || 
-                      (blog.tags && blog.tags.includes(selectedTag));
+                      (blog.tags && Array.isArray(blog.tags) && blog.tags.includes(selectedTag));
     
     return matchesSearch && matchesTag;
-  });
+  }) : [];
 
   if (loading) {
     return <div className="text-center py-8">Loading blogs...</div>;
@@ -353,7 +402,7 @@ const BlogFeed = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Tags</SelectItem>
-              {allTags.map((tag) => (
+              {Array.isArray(allTags) && allTags.map((tag) => (
                 <SelectItem key={tag} value={tag}>{tag}</SelectItem>
               ))}
             </SelectContent>
@@ -396,14 +445,14 @@ const BlogFeed = () => {
               
               <div className="prose max-w-none">
                 <p className="text-gray-600">
-                  {blog.content.length > 300 
+                  {blog.content && blog.content.length > 300 
                     ? `${blog.content.substring(0, 300)}...` 
-                    : blog.content
+                    : blog.content || ''
                   }
                 </p>
               </div>
 
-              {blog.tags && blog.tags.length > 0 && (
+              {blog.tags && Array.isArray(blog.tags) && blog.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {blog.tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
@@ -421,11 +470,11 @@ const BlogFeed = () => {
                   className={`flex items-center gap-1 ${blog.is_liked ? 'text-red-500' : ''}`}
                 >
                   <Heart className={`h-4 w-4 ${blog.is_liked ? 'fill-current' : ''}`} />
-                  {blog.likes_count}
+                  {blog.likes_count || 0}
                 </Button>
                 <Button variant="ghost" size="sm" className="flex items-center gap-1">
                   <MessageCircle className="h-4 w-4" />
-                  {blog.comments_count}
+                  {blog.comments_count || 0}
                 </Button>
               </div>
             </CardContent>
