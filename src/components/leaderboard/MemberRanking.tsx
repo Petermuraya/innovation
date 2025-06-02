@@ -2,160 +2,152 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Award } from 'lucide-react';
+import { Trophy, Medal, Award, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
+interface MemberRank {
+  user_id: string;
+  name: string;
+  email: string;
+  total_points: number;
+  events_attended: number;
+  badges_earned: number;
+  projects_created: number;
+  avg_project_rating: number;
+  rank: number;
+}
+
 const MemberRanking = () => {
-  const [rankings, setRankings] = useState<any[]>([]);
-  const [badges, setBadges] = useState<any[]>([]);
+  const [rankings, setRankings] = useState<MemberRank[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchRankings();
-    fetchBadges();
   }, []);
 
   const fetchRankings = async () => {
     try {
-      const { data, error } = await supabase.rpc('calculate_member_ranking');
+      const { data, error } = await supabase
+        .rpc('calculate_detailed_member_ranking');
+
       if (error) throw error;
-
-      // Get member names
-      const userIds = data?.map((r: any) => r.user_id) || [];
-      const { data: members } = await supabase
-        .from('members')
-        .select('user_id, name')
-        .in('user_id', userIds);
-
-      const rankingsWithNames = data?.map((ranking: any) => ({
-        ...ranking,
-        name: members?.find(m => m.user_id === ranking.user_id)?.name || 'Anonymous'
-      })) || [];
-
-      setRankings(rankingsWithNames.slice(0, 10));
+      setRankings(data || []);
     } catch (error) {
       console.error('Error fetching rankings:', error);
-    }
-  };
-
-  const fetchBadges = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('member_badges')
-        .select(`
-          *,
-          members!inner(name)
-        `)
-        .order('earned_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-      setBadges(data || []);
-    } catch (error) {
-      console.error('Error fetching badges:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getBadgeColor = (badgeType: string) => {
-    const colors = {
-      top_contributor: 'bg-yellow-500',
-      event_speaker: 'bg-blue-500',
-      project_star: 'bg-purple-500',
-      community_leader: 'bg-green-500',
-      innovator: 'bg-orange-500',
-      mentor: 'bg-pink-500'
-    };
-    return colors[badgeType as keyof typeof colors] || 'bg-gray-500';
+  const getRankIcon = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return <Trophy className="w-6 h-6 text-yellow-500" />;
+      case 2:
+        return <Medal className="w-6 h-6 text-gray-400" />;
+      case 3:
+        return <Award className="w-6 h-6 text-orange-500" />;
+      default:
+        return <TrendingUp className="w-6 h-6 text-blue-500" />;
+    }
   };
 
-  const getBadgeIcon = (badgeType: string) => {
-    switch (badgeType) {
-      case 'top_contributor':
-        return <Star className="h-3 w-3" />;
-      case 'event_speaker':
-        return <Award className="h-3 w-3" />;
+  const getRankBadgeColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 2:
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 3:
+        return 'bg-orange-100 text-orange-800 border-orange-300';
       default:
-        return <Award className="h-3 w-3" />;
+        return 'bg-blue-100 text-blue-800 border-blue-300';
     }
   };
 
   if (loading) {
-    return <div>Loading rankings...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Trophy className="h-6 w-6 text-yellow-500" />
+            <span>Member Leaderboard</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">Loading rankings...</div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      {/* Member Rankings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Top Members
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {rankings.map((member, index) => (
-              <div key={member.user_id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                    index === 0 ? 'bg-yellow-500' : 
-                    index === 1 ? 'bg-gray-400' : 
-                    index === 2 ? 'bg-orange-600' : 'bg-primary'
-                  } text-white font-bold text-sm`}>
-                    {index + 1}
-                  </div>
-                  <div>
-                    <div className="font-medium">{member.name}</div>
-                    <div className="text-sm text-gray-600">{member.badges_count} badges</div>
-                  </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Trophy className="h-6 w-6 text-yellow-500" />
+          <span>Member Leaderboard</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {rankings.map((member) => (
+            <div
+              key={member.user_id}
+              className={`flex items-center justify-between p-4 rounded-lg border-2 transition-colors ${
+                member.rank <= 3 ? 'bg-gradient-to-r from-yellow-50 to-orange-50' : 'bg-white hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  {getRankIcon(member.rank)}
+                  <Badge className={`${getRankBadgeColor(member.rank)} border`}>
+                    #{member.rank}
+                  </Badge>
                 </div>
-                <div className="text-right">
-                  <div className="font-medium">{member.total_points} points</div>
+                <div>
+                  <h3 className="font-semibold text-kic-gray">{member.name}</h3>
+                  <p className="text-sm text-kic-gray/70">{member.email}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Badges */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5" />
-            Recent Badges
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {badges.map((badge) => (
-              <div key={badge.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${getBadgeColor(badge.badge_type)} text-white`}>
-                    {getBadgeIcon(badge.badge_type)}
-                  </div>
-                  <div>
-                    <div className="font-medium">{badge.members?.name || 'Anonymous'}</div>
-                    <div className="text-sm text-gray-600">
-                      {badge.badge_type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                    </div>
-                  </div>
+              
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="text-center">
+                  <div className="font-bold text-kic-green-600">{member.total_points}</div>
+                  <div className="text-kic-gray/70">Points</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">
-                    {new Date(badge.earned_at).toLocaleDateString()}
-                  </div>
-                  <div className="font-medium">{badge.points} pts</div>
+                <div className="text-center">
+                  <div className="font-bold text-blue-600">{member.events_attended}</div>
+                  <div className="text-kic-gray/70">Events</div>
                 </div>
+                <div className="text-center">
+                  <div className="font-bold text-purple-600">{member.badges_earned}</div>
+                  <div className="text-kic-gray/70">Badges</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-orange-600">{member.projects_created}</div>
+                  <div className="text-kic-gray/70">Projects</div>
+                </div>
+                {member.avg_project_rating > 0 && (
+                  <div className="text-center">
+                    <div className="font-bold text-yellow-600">{member.avg_project_rating.toFixed(1)}★</div>
+                    <div className="text-kic-gray/70">Rating</div>
+                  </div>
+                )}
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+        
+        {rankings.length === 0 && (
+          <div className="text-center py-8 text-kic-gray/70">
+            <Trophy className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p>No rankings available yet</p>
+            <p className="text-sm">Start participating to see your ranking!</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

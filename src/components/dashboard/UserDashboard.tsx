@@ -11,6 +11,7 @@ import DashboardEvents from './user/DashboardEvents';
 import DashboardCertificates from './user/DashboardCertificates';
 import DashboardPayments from './user/DashboardPayments';
 import DashboardProfile from './user/DashboardProfile';
+import DashboardBadges from './user/DashboardBadges';
 
 const UserDashboard = () => {
   const { user } = useAuth();
@@ -95,11 +96,12 @@ const UserDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="badges">Badges</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
         </TabsList>
@@ -118,6 +120,10 @@ const UserDashboard = () => {
 
         <TabsContent value="certificates">
           <DashboardCertificates certificates={certificates} />
+        </TabsContent>
+
+        <TabsContent value="badges">
+          <DashboardBadges />
         </TabsContent>
 
         <TabsContent value="payments">

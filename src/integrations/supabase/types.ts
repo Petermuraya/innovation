@@ -48,6 +48,118 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_comments: {
+        Row: {
+          blog_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blog_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blog_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_likes: {
+        Row: {
+          blog_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          blog_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          blog_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_likes_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blogs: {
+        Row: {
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          published_at: string | null
+          slug: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       career_opportunities: {
         Row: {
           application_email: string | null
@@ -215,6 +327,106 @@ export type Database = {
         }
         Relationships: []
       }
+      community_groups: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          is_active: boolean | null
+          meeting_schedule: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          is_active?: boolean | null
+          meeting_schedule: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          meeting_schedule?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      community_memberships: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_memberships_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_attendance: {
+        Row: {
+          attended_at: string
+          event_id: string
+          id: string
+          marked_by: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          attended_at?: string
+          event_id: string
+          id?: string
+          marked_by: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          attended_at?: string
+          event_id?: string
+          id?: string
+          marked_by?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_registrations: {
         Row: {
           event_id: string | null
@@ -267,6 +479,8 @@ export type Database = {
           location: string | null
           max_attendees: number | null
           price: number | null
+          registration_fields: Json | null
+          requires_registration: boolean | null
           status: string | null
           title: string
           updated_at: string | null
@@ -280,6 +494,8 @@ export type Database = {
           location?: string | null
           max_attendees?: number | null
           price?: number | null
+          registration_fields?: Json | null
+          requires_registration?: boolean | null
           status?: string | null
           title: string
           updated_at?: string | null
@@ -293,6 +509,8 @@ export type Database = {
           location?: string | null
           max_attendees?: number | null
           price?: number | null
+          registration_fields?: Json | null
+          requires_registration?: boolean | null
           status?: string | null
           title?: string
           updated_at?: string | null
@@ -302,6 +520,7 @@ export type Database = {
       member_badges: {
         Row: {
           badge_type: string
+          category: string | null
           description: string | null
           earned_at: string
           id: string
@@ -310,6 +529,7 @@ export type Database = {
         }
         Insert: {
           badge_type: string
+          category?: string | null
           description?: string | null
           earned_at?: string
           id?: string
@@ -318,10 +538,41 @@ export type Database = {
         }
         Update: {
           badge_type?: string
+          category?: string | null
           description?: string | null
           earned_at?: string
           id?: string
           points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      member_points: {
+        Row: {
+          description: string | null
+          earned_at: string
+          id: string
+          points: number
+          source: string
+          source_id: string | null
+          user_id: string
+        }
+        Insert: {
+          description?: string | null
+          earned_at?: string
+          id?: string
+          points?: number
+          source: string
+          source_id?: string | null
+          user_id: string
+        }
+        Update: {
+          description?: string | null
+          earned_at?: string
+          id?: string
+          points?: number
+          source?: string
+          source_id?: string | null
           user_id?: string
         }
         Relationships: []
@@ -629,6 +880,51 @@ export type Database = {
           },
         ]
       }
+      project_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          rating: number
+          review: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          rating: number
+          review?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          rating?: number
+          review?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_ratings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "featured_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_ratings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_submissions: {
         Row: {
           admin_notes: string | null
@@ -671,6 +967,54 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          created_at: string
+          demo_video_url: string | null
+          description: string
+          featured: boolean | null
+          github_url: string | null
+          id: string
+          image_url: string | null
+          status: string | null
+          tech_stack: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          demo_video_url?: string | null
+          description: string
+          featured?: boolean | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          status?: string | null
+          tech_stack?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          demo_video_url?: string | null
+          description?: string
+          featured?: boolean | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          status?: string | null
+          tech_stack?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -689,8 +1033,78 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_meetings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          day_of_week: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          day_of_week: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          day_of_week?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
+      featured_projects: {
+        Row: {
+          author_name: string | null
+          avg_rating: number | null
+          created_at: string | null
+          demo_video_url: string | null
+          description: string | null
+          featured: boolean | null
+          github_url: string | null
+          id: string | null
+          image_url: string | null
+          rating_count: number | null
+          status: string | null
+          tech_stack: string[] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          view_count: number | null
+        }
+        Relationships: []
+      }
+      member_leaderboard: {
+        Row: {
+          avg_project_rating: number | null
+          badges_earned: number | null
+          email: string | null
+          events_attended: number | null
+          name: string | null
+          projects_created: number | null
+          total_points: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       project_leaderboard: {
         Row: {
           admin_notes: string | null
@@ -713,6 +1127,30 @@ export type Database = {
       }
     }
     Functions: {
+      award_points: {
+        Args: {
+          user_id_param: string
+          points_param: number
+          source_param: string
+          source_id_param?: string
+          description_param?: string
+        }
+        Returns: undefined
+      }
+      calculate_detailed_member_ranking: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          name: string
+          email: string
+          total_points: number
+          events_attended: number
+          badges_earned: number
+          projects_created: number
+          avg_project_rating: number
+          rank: number
+        }[]
+      }
       calculate_member_ranking: {
         Args: Record<PropertyKey, never>
         Returns: {
