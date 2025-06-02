@@ -1,155 +1,149 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import DashboardHeader from './user/DashboardHeader';
 import DashboardStats from './user/DashboardStats';
 import DashboardOverview from './user/DashboardOverview';
+import DashboardProfile from './user/DashboardProfile';
 import EnhancedDashboardProjects from './user/EnhancedDashboardProjects';
 import DashboardEvents from './user/DashboardEvents';
-import DashboardCertificates from './user/DashboardCertificates';
-import DashboardPayments from './user/DashboardPayments';
-import DashboardProfile from './user/DashboardProfile';
-import DashboardBadges from './user/DashboardBadges';
+import DashboardCareers from './user/DashboardCareers';
 import DashboardBlogging from './user/DashboardBlogging';
+import DashboardPayments from './user/DashboardPayments';
+import DashboardCertificates from './user/DashboardCertificates';
+import DashboardBadges from './user/DashboardBadges';
 
 const UserDashboard = () => {
   const { user } = useAuth();
   const [memberData, setMemberData] = useState<any>(null);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [certificates, setCertificates] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
-  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalProjects: 0,
+    eventsAttended: 0,
+    certificatesEarned: 0,
+    totalPoints: 0,
+  });
 
   useEffect(() => {
     if (user) {
-      fetchUserData();
+      fetchMemberData();
+      fetchUserStats();
     }
   }, [user]);
 
-  const fetchUserData = async () => {
+  const fetchMemberData = async () => {
+    if (!user) return;
+
     try {
-      // Fetch member data with profile information
-      const { data: member } = await supabase
+      const { data, error } = await supabase
         .from('members')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single();
 
-      // Fetch profile data
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching member data:', error);
+        return;
+      }
 
-      // Merge member and profile data
-      setMemberData({
-        ...member,
-        ...profile,
-      });
+      setMemberData(data);
+    } catch (error) {
+      console.error('Error fetching member data:', error);
+    }
+  };
 
-      // Fetch notifications
-      const { data: notifs } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-      setNotifications(notifs || []);
+  const fetchUserStats = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch project count
+      const { count: projectCount } = await supabase
+        .from('project_submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      // Fetch events attended
+      const { count: eventsCount } = await supabase
+        .from('event_attendance')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
 
       // Fetch certificates
-      const { data: certs } = await supabase
+      const { count: certificatesCount } = await supabase
         .from('certificates')
-        .select('*, events(title)')
-        .eq('user_id', user?.id);
-      setCertificates(certs || []);
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
 
-      // Fetch project submissions
-      const { data: projectSubmissions } = await supabase
-        .from('project_submissions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-      setProjects(projectSubmissions || []);
+      // Fetch total points
+      const { data: pointsData } = await supabase
+        .from('member_points')
+        .select('points')
+        .eq('user_id', user.id);
 
-      // Fetch payment history
-      const { data: paymentHistory } = await supabase
-        .from('mpesa_payments')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-      setPayments(paymentHistory || []);
+      const totalPoints = pointsData?.reduce((sum, point) => sum + point.points, 0) || 0;
 
-      // Fetch upcoming events
-      const { data: events } = await supabase
-        .from('events')
-        .select('*')
-        .eq('status', 'published')
-        .gte('date', new Date().toISOString())
-        .order('date', { ascending: true })
-        .limit(5);
-      setUpcomingEvents(events || []);
+      setStats({
+        totalProjects: projectCount || 0,
+        eventsAttended: eventsCount || 0,
+        certificatesEarned: certificatesCount || 0,
+        totalPoints,
+      });
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error fetching user stats:', error);
     }
   };
 
   return (
     <div className="container mx-auto p-6">
-      <DashboardHeader memberData={memberData} user={user} />
-      
-      <DashboardStats 
-        notifications={notifications} 
-        projects={projects} 
-        certificates={certificates} 
-        upcomingEvents={upcomingEvents} 
-      />
+      <DashboardHeader memberData={memberData} />
+      <DashboardStats stats={stats} />
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="blogs">Blogs</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="certificates">Certificates</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="projects">Projects</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="careers">Careers</TabsTrigger>
+          <TabsTrigger value="blogging">Blogging</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="certificates">Certificates</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <DashboardOverview notifications={notifications} upcomingEvents={upcomingEvents} />
-        </TabsContent>
-
-        <TabsContent value="projects">
-          <EnhancedDashboardProjects projects={projects} onSuccess={fetchUserData} />
-        </TabsContent>
-
-        <TabsContent value="blogs">
-          <DashboardBlogging />
-        </TabsContent>
-
-        <TabsContent value="events">
-          <DashboardEvents upcomingEvents={upcomingEvents} />
-        </TabsContent>
-
-        <TabsContent value="certificates">
-          <DashboardCertificates certificates={certificates} />
-        </TabsContent>
-
-        <TabsContent value="badges">
-          <DashboardBadges />
-        </TabsContent>
-
-        <TabsContent value="payments">
-          <DashboardPayments payments={payments} />
+        <TabsContent value="overview">
+          <DashboardOverview stats={stats} />
         </TabsContent>
 
         <TabsContent value="profile">
-          <DashboardProfile memberData={memberData} />
+          <DashboardProfile memberData={memberData} onUpdate={fetchMemberData} />
+        </TabsContent>
+
+        <TabsContent value="projects">
+          <EnhancedDashboardProjects />
+        </TabsContent>
+
+        <TabsContent value="events">
+          <DashboardEvents />
+        </TabsContent>
+
+        <TabsContent value="careers">
+          <DashboardCareers />
+        </TabsContent>
+
+        <TabsContent value="blogging">
+          <DashboardBlogging />
+        </TabsContent>
+
+        <TabsContent value="payments">
+          <DashboardPayments />
+        </TabsContent>
+
+        <TabsContent value="certificates">
+          <div className="grid gap-6">
+            <DashboardCertificates />
+            <DashboardBadges />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -11,6 +11,9 @@ export type Database = {
     Tables: {
       admin_requests: {
         Row: {
+          admin_code: string | null
+          admin_type: string | null
+          community_id: string | null
           created_at: string
           email: string
           id: string
@@ -23,6 +26,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_code?: string | null
+          admin_type?: string | null
+          community_id?: string | null
           created_at?: string
           email: string
           id?: string
@@ -35,6 +41,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_code?: string | null
+          admin_type?: string | null
+          community_id?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -46,7 +55,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blog_comments: {
         Row: {
@@ -336,6 +353,44 @@ export type Database = {
         }
         Relationships: []
       }
+      community_admin_roles: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          community_id: string
+          id: string
+          is_active: boolean | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          community_id: string
+          id?: string
+          is_active?: boolean | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          community_id?: string
+          id?: string
+          is_active?: boolean | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_admin_roles_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_admins: {
         Row: {
           assigned_at: string
@@ -620,6 +675,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          is_published: boolean | null
           location: string | null
           max_attendees: number | null
           price: number | null
@@ -628,6 +684,7 @@ export type Database = {
           status: string | null
           title: string
           updated_at: string | null
+          visibility: string | null
         }
         Insert: {
           created_at?: string | null
@@ -635,6 +692,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          is_published?: boolean | null
           location?: string | null
           max_attendees?: number | null
           price?: number | null
@@ -643,6 +701,7 @@ export type Database = {
           status?: string | null
           title: string
           updated_at?: string | null
+          visibility?: string | null
         }
         Update: {
           created_at?: string | null
@@ -650,6 +709,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          is_published?: boolean | null
           location?: string | null
           max_attendees?: number | null
           price?: number | null
@@ -658,6 +718,7 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string | null
+          visibility?: string | null
         }
         Relationships: []
       }

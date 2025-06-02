@@ -7,10 +7,11 @@ import CertificateManager from '@/components/certificates/CertificateManager';
 import AdminDashboardHeader from './admin/AdminDashboardHeader';
 import AdminDashboardStats from './admin/AdminDashboardStats';
 import MembersManagement from './admin/MembersManagement';
-import EventsManagement from './admin/EventsManagement';
+import EnhancedEventsManagement from './admin/EnhancedEventsManagement';
 import ProjectsManagement from './admin/ProjectsManagement';
 import PaymentsManagement from './admin/PaymentsManagement';
-import AdminRequestsManagement from '@/components/admin/AdminRequestsManagement';
+import EnhancedAdminRequestsManagement from '@/components/admin/EnhancedAdminRequestsManagement';
+import CommunityAdminManagement from '@/components/admin/CommunityAdminManagement';
 import MPesaConfigManager from '@/components/admin/MPesaConfigManager';
 import UserManagement from '@/components/admin/UserManagement';
 
@@ -133,7 +134,7 @@ const AdminDashboard = () => {
       <AdminDashboardStats stats={stats} />
 
       <Tabs defaultValue="members" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -141,6 +142,7 @@ const AdminDashboard = () => {
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
           <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="community-admins">Community Admins</TabsTrigger>
           <TabsTrigger value="admin-requests">
             Admin Requests
             {stats.pendingAdminRequests > 0 && (
@@ -159,7 +161,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="events">
-          <EventsManagement events={events} />
+          <EnhancedEventsManagement />
         </TabsContent>
 
         <TabsContent value="projects">
@@ -185,8 +187,12 @@ const AdminDashboard = () => {
           <UserManagement />
         </TabsContent>
 
+        <TabsContent value="community-admins">
+          <CommunityAdminManagement />
+        </TabsContent>
+
         <TabsContent value="admin-requests">
-          <AdminRequestsManagement />
+          <EnhancedAdminRequestsManagement />
         </TabsContent>
       </Tabs>
     </div>
