@@ -1,120 +1,277 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+// Constants
+const MPESA_SUCCESS_CODE = 0;
+const HTTP_METHODS = {
+  POST: "POST",
+} as const;
 
-interface MPESACallbackData {
-  Body: {
-    stkCallback: {
-      MerchantRequestID: string;
-      CheckoutRequestID: string;
-      ResultCode: number;
-      ResultDesc: string;
-      CallbackMetadata?: {
-        Item: Array<{
-          Name: string;
-          Value: string | number;
-        }>;
-      };
-    };
+// Types
+interface CallbackMetadataItem {
+  Name: string;
+  Value: string | number;
+}
+
+interface STKCallback {
+  MerchantRequestID: string;
+  CheckoutRequestID: string;
+  ResultCode: number;
+  ResultDesc: string;
+  CallbackMetadata?: {
+    Item: CallbackMetadataItem[];
   };
 }
 
-serve(async (req) => {
-  try {
-    const callbackData: MPESACallbackData = await req.json()
-    console.log('MPESA Callback received:', JSON.stringify(callbackData, null, 2))
+interface MPESACallbackData {
+  Body: {
+    stkCallback: STKCallback;
+  };
+}
 
-    // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Use service role for callbacks
-    )
+interface PaymentRequest {
+  id: string;
+  user_id: string;
+  checkout_request_id: string;
+  payment_type: string;
+  reference_id: string;
+  status: string;
+}
 
-    const { stkCallback } = callbackData.Body
-    const isSuccessful = stkCallback.ResultCode === 0
+interface PaymentRecord {
+  user_id: string;
+  transaction_id: string;
+  phone_number: string;
+  amount: number;
+  payment_type: string;
+  reference_id: string;
+  checkout_request_id: string;
+  merchant_request_id: string;
+  mpesa_receipt_number: string;
+  status: 'completed' | 'failed';
+}
 
-    // Find the payment request
-    const { data: paymentRequest, error: findError } = await supabaseClient
-      .from('payment_requests')
-      .select('*')
-      .eq('checkout_request_id', stkCallback.CheckoutRequestID)
-      .single()
-
-    if (findError || !paymentRequest) {
-      console.error('Payment request not found:', findError)
-      return new Response('Payment request not found', { status: 404 })
-    }
-
-    if (isSuccessful && stkCallback.CallbackMetadata) {
-      // Extract payment details from callback metadata
-      const metadata = stkCallback.CallbackMetadata.Item
-      const amount = metadata.find(item => item.Name === 'Amount')?.Value
-      const receiptNumber = metadata.find(item => item.Name === 'MpesaReceiptNumber')?.Value
-      const transactionDate = metadata.find(item => item.Name === 'TransactionDate')?.Value
-      const phoneNumber = metadata.find(item => item.Name === 'PhoneNumber')?.Value
-
-      // Create successful payment record
-      const { error: paymentError } = await supabaseClient
-        .from('mpesa_payments')
-        .insert({
-          user_id: paymentRequest.user_id,
-          transaction_id: receiptNumber as string,
-          phone_number: phoneNumber as string,
-          amount: amount as number,
-          payment_type: paymentRequest.payment_type,
-          reference_id: paymentRequest.reference_id,
-          checkout_request_id: stkCallback.CheckoutRequestID,
-          merchant_request_id: stkCallback.MerchantRequestID,
-          mpesa_receipt_number: receiptNumber as string,
-          status: 'completed',
-        })
-
-      if (paymentError) {
-        console.error('Error creating payment record:', paymentError)
-      }
-
-      // Update payment request status
-      await supabaseClient
-        .from('payment_requests')
-        .update({ status: 'completed' })
-        .eq('id', paymentRequest.id)
-
-      // Create notification for successful payment
-      await supabaseClient
-        .from('notifications')
-        .insert({
-          user_id: paymentRequest.user_id,
-          title: 'Payment Successful',
-          message: `Your payment of KSh ${amount} has been received successfully.`,
-          type: 'payment',
-        })
-
-    } else {
-      // Payment failed
-      await supabaseClient
-        .from('payment_requests')
-        .update({ 
-          status: 'failed',
-          result_code: stkCallback.ResultCode.toString(),
-          result_desc: stkCallback.ResultDesc,
-        })
-        .eq('id', paymentRequest.id)
-
-      // Create notification for failed payment
-      await supabaseClient
-        .from('notifications')
-        .insert({
-          user_id: paymentRequest.user_id,
-          title: 'Payment Failed',
-          message: `Your payment failed: ${stkCallback.ResultDesc}`,
-          type: 'payment',
-        })
-    }
-
-    return new Response('OK', { status: 200 })
-
-  } catch (error) {
-    console.error('Error in mpesa-callback function:', error)
-    return new Response('Internal Server Error', { status: 500 })
+// Utility Functions
+const validateEnvironment = () => {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase credentials not configured');
   }
-})
+
+  return { supabaseUrl, serviceRoleKey };
+};
+
+const getSupabaseClient = () => {
+  const { supabaseUrl, serviceRoleKey } = validateEnvironment();
+  return createClient(supabaseUrl, serviceRoleKey);
+};
+
+const extractMetadataValue = (
+  metadata: CallbackMetadataItem[],
+  name: string
+): string | number | undefined => {
+  return metadata.find(item => item.Name === name)?.Value;
+};
+
+const validateMetadata = (
+  metadata: CallbackMetadataItem[],
+  requiredFields: string[]
+): Record<string, string | number> => {
+  const result: Record<string, string | number> = {};
+  
+  for (const field of requiredFields) {
+    const value = extractMetadataValue(metadata, field);
+    if (value === undefined) {
+      throw new Error(`Missing required field in metadata: ${field}`);
+    }
+    result[field] = value;
+  }
+
+  return result;
+};
+
+// Database Operations
+const createPaymentRecord = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  paymentData: PaymentRecord
+) => {
+  const { error } = await supabaseClient
+    .from('mpesa_payments')
+    .insert(paymentData);
+
+  if (error) {
+    throw new Error(`Payment record creation failed: ${error.message}`);
+  }
+};
+
+const updatePaymentRequestStatus = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  paymentRequestId: string,
+  status: string,
+  additionalFields: Record<string, unknown> = {}
+) => {
+  const { error } = await supabaseClient
+    .from('payment_requests')
+    .update({ 
+      status,
+      ...additionalFields
+    })
+    .eq('id', paymentRequestId);
+
+  if (error) {
+    throw new Error(`Payment request update failed: ${error.message}`);
+  }
+};
+
+const createNotification = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  notificationData: {
+    user_id: string;
+    title: string;
+    message: string;
+    type: string;
+  }
+) => {
+  const { error } = await supabaseClient
+    .from('notifications')
+    .insert(notificationData);
+
+  if (error) {
+    console.error('Notification creation failed:', error);
+  }
+};
+
+// Payment Handlers
+const handleSuccessfulPayment = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  callback: STKCallback,
+  paymentRequest: PaymentRequest
+) => {
+  if (!callback.CallbackMetadata) {
+    throw new Error('Missing callback metadata for successful payment');
+  }
+
+  const metadata = validateMetadata(callback.CallbackMetadata.Item, [
+    'Amount',
+    'MpesaReceiptNumber',
+    'PhoneNumber'
+  ]);
+
+  const paymentRecord: PaymentRecord = {
+    user_id: paymentRequest.user_id,
+    transaction_id: String(metadata.MpesaReceiptNumber),
+    phone_number: String(metadata.PhoneNumber),
+    amount: Number(metadata.Amount),
+    payment_type: paymentRequest.payment_type,
+    reference_id: paymentRequest.reference_id,
+    checkout_request_id: callback.CheckoutRequestID,
+    merchant_request_id: callback.MerchantRequestID,
+    mpesa_receipt_number: String(metadata.MpesaReceiptNumber),
+    status: 'completed',
+  };
+
+  await createPaymentRecord(supabaseClient, paymentRecord);
+  await updatePaymentRequestStatus(supabaseClient, paymentRequest.id, 'completed');
+  
+  await createNotification(supabaseClient, {
+    user_id: paymentRequest.user_id,
+    title: 'Payment Successful',
+    message: `Your payment of KSh ${metadata.Amount} has been received successfully.`,
+    type: 'payment',
+  });
+};
+
+const handleFailedPayment = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  callback: STKCallback,
+  paymentRequest: PaymentRequest
+) => {
+  await updatePaymentRequestStatus(
+    supabaseClient,
+    paymentRequest.id,
+    'failed',
+    {
+      result_code: callback.ResultCode.toString(),
+      result_desc: callback.ResultDesc,
+    }
+  );
+
+  await createNotification(supabaseClient, {
+    user_id: paymentRequest.user_id,
+    title: 'Payment Failed',
+    message: `Your payment failed: ${callback.ResultDesc}`,
+    type: 'payment',
+  });
+};
+
+const findPaymentRequest = async (
+  supabaseClient: ReturnType<typeof createClient>,
+  checkoutRequestId: string
+): Promise<PaymentRequest> => {
+  const { data: paymentRequest, error } = await supabaseClient
+    .from('payment_requests')
+    .select('*')
+    .eq('checkout_request_id', checkoutRequestId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  if (!paymentRequest) {
+    throw new Error('Payment request not found');
+  }
+
+  return paymentRequest;
+};
+
+// Main Handler
+const handleMPESACallback = async (req: Request) => {
+  // Validate request method
+  if (req.method !== HTTP_METHODS.POST) {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
+
+  // Parse and validate request body
+  let callbackData: MPESACallbackData;
+  try {
+    callbackData = await req.json();
+    if (!callbackData?.Body?.stkCallback) {
+      return new Response('Invalid callback data', { status: 400 });
+    }
+  } catch (error) {
+    return new Response('Invalid JSON payload', { status: 400 });
+  }
+
+  console.log('MPESA Callback received:', JSON.stringify(callbackData, null, 2));
+
+  try {
+    const supabaseClient = getSupabaseClient();
+    const { stkCallback } = callbackData.Body;
+    const paymentRequest = await findPaymentRequest(supabaseClient, stkCallback.CheckoutRequestID);
+
+    if (stkCallback.ResultCode === MPESA_SUCCESS_CODE) {
+      await handleSuccessfulPayment(supabaseClient, stkCallback, paymentRequest);
+    } else {
+      await handleFailedPayment(supabaseClient, stkCallback, paymentRequest);
+    }
+
+    return new Response('OK', { status: 200 });
+  } catch (error) {
+    console.error('Error processing MPESA callback:', error);
+    
+    const statusCode = error instanceof Error && error.message.includes('not found') 
+      ? 404 
+      : 500;
+    
+    return new Response(
+      error instanceof Error ? error.message : 'Internal Server Error',
+      { status: statusCode }
+    );
+  }
+};
+
+// Server
+serve(handleMPESACallback);
