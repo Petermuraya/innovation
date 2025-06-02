@@ -1,147 +1,177 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { 
+  FaGithub, 
+  FaLinkedin, 
+  FaTwitter, 
+  FaInstagram, 
+  FaWhatsapp, 
+  FaYoutube, 
+  FaDiscord,
+  FaArrowRight
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
+  const socialLinks = [
+    { icon: <FaTwitter className="h-5 w-5" />, url: "https://twitter.com/" },
+    { icon: <FaGithub className="h-5 w-5" />, url: "https://github.com/" },
+    { icon: <FaLinkedin className="h-5 w-5" />, url: "https://linkedin.com/" },
+    { icon: <FaInstagram className="h-5 w-5" />, url: "https://instagram.com/" },
+    { icon: <FaWhatsapp className="h-5 w-5" />, url: "https://wa.me/254700000000" },
+    { icon: <FaYoutube className="h-5 w-5" />, url: "https://youtube.com/" },
+    { icon: <FaDiscord className="h-5 w-5" />, url: "https://discord.gg/" }
+  ];
+
+  const navLinks = [
+    { label: "Home", path: "/" },
+    { label: "About Us", path: "/about" },
+    { label: "Projects", path: "/projects" },
+    { label: "Events", path: "/events" },
+    { label: "Communities", path: "/communities" },
+    { label: "Blog", path: "/blog" }
+  ];
+
+  const resourceLinks = [
+    { label: "Member Login", path: "/login" },
+    { label: "Join Us", path: "/register" },
+    { label: "Code of Conduct", path: "#" },
+    { label: "Privacy Policy", path: "#" }
+  ];
+
+  const footerBottomLinks = [
+    { label: "Privacy Policy", path: "/privacy" },
+    { label: "Terms of Service", path: "/terms" },
+    { label: "Contact Us", path: "/contact" }
+  ];
+
   return (
-    <footer className="bg-gray-50 border-t">
-      <div className="container-custom py-12 grid grid-cols-1 gap-8 md:grid-cols-4">
-        {/* Club Info */}
-        <div className="col-span-1 md:col-span-1">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-innovation-600 text-white font-bold text-xl rounded-md h-8 w-8 flex items-center justify-center">
-              K
+    <footer className="bg-background border-t">
+      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
+          {/* Brand & Social */}
+          <div className="lg:col-span-2">
+            <Link 
+              to="/" 
+              className="flex items-center space-x-3"
+            >
+              <div className="bg-primary text-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
+                K
+              </div>
+              <span className="font-semibold text-2xl bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
+                Innovation Club
+              </span>
+            </Link>
+            <p className="mt-6 text-muted-foreground leading-relaxed">
+              Building tomorrow's technology leaders through innovation, collaboration, and mentorship.
+            </p>
+            
+            {/* Social Icons */}
+            <div className="mt-8 flex flex-wrap gap-4">
+              {socialLinks.map((social, index) => (
+                <motion.a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
             </div>
-            <span className="font-semibold text-xl">Innovation Club</span>
-          </Link>
-          <p className="mt-4 text-sm text-gray-600">
-            Building technology leaders of tomorrow through innovation, collaboration, and mentorship.
-          </p>
-          <div className="mt-4 flex space-x-4">
-            <a href="https://twitter.com/" target="_blank" rel="noreferrer" className="text-gray-500 hover:text-primary">
-              <span className="sr-only">Twitter</span>
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
-              </svg>
-            </a>
-            <a href="https://github.com/" target="_blank" rel="noreferrer" className="text-gray-500 hover:text-primary">
-              <span className="sr-only">GitHub</span>
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path>
-              </svg>
-            </a>
-            <a href="https://linkedin.com/" target="_blank" rel="noreferrer" className="text-gray-500 hover:text-primary">
-              <span className="sr-only">LinkedIn</span>
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd"></path>
-              </svg>
-            </a>
           </div>
-        </div>
-        
-        {/* Links */}
-        <div className="col-span-1 md:col-span-1">
-          <h3 className="font-medium text-gray-900">Navigation</h3>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <Link to="/" className="text-gray-600 hover:text-primary text-sm">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className="text-gray-600 hover:text-primary text-sm">
-                About Us
-              </Link>
-            </li>
-            <li>
-              <Link to="/projects" className="text-gray-600 hover:text-primary text-sm">
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link to="/events" className="text-gray-600 hover:text-primary text-sm">
-                Events
-              </Link>
-            </li>
-            <li>
-              <Link to="/communities" className="text-gray-600 hover:text-primary text-sm">
-                Communities
-              </Link>
-            </li>
-            <li>
-              <Link to="/blog" className="text-gray-600 hover:text-primary text-sm">
-                Blog
-              </Link>
-            </li>
-          </ul>
-        </div>
-        
-        {/* More Links */}
-        <div className="col-span-1 md:col-span-1">
-          <h3 className="font-medium text-gray-900">Resources</h3>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <Link to="/login" className="text-gray-600 hover:text-primary text-sm">
-                Member Login
-              </Link>
-            </li>
-            <li>
-              <Link to="/register" className="text-gray-600 hover:text-primary text-sm">
-                Join Us
-              </Link>
-            </li>
-            <li>
-              <a href="#" className="text-gray-600 hover:text-primary text-sm">
-                Code of Conduct
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-gray-600 hover:text-primary text-sm">
-                Privacy Policy
-              </a>
-            </li>
-          </ul>
-        </div>
-        
-        {/* Newsletter */}
-        <div className="col-span-1 md:col-span-1">
-          <h3 className="font-medium text-gray-900">Subscribe to our newsletter</h3>
-          <p className="mt-4 text-sm text-gray-600">
-            Get the latest news and updates from Karatina Innovation Club.
-          </p>
-          <div className="mt-4">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input 
-                type="email" 
-                placeholder="Enter your email" 
-                className="flex-grow"
-              />
-              <Button type="button">
+
+          {/* Navigation */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Navigation</h3>
+            <ul className="mt-6 space-y-4">
+              {navLinks.map((link, index) => (
+                <motion.li 
+                  key={index}
+                  whileHover={{ x: 4 }}
+                >
+                  <Link 
+                    to={link.path} 
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  >
+                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {link.label}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Resources</h3>
+            <ul className="mt-6 space-y-4">
+              {resourceLinks.map((link, index) => (
+                <motion.li 
+                  key={index}
+                  whileHover={{ x: 4 }}
+                >
+                  <Link 
+                    to={link.path} 
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                  >
+                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {link.label}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Stay updated</h3>
+            <p className="mt-6 text-muted-foreground text-sm leading-relaxed">
+              Get the latest updates and news from Karatina Innovation Club.
+            </p>
+            <form className="mt-6 space-y-3">
+              <div>
+                <Input 
+                  type="email" 
+                  placeholder="Your email address" 
+                  className="w-full bg-muted/50 border-border focus:ring-2 focus:ring-primary/50"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/60 transition-all"
+              >
                 Subscribe
               </Button>
-            </div>
+            </form>
           </div>
         </div>
-      </div>
-      
-      <div className="border-t border-gray-200">
-        <div className="container-custom py-6 flex flex-col items-center justify-between gap-4 md:flex-row">
-          <p className="text-sm text-gray-500">
-            &copy; {currentYear} Karatina Innovation Club. All rights reserved.
-          </p>
-          <div className="flex gap-4">
-            <Link to="/privacy" className="text-xs text-gray-500 hover:text-primary">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-xs text-gray-500 hover:text-primary">
-              Terms of Service
-            </Link>
-            <Link to="/contact" className="text-xs text-gray-500 hover:text-primary">
-              Contact Us
-            </Link>
+
+        {/* Footer Bottom */}
+        <div className="mt-16 border-t border-border pt-8 pb-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
+              &copy; {currentYear} Karatina Innovation Club. All rights reserved.
+            </p>
+
+            <div className="flex flex-wrap gap-4 justify-center md:justify-end">
+              {footerBottomLinks.map((link, index) => (
+                <Link 
+                  key={index}
+                  to={link.path}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
