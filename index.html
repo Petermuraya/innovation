@@ -1,48 +1,108 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
+    <!-- Primary Meta Tags -->
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Karatina Innovation Club - Building Technology Leaders</title>
-    <meta name="description" content="Karatina University Innovation Club - Building technology leaders of tomorrow through innovation, collaboration, and cutting-edge projects. Join our tech community." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- SEO Meta Tags -->
+    <title>Karatina Innovation Club | Tech Leadership & Student Innovation Hub</title>
+    <meta name="description" content="Karatina University's premier student tech hub fostering innovation, leadership & hands-on tech projects. Join our community of future tech leaders in Kenya." />
+    <meta name="keywords" content="Karatina University, Innovation Club, Tech Hub Kenya, Student Technology, Coding Club, STEM Kenya, University Innovation, Tech Leadership, Programming Club, Kenya Tech Community" />
     <meta name="author" content="Karatina Innovation Club" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#10B981" />
+    <meta name="revisit-after" content="7 days" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://karatinatech.com/" />
+    
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Karatina Innovation Club",
+      "url": "https://karatinatech.com/",
+      "logo": "https://karatinatech.com/images/logo.png",
+      "sameAs": [
+        "https://twitter.com/KaratinaUniv",
+        "https://www.facebook.com/KaratinaUniv/",
+        "https://www.instagram.com/karatinauniversityofficial/",
+        "https://www.linkedin.com/school/karatina-university/"
+      ],
+      "description": "Student-led technology innovation hub at Karatina University fostering tech leadership and practical skills development."
+    }
+    </script>
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Karatina Innovation Club - Building Technology Leaders" />
-    <meta property="og:description" content="Karatina University Innovation Club - Building technology leaders of tomorrow through innovation, collaboration, and cutting-edge projects." />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://karatinatech.com/" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:title" content="Karatina Innovation Club | Tech Leadership & Student Innovation Hub" />
+    <meta property="og:description" content="Karatina University's premier student tech hub fostering innovation, leadership & hands-on tech projects. Join our community of future tech leaders in Kenya." />
+    <meta property="og:image" content="https://karatinatech.com/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_KE" />
     <meta property="og:site_name" content="Karatina Innovation Club" />
 
-    <!-- Twitter Card -->
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@KaratinaInnoClub" />
-    <meta name="twitter:title" content="Karatina Innovation Club - Building Technology Leaders" />
-    <meta name="twitter:description" content="Building technology leaders of tomorrow through innovation and collaboration" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@KaratinaUniv" />
+    <meta name="twitter:creator" content="@KaratinaUniv" />
+    <meta name="twitter:title" content="Karatina Innovation Club | Tech Leadership & Student Innovation Hub" />
+    <meta name="twitter:description" content="Karatina University's premier student tech hub fostering innovation, leadership & hands-on tech projects. Join our community of future tech leaders in Kenya." />
+    <meta name="twitter:image" content="https://karatinatech.com/images/twitter-card.jpg" />
+    <meta name="twitter:image:alt" content="Karatina Innovation Club students working on tech projects" />
+
+    <!-- Favicon and App Icons -->
+    <link rel="icon" href="/innovation/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content="Karatina Innovation" />
+    <meta name="application-name" content="Karatina Innovation" />
+    <meta name="msapplication-TileColor" content="#10B981" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:wght@300;400;500;600;700&display=swap" as="style" />
+    <link rel="preload" href="data:application/octet-stream;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JwppbXBvcnQgeyBjcmVhdGVSb290IH0gZnJvbSAncmVhY3QtZG9tL2NsaWVudCcKaW1wb3J0IEFwcCBmcm9tICcuL0FwcC50c3gnCmltcG9ydCAnLi9pbmRleC5jc3MnCgpjb25zdCBjb250YWluZXIgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncm9vdCcpCgppZiAoIWNvbnRhaW5lcikgewogIHRocm93IG5ldyBFcnJvcignUm9vdCBjb250YWluZXIgbm90IGZvdW5kLiBNYWtlIHN1cmUgeW91ciBpbmRleC5odG1sIGhhcyBhIGRpdiB3aXRoIGlkPSJyb290IicpCn0KCmNvbnN0IHJvb3QgPSBjcmVhdGVSb290KGNvbnRhaW5lcikKCnJvb3QucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKQo=" as="script" />
+
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://platform.twitter.com" />
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:wght@300;400;500;600;700&display=swap" />
     
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/innovation/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <script type="module" crossorigin src="/innovation/assets/index-CmMKuph9.js"></script>
-    <link rel="stylesheet" crossorigin href="/innovation/assets/index-99mIgzEw.css">
+    <!-- Social Profile Links -->
+    <link rel="me" href="https://twitter.com/KaratinaUniv" title="Twitter Profile" />
+    <link rel="me" href="https://www.facebook.com/KaratinaUniv/" title="Facebook Page" />
+    <link rel="me" href="https://www.instagram.com/karatinauniversityofficial/" title="Instagram Profile" />
+    <link rel="me" href="https://www.linkedin.com/school/karatina-university/" title="LinkedIn Page" />
+    <script type="module" crossorigin src="/innovation/assets/index-DETIuXCp.js"></script>
+    <link rel="stylesheet" crossorigin href="/innovation/assets/index-CKNqqRHk.css">
   </head>
 
   <body>
+    <noscript>
+      <strong>We're sorry but Karatina Innovation Club website requires JavaScript to work properly. Please enable it to continue.</strong>
+      <p>Alternatively, you can visit our social media pages:
+        <a href="https://twitter.com/KaratinaUniv">Twitter</a>,
+        <a href="https://www.facebook.com/KaratinaUniv/">Facebook</a>, or
+        <a href="https://www.instagram.com/karatinauniversityofficial/">Instagram</a>.
+      </p>
+    </noscript>
+
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+
+    <!-- Vite/React App Entry -->
+    
+    <!-- Preconnect to important third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </body>
 </html>
