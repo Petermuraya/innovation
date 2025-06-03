@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Zap, Users, Award, Calendar, LayoutGrid, BookOpen } from 'lucide-react';
+import { Award } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import PaymentForm from './PaymentForm';
+import PaymentSuccess from './membership/PaymentSuccess';
+import PaymentOptionsForm from './membership/PaymentOptionsForm';
 
 const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean }) => {
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -15,33 +15,13 @@ const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean })
   const { toast } = useToast();
 
   const paymentOptions = {
-    registration: {
-      amount: 100,
-      label: "Registration Only",
-      description: "One-time club registration fee"
-    },
-    subscription: {
-      amount: 100,
-      label: "Subscription Only",
-      description: "Semester subscription (renewable)"
-    },
-    both: {
-      amount: 200,
-      label: "Registration + Subscription",
-      description: "Best value - register and get current semester access"
-    }
+    registration: { amount: 100 },
+    subscription: { amount: 100 },
+    both: { amount: 200 }
   };
 
-  // Map internal options to PaymentForm expected types
   const getPaymentType = (option: 'registration' | 'subscription' | 'both'): 'membership' | 'event' | 'other' => {
-    switch (option) {
-      case 'registration':
-      case 'subscription':
-      case 'both':
-        return 'membership';
-      default:
-        return 'other';
-    }
+    return 'membership';
   };
 
   const handlePaymentSuccess = () => {
@@ -56,15 +36,6 @@ const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean })
           : "You're registered with current semester access",
     });
   };
-
-  const benefits = [
-    { icon: <Zap className="h-5 w-5" />, text: 'Access to innovation workshops' },
-    { icon: <Calendar className="h-5 w-5" />, text: 'Event participation' },
-    { icon: <Users className="h-5 w-5" />, text: 'Networking opportunities' },
-    { icon: <BookOpen className="h-5 w-5" />, text: 'Learning resources' },
-    { icon: <LayoutGrid className="h-5 w-5" />, text: 'Project showcase' },
-    { icon: <Award className="h-5 w-5" />, text: 'Membership certificate' },
-  ];
 
   if (showPaymentForm && selectedOption) {
     return (
@@ -105,147 +76,14 @@ const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean })
         <CardContent className="p-6">
           <AnimatePresence mode="wait">
             {paymentSuccess ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center space-y-6"
-              >
-                <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <Check className="h-10 w-10 text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Welcome to KIC!
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {selectedOption === 'registration'
-                    ? "Your registration is complete. Consider adding subscription later."
-                    : selectedOption === 'subscription'
-                      ? "Your semester subscription is now active."
-                      : "You're fully registered with current semester access."}
-                </p>
-                <Button 
-                  variant="default" 
-                  className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600"
-                  size="lg"
-                >
-                  Access Member Resources
-                </Button>
-              </motion.div>
+              <PaymentSuccess selectedOption={selectedOption!} />
             ) : (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                {/* Payment Options */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-700 dark:text-gray-300">
-                    Select Payment Option:
-                  </h4>
-                  
-                  {!isRegistered && (
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        selectedOption === 'registration' 
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                          : 'border-gray-200 dark:border-gray-700'
-                      }`}
-                      onClick={() => setSelectedOption('registration')}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-bold">Registration Only</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            One-time club registration
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-lg font-mono">
-                          KSh 100
-                        </Badge>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <motion.div
-                    whileHover={{ scale: 1.01 }}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedOption === 'subscription' 
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                        : 'border-gray-200 dark:border-gray-700'
-                    }`}
-                    onClick={() => setSelectedOption('subscription')}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-bold">Semester Subscription</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Renewable each semester
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-lg font-mono">
-                        KSh 100
-                      </Badge>
-                    </div>
-                  </motion.div>
-
-                  {!isRegistered && (
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        selectedOption === 'both' 
-                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
-                          : 'border-gray-200 dark:border-gray-700'
-                      }`}
-                      onClick={() => setSelectedOption('both')}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-bold">Registration + Subscription</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Best value package
-                          </p>
-                        </div>
-                        <Badge variant="default" className="text-lg font-mono">
-                          KSh 200
-                        </Badge>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-
-                {/* Benefits */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-                  <h4 className="font-semibold mb-3">Membership Benefits</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {benefits.map((benefit, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
-                        <span className="text-blue-500">{benefit.icon}</span>
-                        {benefit.text}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Payment CTA */}
-                <div className="pt-2">
-                  <Button 
-                    onClick={() => selectedOption && setShowPaymentForm(true)}
-                    disabled={!selectedOption}
-                    className="w-full py-6 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg transition-all"
-                    size="lg"
-                  >
-                    {selectedOption 
-                      ? `Pay KSh ${paymentOptions[selectedOption].amount}` 
-                      : "Select an option above"}
-                  </Button>
-                  <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-                    Secure payment processing. Semester subscriptions auto-expire.
-                  </p>
-                </div>
-              </motion.div>
+              <PaymentOptionsForm
+                selectedOption={selectedOption}
+                setSelectedOption={setSelectedOption}
+                setShowPaymentForm={setShowPaymentForm}
+                isRegistered={isRegistered}
+              />
             )}
           </AnimatePresence>
         </CardContent>

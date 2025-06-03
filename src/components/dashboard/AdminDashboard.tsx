@@ -4,8 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import SecureRoute from '@/components/security/SecureRoute';
 import CommunityAdminManagement from '@/components/admin/CommunityAdminManagement';
 import EnhancedAdminRequestsManagement from '@/components/admin/EnhancedAdminRequestsManagement';
+import MembersManagement from './admin/MembersManagement';
+import PaymentsManagement from './admin/PaymentsManagement';
 
 // Dashboard Components
 const AdminDashboardHeader = () => (
@@ -41,59 +45,6 @@ const StatCard = ({ title, value, highlight = false }: { title: string, value: n
     <p className={`text-2xl font-bold ${highlight ? 'text-red-600' : 'text-gray-900'}`}>
       {value}
     </p>
-  </div>
-);
-
-// Management Components
-const MembersManagement = ({ members, updateMemberStatus }: { members: any[], updateMemberStatus: any }) => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <h2 className="text-xl font-semibold mb-4">Members Management</h2>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {members.map((member) => (
-            <tr key={member.id}>
-              <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{member.email}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                  ${member.registration_status === 'approved' ? 'bg-green-100 text-green-800' : 
-                    member.registration_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                    'bg-red-100 text-red-800'}`}>
-                  {member.registration_status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {member.registration_status === 'pending' && (
-                  <>
-                    <button 
-                      onClick={() => updateMemberStatus(member.id, 'approved')}
-                      className="text-green-600 hover:text-green-900 mr-2"
-                    >
-                      Approve
-                    </button>
-                    <button 
-                      onClick={() => updateMemberStatus(member.id, 'rejected')}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Reject
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   </div>
 );
 
@@ -156,34 +107,6 @@ const ProjectsManagement = ({ projects, updateProjectStatus }: { projects: any[]
   </div>
 );
 
-const PaymentsManagement = ({ payments }: { payments: any[] }) => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <h2 className="text-xl font-semibold mb-4">Payments Management</h2>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {payments.map((payment) => (
-            <tr key={payment.id}>
-              <td className="px-6 py-4 whitespace-nowrap">KSh {payment.amount}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{payment.members?.name || 'N/A'}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {new Date(payment.created_at).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
 const CertificateManager = () => (
   <div className="bg-white rounded-lg shadow p-4">
     <h2 className="text-xl font-semibold mb-4">Certificate Manager</h2>
@@ -198,15 +121,9 @@ const MPesaConfigManager = () => (
   </div>
 );
 
-const UserManagement = () => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <h2 className="text-xl font-semibold mb-4">User Management</h2>
-    <p>User management content goes here</p>
-  </div>
-);
-
 // Main Dashboard Component
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [stats, setStats] = useState({
@@ -301,7 +218,7 @@ const AdminDashboard = () => {
         description: `Registration ${status} successfully.`,
       });
       
-      fetchAdminData(); // Refresh data
+      fetchAdminData();
     } catch (error) {
       console.error('Error updating member status:', error);
       toast({
@@ -324,7 +241,7 @@ const AdminDashboard = () => {
         description: `Project ${status} successfully.`,
       });
       
-      fetchAdminData(); // Refresh data
+      fetchAdminData();
     } catch (error) {
       console.error('Error updating project status:', error);
       toast({
@@ -336,73 +253,70 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <AdminDashboardHeader />
-      <AdminDashboardStats stats={stats} />
+    <SecureRoute requiredRole="admin">
+      <div className="container mx-auto p-6">
+        <AdminDashboardHeader />
+        <AdminDashboardStats stats={stats} />
 
-      <Tabs defaultValue="members" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2">
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="certificates">Certificates</TabsTrigger>
-          <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="community-admins">Community Admins</TabsTrigger>
-          <TabsTrigger value="admin-requests">
-            Admin Requests
-            {stats.pendingAdminRequests > 0 && (
-              <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                {stats.pendingAdminRequests}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="members" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="events">Events</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="certificates">Certificates</TabsTrigger>
+            <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
+            <TabsTrigger value="community-admins">Community Admins</TabsTrigger>
+            <TabsTrigger value="admin-requests">
+              Admin Requests
+              {stats.pendingAdminRequests > 0 && (
+                <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                  {stats.pendingAdminRequests}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="members">
-          <MembersManagement 
-            members={members} 
-            updateMemberStatus={updateMemberStatus} 
-          />
-        </TabsContent>
+          <TabsContent value="members">
+            <MembersManagement 
+              members={members} 
+              updateMemberStatus={updateMemberStatus} 
+            />
+          </TabsContent>
 
-        <TabsContent value="events">
-          <EnhancedEventsManagement />
-        </TabsContent>
+          <TabsContent value="events">
+            <EnhancedEventsManagement />
+          </TabsContent>
 
-        <TabsContent value="projects">
-          <ProjectsManagement 
-            projects={projects} 
-            updateProjectStatus={updateProjectStatus} 
-          />
-        </TabsContent>
+          <TabsContent value="projects">
+            <ProjectsManagement 
+              projects={projects} 
+              updateProjectStatus={updateProjectStatus} 
+            />
+          </TabsContent>
 
-        <TabsContent value="payments">
-          <PaymentsManagement payments={payments} />
-        </TabsContent>
+          <TabsContent value="payments">
+            <PaymentsManagement payments={payments} />
+          </TabsContent>
 
-        <TabsContent value="certificates">
-          <CertificateManager />
-        </TabsContent>
+          <TabsContent value="certificates">
+            <CertificateManager />
+          </TabsContent>
 
-        <TabsContent value="mpesa">
-          <MPesaConfigManager />
-        </TabsContent>
+          <TabsContent value="mpesa">
+            <MPesaConfigManager />
+          </TabsContent>
 
-        <TabsContent value="users">
-          <UserManagement />
-        </TabsContent>
+          <TabsContent value="community-admins">
+            <CommunityAdminManagement />
+          </TabsContent>
 
-        <TabsContent value="community-admins">
-          <CommunityAdminManagement />
-        </TabsContent>
-
-        <TabsContent value="admin-requests">
-          <EnhancedAdminRequestsManagement />
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="admin-requests">
+            <EnhancedAdminRequestsManagement />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </SecureRoute>
   );
 };
 
