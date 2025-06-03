@@ -18,6 +18,13 @@ const Events = () => {
   const upcomingEvents = events.filter(event => new Date(event.date) >= now);
   const pastEvents = events.filter(event => new Date(event.date) < now);
 
+  // Convert database events to the format expected by StructuredData
+  const structuredDataEvents = upcomingEvents.map(event => ({
+    ...event,
+    time: formatTime(event.date),
+    type: getEventType(event)
+  }));
+
   const getEventType = (event: any) => {
     // Extract type from title or description, or default to "Event"
     const title = event.title.toLowerCase();
@@ -66,7 +73,7 @@ const Events = () => {
         keywords={["tech events", "workshops", "hackathons", "networking", "programming bootcamp", "innovation meetups"]}
       />
       
-      <StructuredData type="events" events={upcomingEvents} />
+      <StructuredData type="events" events={structuredDataEvents} />
 
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gray-50">

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface Event {
+interface DatabaseEvent {
   id: string;
   title: string;
   description: string;
@@ -19,7 +19,7 @@ interface Event {
 }
 
 export const useEventsData = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<DatabaseEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
