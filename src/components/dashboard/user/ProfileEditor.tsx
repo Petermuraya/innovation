@@ -21,9 +21,10 @@ interface Profile {
 
 interface ProfileEditorProps {
   memberData: any;
+  onUpdate?: () => void; // Added optional onUpdate prop
 }
 
-const ProfileEditor = ({ memberData }: ProfileEditorProps) => {
+const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -149,6 +150,11 @@ const ProfileEditor = ({ memberData }: ProfileEditorProps) => {
         title: "Profile updated",
         description: "Your profile has been saved successfully",
       });
+
+      // Call onUpdate callback if provided
+      if (onUpdate) {
+        onUpdate();
+      }
     } catch (error) {
       console.error('Error saving profile:', error);
       toast({

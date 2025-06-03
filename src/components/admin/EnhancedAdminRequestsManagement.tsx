@@ -16,8 +16,8 @@ interface AdminRequest {
   name: string;
   email: string;
   justification: string;
-  status: 'pending' | 'approved' | 'rejected';
-  admin_type: 'general' | 'community';
+  status: string; // Changed from union type to string to match database
+  admin_type: string; // Changed from union type to string to match database
   admin_code?: string;
   community_id?: string;
   created_at: string;
@@ -167,7 +167,7 @@ const EnhancedAdminRequestsManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: AdminRequest['status']) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="secondary" className="flex items-center gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
@@ -180,7 +180,7 @@ const EnhancedAdminRequestsManagement = () => {
     }
   };
 
-  const getAdminTypeBadge = (adminType: AdminRequest['admin_type']) => {
+  const getAdminTypeBadge = (adminType: string) => {
     switch (adminType) {
       case 'general':
         return <Badge variant="outline" className="flex items-center gap-1"><Shield className="h-3 w-3" />General Admin</Badge>;

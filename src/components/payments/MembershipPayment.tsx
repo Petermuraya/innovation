@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Zap, Users, Award, Calendar, LayoutGrid, BookOpen } from 'lucide-react';
@@ -31,6 +32,18 @@ const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean })
     }
   };
 
+  // Map internal options to PaymentForm expected types
+  const getPaymentType = (option: 'registration' | 'subscription' | 'both'): 'membership' | 'event' | 'other' => {
+    switch (option) {
+      case 'registration':
+      case 'subscription':
+      case 'both':
+        return 'membership';
+      default:
+        return 'other';
+    }
+  };
+
   const handlePaymentSuccess = () => {
     setShowPaymentForm(false);
     setPaymentSuccess(true);
@@ -57,7 +70,7 @@ const MembershipPayment = ({ isRegistered = false }: { isRegistered?: boolean })
     return (
       <PaymentForm
         amount={paymentOptions[selectedOption].amount}
-        paymentType={selectedOption}
+        paymentType={getPaymentType(selectedOption)}
         onSuccess={handlePaymentSuccess}
         onError={(error) => toast({
           title: "Payment Error",
