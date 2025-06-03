@@ -4,6 +4,8 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 export default function Layout() {
+  console.log("Layout component rendering");
+  
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />

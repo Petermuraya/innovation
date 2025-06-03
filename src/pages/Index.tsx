@@ -8,6 +8,8 @@ import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
 
 const Index = () => {
+  console.log("Index page rendering");
+  
   return (
     <div className="flex flex-col w-full bg-kic-lightGray">
       <SEOHead

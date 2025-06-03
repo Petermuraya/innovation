@@ -36,42 +36,46 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <ErrorBoundary>
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
-            <MetaHead />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Index />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="projects" element={<Projects />} />
-                  <Route path="events" element={<Events />} />
-                  <Route path="blogs" element={<Blogs />} />
-                  <Route path="careers" element={<Careers />} />
-                  <Route path="community" element={<Community />} />
-                  <Route path="leaderboard" element={<Leaderboard />} />
-                  <Route path="login" element={<Login />} />
-                  <Route path="register" element={<Register />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="payments" element={<Payments />} />
-                  <Route path="admin-register" element={<AdminRegister />} />
-                  <Route path="admin-request-pending" element={<AdminRequestPending />} />
-                  <Route path="404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" replace />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  console.log("App component rendering");
+  
+  return (
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <TooltipProvider>
+              <MetaHead />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Index />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="projects" element={<Projects />} />
+                    <Route path="events" element={<Events />} />
+                    <Route path="blogs" element={<Blogs />} />
+                    <Route path="careers" element={<Careers />} />
+                    <Route path="community" element={<Community />} />
+                    <Route path="leaderboard" element={<Leaderboard />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="register" element={<Register />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="payments" element={<Payments />} />
+                    <Route path="admin-register" element={<AdminRegister />} />
+                    <Route path="admin-request-pending" element={<AdminRequestPending />} />
+                    <Route path="404" element={<NotFound />} />
+                    <Route path="*" element={<Navigate to="/404" replace />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
