@@ -1,89 +1,68 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-
 interface Project {
   id: string;
   title: string;
-  description: string;
-  github_url: string;
-  tech_tags?: string[];
   status: string;
-  members?: { name: string };
+  members?: {
+    name: string;
+  };
 }
 
 interface ProjectsManagementProps {
   projects: Project[];
-  updateProjectStatus: (projectId: string, status: string) => void;
+  updateProjectStatus: (projectId: string, status: string) => Promise<void>;
 }
 
-const ProjectsManagement = ({ projects, updateProjectStatus }: ProjectsManagementProps) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Project Submissions</CardTitle>
-        <CardDescription>Review and approve project submissions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+const ProjectsManagement = ({ projects, updateProjectStatus }: ProjectsManagementProps) => (
+  <div className="bg-white rounded-lg shadow p-4">
+    <h2 className="text-xl font-semibold mb-4">Projects Management</h2>
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
           {projects.map((project) => (
-            <div key={project.id} className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium text-kic-gray">{project.title}</h4>
-                  <p className="text-sm text-kic-gray/70">By: {project.members?.name}</p>
-                  <p className="text-sm text-kic-gray/70 mt-1">{project.description}</p>
-                  <a 
-                    href={project.github_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-kic-green-500 hover:underline"
-                  >
-                    View on GitHub
-                  </a>
-                  <div className="flex space-x-2 mt-2">
-                    {project.tech_tags?.map((tag: string, index: number) => (
-                      <Badge key={index} variant="outline">{tag}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={
-                    project.status === 'approved' ? 'default' : 
-                    project.status === 'rejected' ? 'destructive' : 'secondary'
-                  }>
-                    {project.status}
-                  </Badge>
-                  {project.status === 'pending' && (
-                    <div className="space-x-2">
-                      <Button 
-                        size="sm" 
-                        className="bg-kic-green-500 hover:bg-kic-green-600"
-                        onClick={() => updateProjectStatus(project.id, 'approved')}
-                      >
-                        Approve
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="destructive"
-                        onClick={() => updateProjectStatus(project.id, 'rejected')}
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <tr key={project.id}>
+              <td className="px-6 py-4 whitespace-nowrap">{project.title}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{project.members?.name || 'N/A'}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  ${project.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                    project.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                    'bg-red-100 text-red-800'}`}>
+                  {project.status}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {project.status === 'pending' && (
+                  <>
+                    <button 
+                      onClick={() => updateProjectStatus(project.id, 'approved')}
+                      className="text-green-600 hover:text-green-900 mr-2"
+                    >
+                      Approve
+                    </button>
+                    <button 
+                      onClick={() => updateProjectStatus(project.id, 'rejected')}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+              </td>
+            </tr>
           ))}
-          {projects.length === 0 && (
-            <p className="text-kic-gray/70">No project submissions found</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
 
 export default ProjectsManagement;

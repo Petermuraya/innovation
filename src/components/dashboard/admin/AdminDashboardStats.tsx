@@ -1,6 +1,5 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Users, Calendar, GitBranch, CreditCard, FileText } from 'lucide-react';
+import AdminStatCard from './AdminStatCard';
 
 interface AdminDashboardStatsProps {
   stats: {
@@ -10,85 +9,24 @@ interface AdminDashboardStatsProps {
     pendingProjects: number;
     totalPayments: number;
     totalCertificates: number;
+    pendingAdminRequests: number;
   };
 }
 
-const AdminDashboardStats = ({ stats }: AdminDashboardStatsProps) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-kic-green-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Total Members</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.totalMembers}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-yellow-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Pending Members</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.pendingMembers}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-5 w-5 text-kic-green-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Total Events</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.totalEvents}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <GitBranch className="h-5 w-5 text-kic-green-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Pending Projects</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.pendingProjects}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <CreditCard className="h-5 w-5 text-kic-green-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Total Payments</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.totalPayments}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-kic-green-500" />
-            <div>
-              <p className="text-sm text-kic-gray/70">Certificates</p>
-              <p className="text-xl font-bold text-kic-gray">{stats.totalCertificates}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+const AdminDashboardStats = ({ stats }: AdminDashboardStatsProps) => (
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <AdminStatCard title="Total Members" value={stats.totalMembers} />
+    <AdminStatCard title="Pending Members" value={stats.pendingMembers} />
+    <AdminStatCard title="Total Events" value={stats.totalEvents} />
+    <AdminStatCard title="Pending Projects" value={stats.pendingProjects} />
+    <AdminStatCard title="Total Payments" value={stats.totalPayments} />
+    <AdminStatCard title="Certificates" value={stats.totalCertificates} />
+    <AdminStatCard 
+      title="Admin Requests" 
+      value={stats.pendingAdminRequests} 
+      highlight={stats.pendingAdminRequests > 0}
+    />
+  </div>
+);
 
 export default AdminDashboardStats;
