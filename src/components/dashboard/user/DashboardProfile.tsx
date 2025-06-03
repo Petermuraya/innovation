@@ -14,6 +14,11 @@ interface DashboardProfileProps {
 const DashboardProfile = ({ memberData }: DashboardProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
+  const handleUpdate = () => {
+    setIsEditing(false);
+    // Parent component will handle the actual data refresh
+  };
+
   if (isEditing) {
     return (
       <div className="space-y-4">
@@ -26,7 +31,7 @@ const DashboardProfile = ({ memberData }: DashboardProfileProps) => {
             Back to Profile
           </Button>
         </div>
-        <ProfileEditor memberData={memberData} />
+        <ProfileEditor memberData={memberData} onUpdate={handleUpdate} />
       </div>
     );
   }

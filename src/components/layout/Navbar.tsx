@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User, LogOut, ChevronDown, ChevronUp, ArrowRight, Users, Briefcase, Info, Home, BookOpen, Calendar, Layers } from 'lucide-react';
@@ -86,12 +87,6 @@ const Navbar = () => {
           icon: <BookOpen className="w-4 h-4 text-kic-green-500" />
         },
         { 
-          name: 'Community', 
-          href: '/community', 
-          description: 'Join our growing network',
-          icon: <Users className="w-4 h-4 text-kic-green-500" />
-        },
-        { 
           name: 'Careers', 
           href: '/careers', 
           description: 'Explore opportunities',
@@ -102,50 +97,16 @@ const Navbar = () => {
     { 
       name: 'Projects', 
       href: '/projects',
-      icon: <Layers className="w-4 h-4" />,
-      dropdown: [
-        { 
-          name: 'Current Initiatives', 
-          href: '/projects/current', 
-          description: 'See what we\'re working on now',
-          icon: <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-        },
-        { 
-          name: 'Success Stories', 
-          href: '/projects/past', 
-          description: 'View our completed projects',
-          icon: <div className="w-2 h-2 rounded-full bg-blue-500" />
-        },
-        { 
-          name: 'Get Involved', 
-          href: '/projects/involved', 
-          description: 'Contribute to our work',
-          icon: <div className="w-2 h-2 rounded-full bg-purple-500" />
-        }
-      ]
+      icon: <Layers className="w-4 h-4" />
     },
     { 
       name: 'Events', 
       href: '/events',
-      icon: <Calendar className="w-4 h-4" />,
-      dropdown: [
-        { 
-          name: 'Upcoming', 
-          href: '/events/upcoming', 
-          description: 'Join our next gatherings',
-          icon: <div className="w-2 h-2 rounded-full bg-yellow-500" />
-        },
-        { 
-          name: 'Past Events', 
-          href: '/events/past', 
-          description: 'Relive our previous events',
-          icon: <div className="w-2 h-2 rounded-full bg-gray-400" />
-        }
-      ]
+      icon: <Calendar className="w-4 h-4" />
     },
     { 
       name: 'Blog', 
-      href: '/blog',
+      href: '/blogs',
       icon: <BookOpen className="w-4 h-4" />
     },
     { 

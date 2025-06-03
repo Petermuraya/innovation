@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,7 +19,13 @@ import DashboardBadges from './user/DashboardBadges';
 interface MemberData {
   id: string;
   user_id: string;
-  // Add other member fields as needed
+  name: string;
+  email: string;
+  phone?: string;
+  course?: string;
+  bio?: string;
+  registration_status: string;
+  avatar_url?: string;
   [key: string]: any;
 }
 
@@ -38,11 +45,17 @@ const UserDashboard = () => {
     certificatesEarned: 0,
     totalPoints: 0,
   });
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [certificates, setCertificates] = useState<any[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
       fetchMemberData();
       fetchUserStats();
+      fetchUserData();
     }
   }, [user]);
 
@@ -108,10 +121,76 @@ const UserDashboard = () => {
     }
   };
 
+  const fetchUserData = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch notifications
+      const { data: notificationsData } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      setNotifications(notificationsData || []);
+
+      // Fetch projects
+      const { data: projectsData } = await supabase
+        .from('project_submissions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      setProjects(projectsData || []);
+
+      // Fetch certificates
+      const { data: certificatesData } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      setCertificates(certificatesData || []);
+
+      // Fetch upcoming events
+      const { data: eventsData } = await supabase
+        .from('events')
+        .select('*')
+        .gte('date', new Date().toISOString())
+        .order('date', { ascending: true })
+        .limit(5);
+
+      setUpcomingEvents(eventsData || []);
+
+      // Fetch payments
+      const { data: paymentsData } = await supabase
+        .from('mpesa_payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      setPayments(paymentsData || []);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const handleDataUpdate = () => {
+    fetchMemberData();
+    fetchUserStats();
+    fetchUserData();
+  };
+
   return (
     <div className="container mx-auto p-6">
       {memberData && <DashboardHeader user={memberData} memberData={memberData} />}
-      <DashboardStats stats={stats} />
+      <DashboardStats 
+        notifications={notifications}
+        projects={projects}
+        certificates={certificates}
+        upcomingEvents={upcomingEvents}
+      />
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="grid w-full grid-cols-8">
@@ -126,19 +205,22 @@ const UserDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <DashboardOverview stats={stats} />
+          <DashboardOverview 
+            notifications={notifications}
+            upcomingEvents={upcomingEvents}
+          />
         </TabsContent>
 
         <TabsContent value="profile">
           {memberData && (
-            <DashboardProfile memberData={memberData} onUpdate={fetchMemberData} />
+            <DashboardProfile memberData={memberData} />
           )}
         </TabsContent>
 
         <TabsContent value="projects">
           <EnhancedDashboardProjects 
-            projects={[]} 
-            onSuccess={() => fetchUserStats()} 
+            projects={projects} 
+            onSuccess={handleDataUpdate} 
           />
         </TabsContent>
 
@@ -155,12 +237,12 @@ const UserDashboard = () => {
         </TabsContent>
 
         <TabsContent value="payments">
-          <DashboardPayments payments={[]} />
+          <DashboardPayments payments={payments} />
         </TabsContent>
 
         <TabsContent value="certificates">
           <div className="grid gap-6">
-            <DashboardCertificates certificates={[]} />
+            <DashboardCertificates certificates={certificates} />
             <DashboardBadges />
           </div>
         </TabsContent>

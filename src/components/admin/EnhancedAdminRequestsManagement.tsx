@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface AdminRequest {
   id: string;
-  user_id: string;
+  user_id?: string;
   name: string;
   email: string;
   justification: string;
@@ -121,7 +122,7 @@ const EnhancedAdminRequestsManagement = () => {
         const request = requests.find(r => r.id === requestId);
         if (!request) throw new Error("Request not found");
 
-        if (request.admin_type === 'general') {
+        if (request.admin_type === 'general' && request.user_id) {
           // Assign general admin role
           const { error: roleError } = await supabase
             .from('user_roles')
@@ -131,7 +132,7 @@ const EnhancedAdminRequestsManagement = () => {
             });
 
           if (roleError) throw roleError;
-        } else if (request.admin_type === 'community' && request.community_id) {
+        } else if (request.admin_type === 'community' && request.community_id && request.user_id) {
           // Assign community admin role
           const { error: communityAdminError } = await supabase
             .from('community_admin_roles')

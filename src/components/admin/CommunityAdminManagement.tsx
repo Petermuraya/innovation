@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +19,8 @@ interface CommunityAdmin {
   role: string;
   assigned_at: string;
   is_active: boolean;
-  members?: {
-    name: string;
-  };
-  community_groups?: {
-    name: string;
-  };
+  member_name?: string;
+  community_name?: string;
 }
 
 interface Community {
@@ -60,40 +57,58 @@ const CommunityAdminManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Fetch community admins with user and community names
+      
+      // Fetch community admins with manual joins
       const { data: adminsData, error: adminsError } = await supabase
         .from('community_admin_roles')
-        .select(`
-          *,
-          members:members(name),
-          community_groups:community_groups(name)
-        `)
+        .select('*')
         .eq('is_active', true)
         .order('assigned_at', { ascending: false });
 
       if (adminsError) throw adminsError;
 
-      setCommunityAdmins(adminsData || []);
+      // Get member names and community names separately
+      const adminIds = adminsData?.map(admin => admin.user_id) || [];
+      const communityIds = adminsData?.map(admin => admin.community_id) || [];
 
-      // Fetch communities
-      const { data: communitiesData, error: communitiesError } = await supabase
+      const { data: membersData } = await supabase
+        .from('members')
+        .select('user_id, name')
+        .in('user_id', adminIds);
+
+      const { data: communitiesData } = await supabase
+        .from('community_groups')
+        .select('id, name')
+        .in('id', communityIds);
+
+      // Combine the data
+      const enrichedAdmins = adminsData?.map(admin => ({
+        ...admin,
+        member_name: membersData?.find(m => m.user_id === admin.user_id)?.name || 'Unknown',
+        community_name: communitiesData?.find(c => c.id === admin.community_id)?.name || 'Unknown'
+      })) || [];
+
+      setCommunityAdmins(enrichedAdmins);
+
+      // Fetch all communities
+      const { data: allCommunities, error: communitiesError } = await supabase
         .from('community_groups')
         .select('id, name')
         .eq('is_active', true)
         .order('name');
 
       if (communitiesError) throw communitiesError;
-      setCommunities(communitiesData || []);
+      setCommunities(allCommunities || []);
 
       // Fetch approved members
-      const { data: membersData, error: membersError } = await supabase
+      const { data: allMembers, error: membersError } = await supabase
         .from('members')
         .select('id, user_id, name, email')
         .eq('registration_status', 'approved')
         .order('name');
 
       if (membersError) throw membersError;
-      setMembers(membersData || []);
+      setMembers(allMembers || []);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -294,14 +309,14 @@ const CommunityAdminManagement = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4 text-blue-500" />
-                    <h4 className="font-medium text-kic-gray">{admin.members?.name || 'Unknown'}</h4>
+                    <h4 className="font-medium text-kic-gray">{admin.member_name}</h4>
                     <Badge variant="secondary">{admin.role}</Badge>
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm text-kic-gray/70">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {admin.community_groups?.name || 'Unknown'}
+                      {admin.community_name}
                     </div>
                     <div>
                       Assigned: {new Date(admin.assigned_at).toLocaleDateString()}

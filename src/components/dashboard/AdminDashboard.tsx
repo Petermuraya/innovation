@@ -1,8 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import CommunityAdminManagement from '@/components/admin/CommunityAdminManagement';
+import EnhancedAdminRequestsManagement from '@/components/admin/EnhancedAdminRequestsManagement';
 
 // Dashboard Components
 const AdminDashboardHeader = () => (
@@ -199,20 +202,6 @@ const UserManagement = () => (
   <div className="bg-white rounded-lg shadow p-4">
     <h2 className="text-xl font-semibold mb-4">User Management</h2>
     <p>User management content goes here</p>
-  </div>
-);
-
-const CommunityAdminManagement = () => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <h2 className="text-xl font-semibold mb-4">Community Admins</h2>
-    <p>Community admin management content goes here</p>
-  </div>
-);
-
-const EnhancedAdminRequestsManagement = () => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <h2 className="text-xl font-semibold mb-4">Admin Requests</h2>
-    <p>Admin requests management content goes here</p>
   </div>
 );
 
