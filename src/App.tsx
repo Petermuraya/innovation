@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,7 +47,8 @@ const App = () => {
               <MetaHead />
               <Toaster />
               <Sonner />
-              <BrowserRouter>
+              {/* Set basename to your repo name */}
+              <BrowserRouter basename="/innovation">
                 <Routes>
                   <Route path="/" element={<Layout />}>
                     <Route index element={<Index />} />
@@ -66,6 +66,7 @@ const App = () => {
                     <Route path="admin-register" element={<AdminRegister />} />
                     <Route path="admin-request-pending" element={<AdminRequestPending />} />
                     <Route path="404" element={<NotFound />} />
+                    {/* Redirect unknown routes to /404 */}
                     <Route path="*" element={<Navigate to="/404" replace />} />
                   </Route>
                 </Routes>
