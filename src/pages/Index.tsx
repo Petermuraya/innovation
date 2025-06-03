@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import UpcomingEvents from "@/components/home/UpcomingEvents";
@@ -8,7 +9,25 @@ import SEOHead from "@/components/seo/SEOHead";
 import StructuredData from "@/components/seo/StructuredData";
 
 const Index = () => {
-  console.log("Index page rendering");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    console.log("Index page mounted");
+    setIsLoaded(true);
+  }, []);
+
+  console.log("Index page rendering, isLoaded:", isLoaded);
+  
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-kic-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col w-full bg-kic-lightGray">

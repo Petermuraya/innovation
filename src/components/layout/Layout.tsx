@@ -2,6 +2,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import Chatbot from "@/components/chatbot/Chatbot";
 
 export default function Layout() {
   console.log("Layout component rendering");
@@ -13,6 +14,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 }
