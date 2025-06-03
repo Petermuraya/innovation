@@ -13,18 +13,6 @@ const Events = () => {
   const { events, loading } = useEventsData();
   const [activeTab, setActiveTab] = useState("upcoming");
 
-  // Separate upcoming and past events
-  const now = new Date();
-  const upcomingEvents = events.filter(event => new Date(event.date) >= now);
-  const pastEvents = events.filter(event => new Date(event.date) < now);
-
-  // Convert database events to the format expected by StructuredData
-  const structuredDataEvents = upcomingEvents.map(event => ({
-    ...event,
-    time: formatTime(event.date),
-    type: getEventType(event)
-  }));
-
   const getEventType = (event: any) => {
     // Extract type from title or description, or default to "Event"
     const title = event.title.toLowerCase();
@@ -52,6 +40,22 @@ const Events = () => {
       minute: '2-digit' 
     });
   };
+
+  // Separate upcoming and past events
+  const now = new Date();
+  const upcomingEvents = events.filter(event => new Date(event.date) >= now);
+  const pastEvents = events.filter(event => new Date(event.date) < now);
+
+  // Convert database events to the format expected by StructuredData
+  const structuredDataEvents = upcomingEvents.map((event, index) => ({
+    id: index + 1, // Convert UUID to number for StructuredData
+    title: event.title,
+    description: event.description,
+    date: event.date,
+    time: formatTime(event.date),
+    location: event.location,
+    type: getEventType(event)
+  }));
 
   if (loading) {
     return (
