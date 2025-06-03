@@ -1,9 +1,19 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Bell, 
+  Check, 
+  AlertCircle, 
+  Calendar, 
+  DollarSign, 
+  Megaphone, 
+  Star,
+  X
+} from 'lucide-react';
 
 interface Notification {
   id: string;
@@ -12,14 +22,35 @@ interface Notification {
   type: string;
   is_read: boolean;
   created_at: string;
+  priority?: 'low' | 'medium' | 'high';
+  action_url?: string;
 }
 
 interface NotificationsListProps {
   notifications: Notification[];
+  onMarkAllRead?: () => void;
+  onDismiss?: (id: string) => void;
 }
 
-const NotificationsList = ({ notifications }: NotificationsListProps) => {
+const typeIcons = {
+  event: <Calendar className="w-4 h-4" />,
+  payment: <DollarSign className="w-4 h-4" />,
+  approval: <Star className="w-4 h-4" />,
+  announcement: <Megaphone className="w-4 h-4" />,
+  alert: <AlertCircle className="w-4 h-4" />,
+};
+
+const NotificationsList = ({ 
+  notifications, 
+  onMarkAllRead,
+  onDismiss
+}: NotificationsListProps) => {
   const [localNotifications, setLocalNotifications] = useState(notifications);
+  const [isHovering, setIsHovering] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalNotifications(notifications);
+  }, [notifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -38,63 +69,162 @@ const NotificationsList = ({ notifications }: NotificationsListProps) => {
     }
   };
 
+  const dismissNotification = async (notificationId: string) => {
+    try {
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
+
+      setLocalNotifications(prev => 
+        prev.filter(notif => notif.id !== notificationId)
+      );
+
+      if (onDismiss) {
+        onDismiss(notificationId);
+      }
+    } catch (error) {
+      console.error('Error dismissing notification:', error);
+    }
+  };
+
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'event': return 'bg-blue-100 text-blue-800';
-      case 'payment': return 'bg-green-100 text-green-800';
-      case 'approval': return 'bg-yellow-100 text-yellow-800';
-      case 'announcement': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'event': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'payment': return 'bg-green-100 text-green-800 border-green-200';
+      case 'approval': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'announcement': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'alert': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case 'high': return 'border-l-4 border-l-red-500';
+      case 'medium': return 'border-l-4 border-l-amber-500';
+      case 'low': return 'border-l-4 border-l-blue-500';
+      default: return '';
     }
   };
 
   if (localNotifications.length === 0) {
-    return <p className="text-kic-gray/70">No notifications</p>;
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Bell className="w-10 h-10 text-gray-300 mb-4" />
+        <p className="text-gray-500">No notifications yet</p>
+        <p className="text-sm text-gray-400 mt-1">We'll notify you when something arrives</p>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-3">
-      {localNotifications.map((notification) => (
-        <div
-          key={notification.id}
-          className={`p-3 rounded-lg border ${
-            notification.is_read ? 'bg-gray-50' : 'bg-white border-kic-green-200'
-          }`}
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <h4 className={`font-medium text-sm ${
-                  notification.is_read ? 'text-gray-600' : 'text-kic-gray'
-                }`}>
-                  {notification.title}
-                </h4>
-                <Badge className={getTypeColor(notification.type)}>
-                  {notification.type}
-                </Badge>
-              </div>
-              <p className={`text-sm ${
-                notification.is_read ? 'text-gray-500' : 'text-kic-gray/70'
-              }`}>
-                {notification.message}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-              </p>
-            </div>
-            {!notification.is_read && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => markAsRead(notification.id)}
-                className="text-xs"
-              >
-                Mark read
-              </Button>
-            )}
-          </div>
+    <div className="space-y-2">
+      {onMarkAllRead && localNotifications.some(n => !n.is_read) && (
+        <div className="flex justify-end px-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onMarkAllRead}
+            className="text-xs text-gray-500 hover:text-gray-700"
+          >
+            Mark all as read
+          </Button>
         </div>
-      ))}
+      )}
+
+      <AnimatePresence>
+        {localNotifications.map((notification) => (
+          <motion.div
+            key={notification.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.2 }}
+            className={`relative ${getPriorityColor(notification.priority)}`}
+            onMouseEnter={() => setIsHovering(notification.id)}
+            onMouseLeave={() => setIsHovering(null)}
+          >
+            <div className={`p-4 rounded-lg border transition-all duration-200 ${
+              notification.is_read 
+                ? 'bg-gray-50/50 border-gray-200' 
+                : 'bg-white border-gray-300 shadow-sm'
+            } ${
+              isHovering === notification.id ? 'ring-1 ring-gray-300' : ''
+            }`}>
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className={`p-1.5 rounded-md ${getTypeColor(notification.type)}`}>
+                      {typeIcons[notification.type as keyof typeof typeIcons] || <Bell className="w-4 h-4" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className={`font-medium text-sm ${
+                          notification.is_read ? 'text-gray-600' : 'text-gray-900'
+                        }`}>
+                          {notification.title}
+                        </h4>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs capitalize ${getTypeColor(notification.type)}`}
+                        >
+                          {notification.type}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className={`text-sm mt-1 ${
+                    notification.is_read ? 'text-gray-500' : 'text-gray-700'
+                  }`}>
+                    {notification.message}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs text-gray-400">
+                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                    </p>
+                    {notification.action_url && (
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="text-xs h-auto p-0"
+                        asChild
+                      >
+                        <a href={notification.action_url}>View details</a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-1">
+                  {!notification.is_read && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => markAsRead(notification.id)}
+                      className="h-8 w-8 hover:bg-gray-200/50"
+                      title="Mark as read"
+                    >
+                      <Check className="w-4 h-4 text-gray-500" />
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => dismissNotification(notification.id)}
+                    className="h-8 w-8 hover:bg-gray-200/50"
+                    title="Dismiss"
+                  >
+                    <X className="w-4 h-4 text-gray-500" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 };
