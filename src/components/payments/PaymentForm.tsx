@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +14,10 @@ interface PaymentFormProps {
   paymentType: 'membership' | 'event' | 'other';
   referenceId?: string;
   onSuccess?: () => void;
+  onError?: (error: string) => void;
 }
 
-const PaymentForm = ({ amount, paymentType, referenceId, onSuccess }: PaymentFormProps) => {
+const PaymentForm = ({ amount, paymentType, referenceId, onSuccess, onError }: PaymentFormProps) => {
   const { user } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
@@ -117,6 +117,7 @@ const PaymentForm = ({ amount, paymentType, referenceId, onSuccess }: PaymentFor
       const errorMessage = error.message || 'Failed to initiate payment. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage);
+      onError?.(errorMessage);
     } finally {
       setLoading(false);
     }
