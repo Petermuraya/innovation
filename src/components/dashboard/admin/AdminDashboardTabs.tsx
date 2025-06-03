@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SecureRoute from '@/components/security/SecureRoute';
-import CommunityAdminManagement from '@/components/admin/CommunityAdminManagement';
+import CommunityAdminManagement from './CommunityAdminManagement';
 import RefactoredAdminRequestsManagement from '@/components/admin/RefactoredAdminRequestsManagement';
 import MembersManagement from './MembersManagement';
 import PaymentsManagement from './PaymentsManagement';
