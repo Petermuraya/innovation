@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
@@ -183,7 +182,7 @@ const UserDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 sm:p-6">
       {memberData && <DashboardHeader user={memberData} memberData={memberData} />}
       <DashboardStats 
         notifications={notifications}
@@ -193,16 +192,18 @@ const UserDashboard = () => {
       />
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="careers">Careers</TabsTrigger>
-          <TabsTrigger value="blogging">Blogging</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="certificates">Certificates</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1 h-auto p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
+            <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
+            <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
+            <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
+            <TabsTrigger value="blogging" className="text-xs sm:text-sm">Blogging</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
+            <TabsTrigger value="certificates" className="text-xs sm:text-sm">Certificates</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview">
           <DashboardOverview 

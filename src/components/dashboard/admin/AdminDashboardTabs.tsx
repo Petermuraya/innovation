@@ -9,6 +9,8 @@ import ProjectsManagement from './ProjectsManagement';
 import CertificateManager from './CertificateManager';
 import MPesaConfigManager from './MPesaConfigManager';
 import EnhancedEventsManagement from './EnhancedEventsManagement';
+import UserManagement from './UserManagement';
+import BlogManagement from './BlogManagement';
 
 interface AdminDashboardTabsProps {
   stats: {
@@ -32,23 +34,27 @@ const AdminDashboardTabs = ({
   return (
     <SecureRoute requiredRole="admin">
       <Tabs defaultValue="members" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="certificates">Certificates</TabsTrigger>
-          <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
-          <TabsTrigger value="community-admins">Community Admins</TabsTrigger>
-          <TabsTrigger value="admin-requests">
-            Admin Requests
-            {stats.pendingAdminRequests > 0 && (
-              <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                {stats.pendingAdminRequests}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-1 h-auto p-1">
+            <TabsTrigger value="members" className="text-xs sm:text-sm">Members</TabsTrigger>
+            <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
+            <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
+            <TabsTrigger value="blogs" className="text-xs sm:text-sm">Blogs</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm">Users</TabsTrigger>
+            <TabsTrigger value="certificates" className="text-xs sm:text-sm">Certificates</TabsTrigger>
+            <TabsTrigger value="mpesa" className="text-xs sm:text-sm">M-Pesa</TabsTrigger>
+            <TabsTrigger value="community-admins" className="text-xs sm:text-sm">Community Admins</TabsTrigger>
+            <TabsTrigger value="admin-requests" className="text-xs sm:text-sm relative">
+              Admin Requests
+              {stats.pendingAdminRequests > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {stats.pendingAdminRequests}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="members">
           <MembersManagement 
@@ -70,6 +76,14 @@ const AdminDashboardTabs = ({
 
         <TabsContent value="payments">
           <PaymentsManagement payments={payments} />
+        </TabsContent>
+
+        <TabsContent value="blogs">
+          <BlogManagement />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <UserManagement />
         </TabsContent>
 
         <TabsContent value="certificates">
