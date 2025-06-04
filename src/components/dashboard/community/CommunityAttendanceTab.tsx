@@ -23,18 +23,14 @@ interface AttendanceRecord {
   meeting_date: string;
   notes?: string;
   created_at: string;
-  members?: {
-    name: string;
-    email: string;
-  };
+  member_name?: string;
+  member_email?: string;
 }
 
 interface CommunityMember {
   user_id: string;
-  members?: {
-    name: string;
-    email: string;
-  };
+  member_name?: string;
+  member_email?: string;
 }
 
 const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) => {
@@ -52,24 +48,33 @@ const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) =>
 
   const fetchAttendance = async () => {
     try {
-      const { data, error } = await supabase
+      // First get attendance records
+      const { data: attendanceData, error: attendanceError } = await supabase
         .from('community_meeting_attendance')
-        .select(`
-          id,
-          user_id,
-          meeting_date,
-          notes,
-          created_at,
-          members (
-            name,
-            email
-          )
-        `)
+        .select('*')
         .eq('community_id', communityId)
         .order('meeting_date', { ascending: false });
 
-      if (error) throw error;
-      setAttendance(data || []);
+      if (attendanceError) throw attendanceError;
+
+      // Then get member information for each attendance record
+      const attendanceWithMembers = await Promise.all(
+        (attendanceData || []).map(async (record) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name, email')
+            .eq('user_id', record.user_id)
+            .single();
+
+          return {
+            ...record,
+            member_name: memberData?.name || 'Unknown Member',
+            member_email: memberData?.email || '',
+          };
+        })
+      );
+
+      setAttendance(attendanceWithMembers);
     } catch (error) {
       console.error('Error fetching attendance:', error);
       toast({
@@ -84,20 +89,33 @@ const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) =>
 
   const fetchCommunityMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // Get community memberships
+      const { data: memberships, error: membershipsError } = await supabase
         .from('community_memberships')
-        .select(`
-          user_id,
-          members (
-            name,
-            email
-          )
-        `)
+        .select('user_id')
         .eq('community_id', communityId)
         .eq('status', 'active');
 
-      if (error) throw error;
-      setMembers(data || []);
+      if (membershipsError) throw membershipsError;
+
+      // Get member details for each membership
+      const membersWithDetails = await Promise.all(
+        (memberships || []).map(async (membership) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name, email')
+            .eq('user_id', membership.user_id)
+            .single();
+
+          return {
+            user_id: membership.user_id,
+            member_name: memberData?.name || 'Unknown Member',
+            member_email: memberData?.email || '',
+          };
+        })
+      );
+
+      setMembers(membersWithDetails);
     } catch (error) {
       console.error('Error fetching members:', error);
     }
@@ -193,7 +211,7 @@ const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) =>
                   <SelectContent>
                     {members.map((member) => (
                       <SelectItem key={member.user_id} value={member.user_id}>
-                        {member.members?.name} ({member.members?.email})
+                        {member.member_name} ({member.member_email})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -249,7 +267,7 @@ const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) =>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {records.map((record) => (
                   <div key={record.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="font-medium">{record.members?.name}</span>
+                    <span className="font-medium">{record.member_name}</span>
                     {record.notes && (
                       <span className="text-xs text-gray-500" title={record.notes}>
                         📝
