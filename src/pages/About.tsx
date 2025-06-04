@@ -55,10 +55,11 @@ const teamMembers = [
 // Sample partners data
 const partners = [
   {
-    name: "TechCo",
-    logo: "https://via.placeholder.com/150x80?text=TechCo",
-    url: "#",
-  },
+  name: "Akiliedge Solutions",
+  logo: "https://i.postimg.cc/sxmVXMzS/logo1-BEr67y-XY.png",
+  url: "https://www.akiliedgesolutions.co.ke/",
+},
+
   {
     name: "InnovateHub",
     logo: "https://via.placeholder.com/150x80?text=InnovateHub",
