@@ -13,6 +13,7 @@ import DashboardBlogging from './user/DashboardBlogging';
 import DashboardPayments from './user/DashboardPayments';
 import DashboardCertificates from './user/DashboardCertificates';
 import DashboardBadges from './user/DashboardBadges';
+import DashboardCommunities from './user/DashboardCommunities';
 
 // Define types for better type safety
 interface MemberData {
@@ -216,9 +217,10 @@ const UserDashboard = () => {
 
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="overflow-x-auto">
-          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-9 gap-1 h-auto p-1">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
+            <TabsTrigger value="communities" className="text-xs sm:text-sm">Communities</TabsTrigger>
             <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
             <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
             <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
@@ -239,6 +241,10 @@ const UserDashboard = () => {
           {memberData && (
             <DashboardProfile memberData={memberData} />
           )}
+        </TabsContent>
+
+        <TabsContent value="communities">
+          <DashboardCommunities />
         </TabsContent>
 
         <TabsContent value="projects">
