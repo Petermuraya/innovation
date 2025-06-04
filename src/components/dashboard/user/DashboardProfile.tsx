@@ -45,7 +45,7 @@ const DashboardProfile = ({ memberData }: DashboardProfileProps) => {
                 </DialogHeader>
                 <ProfileEditor 
                   memberData={memberData} 
-                  onSuccess={handleProfileUpdate}
+                  onUpdate={handleProfileUpdate}
                 />
               </DialogContent>
             </Dialog>
