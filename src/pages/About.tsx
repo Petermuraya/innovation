@@ -3,32 +3,53 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Sample team data
+// Updated team data
 const teamMembers = [
   {
-    name: "Alice Johnson",
-    role: "Club President",
-    image: "https://randomuser.me/api/portraits/women/32.jpg",
-    bio: "Computer Science student passionate about AI and machine learning.",
+    name: "Brenda Chepngeno",
+    role: "Vice-Secretary",
+    image: "https://i.postimg.cc/B6zjYGxK/brenda.png",
+    bio: "Computer Science student and Full Stack Developer.",
+    linkedin: "https://www.linkedin.com/in/brenda-chepngeno-048058267"
   },
   {
-    name: "Robert Chen",
-    role: "Vice President",
-    image: "https://randomuser.me/api/portraits/men/22.jpg",
-    bio: "Software Engineering student with expertise in web development.",
+    name: "Juliana Kavinya Safari",
+    role: "Deputy President",
+    image: "https://i.postimg.cc/0jfX7cgr/safari.jpg",
+    bio: "Computer Science student passionate about leadership and tech communities.",
+    linkedin: "https://www.linkedin.com/in/juliana-safari-6833b12a4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    github: "https://github.com/JulianaKavinya"
   },
   {
-    name: "Emily Mwangi",
-    role: "Technical Lead",
-    image: "https://randomuser.me/api/portraits/women/45.jpg",
-    bio: "IT student specializing in cloud infrastructure and DevOps.",
+    name: "Jane Muraya",
+    role: "Cybersecurity Lead",
+    image: "https://i.postimg.cc/NF6SpmV2/jane.jpg",
+    bio: "Cybersecurity enthusiast dedicated to digital safety and ethical hacking.",
+    linkedin: "https://www.linkedin.com/in/jane-muraya-a00b63277",
+    github: "https://github.com/Janemura"
   },
   {
-    name: "David Ochieng",
-    role: "Community Manager",
-    image: "https://randomuser.me/api/portraits/men/40.jpg",
-    bio: "Communications student with a passion for technology and community building.",
+    name: "Kalama Brian Ziro",
+    role: "Organizing Secretary",
+    image: "https://i.postimg.cc/bwx0rLnt/brian.jpg",
+    bio: "BSc Actuarial Science student with a keen interest in data-driven decisions.",
+    linkedin: "https://www.linkedin.com/in/brian-ziro-045356357?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    github: "https://github.com/BrianZiro"
   },
+  {
+    name: "Fabian Musau",
+    role: "Web Community Lead & Innovation Club Secretary",
+    image: "https://i.postimg.cc/y8NHLpTm/fabian.png",
+    bio: "Third-year Computer Science student passionate about web development and innovation.",
+    linkedin: "https://www.linkedin.com/in/fabian-musau/"
+  },
+  {
+    name: "Benjamin Justin",
+    role: "President & Blockchain and Web3 Community Lead",
+    image: "https://i.postimg.cc/hPDvqrrj/benja.jpg",
+    bio: "BSc Information Technology student pioneering blockchain and decentralized tech communities.",
+    linkedin: "https://www.linkedin.com/in/benjamin-justin-3291572b1"
+  }
 ];
 
 // Sample partners data
