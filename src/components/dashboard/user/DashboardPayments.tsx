@@ -23,7 +23,7 @@ const DashboardPayments = ({ payments }: DashboardPaymentsProps) => {
     loading: true
   });
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<'membership' | 'subscription'>('membership');
+  const [selectedPaymentType, setSelectedPaymentType] = useState<'membership'>('membership');
 
   useEffect(() => {
     fetchPaymentStatus();
@@ -65,14 +65,12 @@ const DashboardPayments = ({ payments }: DashboardPaymentsProps) => {
     fetchPaymentStatus(); // Refresh payment status
     toast({
       title: "Payment Successful!",
-      description: selectedPaymentType === 'membership' 
-        ? "Your registration payment has been processed successfully" 
-        : "Your subscription payment has been processed successfully",
+      description: "Your payment has been processed successfully",
     });
   };
 
-  const initiatePayment = (type: 'membership' | 'subscription') => {
-    setSelectedPaymentType(type);
+  const initiatePayment = (type: 'registration' | 'subscription') => {
+    setSelectedPaymentType('membership'); // Always use 'membership' as the payment type
     setShowPaymentForm(true);
   };
 
@@ -87,8 +85,8 @@ const DashboardPayments = ({ payments }: DashboardPaymentsProps) => {
           ← Back to Payments
         </Button>
         <PaymentForm
-          amount={selectedPaymentType === 'membership' ? 100 : 100}
-          paymentType={selectedPaymentType}
+          amount={100}
+          paymentType="membership"
           onSuccess={handlePaymentSuccess}
           onError={(error) => toast({
             title: "Payment Error",
@@ -132,7 +130,7 @@ const DashboardPayments = ({ payments }: DashboardPaymentsProps) => {
                 {!paymentStatus.registration && (
                   <Button 
                     size="sm" 
-                    onClick={() => initiatePayment('membership')}
+                    onClick={() => initiatePayment('registration')}
                     className="bg-kic-green-500 hover:bg-kic-green-600"
                   >
                     <Smartphone className="w-4 h-4 mr-2" />
