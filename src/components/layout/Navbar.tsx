@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X, User, LogOut, ChevronDown, ChevronUp, ArrowRight, Users, Briefcase, Info, Home, BookOpen, Calendar, Layers } from 'lucide-react';
@@ -8,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import clubLogo from "/public/inovationclub.svg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -126,26 +126,35 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo with animation */}
-          <Link 
-            to="/" 
-            className="flex items-center space-x-3 flex-shrink-0 group"
-            aria-label="Home"
-          >
-            <motion.div 
-              whileHover={{ rotate: 12, scale: 1.05 }}
-              className="w-10 h-10 bg-gradient-to-r from-kic-green-500 to-kic-green-600 rounded-lg flex items-center justify-center shadow-md"
-            >
-              <span className="text-white font-bold text-lg">KIC</span>
-            </motion.div>
-            <motion.span 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-xl font-bold text-gray-900 hidden sm:inline"
-            >
-              Innovation Club
-            </motion.span>
-          </Link>
+         <Link 
+  to="/" 
+  className="flex items-center space-x-3 flex-shrink-0 group"
+  aria-label="Home"
+>
+  <motion.div 
+    whileHover={{ scale: 1.05 }}
+    className="flex items-center space-x-3"
+  >
+    {/* Logo */}
+    <img 
+      src="public/inovationclub.svg" 
+      alt="Innovation Club Logo"
+      className="w-16 h-16 object-contain"
+    />
+
+    {/* Text Content */}
+    <div className="flex flex-col">
+      <h1 className="text-2xl font-bold text-gray-900 uppercase tracking-wider">
+        INNOVATION CLUB
+      </h1>
+      <p className="text-xs text-gray-600">KARATINA UNIVERSITY</p>
+      <p className="text-xs text-kic-green-600 font-medium italic">
+        DREAM, CREATE AND INSPIRE FOR A BETTER FUTURE
+      </p>
+    </div>
+  </motion.div>
+</Link>
+
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
