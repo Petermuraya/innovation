@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,6 @@ interface MemberRank {
   user_id: string;
   name: string;
   avatar_url?: string;
-  email: string;
   total_points: number;
   events_attended: number;
   badges_earned: number;
@@ -179,7 +179,6 @@ const MemberRanking = () => {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">{member.email}</p>
                   </div>
                 </div>
               </div>

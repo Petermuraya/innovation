@@ -162,7 +162,7 @@ const UserDashboard = () => {
 
       setUpcomingEvents(eventsData || []);
 
-      // Fetch payments
+      // Fetch payments with real-time subscription
       const { data: paymentsData } = await supabase
         .from('mpesa_payments')
         .select('*')
@@ -170,6 +170,29 @@ const UserDashboard = () => {
         .order('created_at', { ascending: false });
 
       setPayments(paymentsData || []);
+
+      // Set up real-time subscription for payment updates
+      const paymentSubscription = supabase
+        .channel('payment-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'mpesa_payments',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Payment update received:', payload);
+            // Refresh payments data
+            fetchUserData();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(paymentSubscription);
+      };
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
