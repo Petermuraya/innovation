@@ -2,10 +2,11 @@
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotifications } from '@/components/notifications/NotificationProvider';
 import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import NotificationsList from '@/components/dashboard/NotificationsList';
 
 interface DashboardHeaderProps {
   memberData: any;
@@ -14,31 +15,7 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ memberData, user }: DashboardHeaderProps) => {
   const { signOut } = useAuth();
-  const [notifications, setNotifications] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user]);
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_read', false)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -59,17 +36,45 @@ const DashboardHeader = ({ memberData, user }: DashboardHeaderProps) => {
       </div>
       
       <div className="flex items-center gap-3">
-        <div className="relative">
-          <Bell className="w-5 h-5 text-kic-gray" />
-          {notifications.length > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 text-xs"
-            >
-              {notifications.length}
-            </Badge>
-          )}
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="relative">
+              <Bell className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 text-xs"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">Notifications</h3>
+                {unreadCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    className="text-xs"
+                  >
+                    Mark all read
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="max-h-96 overflow-y-auto">
+              <NotificationsList 
+                notifications={notifications.slice(0, 10)} 
+                onMarkAllRead={markAllAsRead}
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
+        
         <Button onClick={signOut} variant="outline" size="sm">
           Sign Out
         </Button>
