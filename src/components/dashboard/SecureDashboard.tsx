@@ -1,8 +1,10 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberStatus } from '@/hooks/useMemberStatus';
+import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
+import CommunityDashboard from '@/components/dashboard/community/CommunityDashboard';
 import RegistrationPending from '@/components/auth/RegistrationPending';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,8 +13,9 @@ import { AlertTriangle, UserX } from 'lucide-react';
 const SecureDashboard = () => {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { loading: statusLoading, isApproved, memberData } = useMemberStatus();
+  const { communities: adminCommunities, loading: communityLoading } = useCommunityAdminData();
 
-  if (authLoading || statusLoading) {
+  if (authLoading || statusLoading || communityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
         <Card>
@@ -28,11 +31,20 @@ const SecureDashboard = () => {
     return null; // This will be handled by ProtectedRoute
   }
 
-  // Admins can always access the dashboard
+  // Main admins can always access the admin dashboard
   if (isAdmin) {
     return (
       <div className="min-h-screen bg-kic-lightGray">
         <AdminDashboard />
+      </div>
+    );
+  }
+
+  // Community admins can access the community dashboard
+  if (adminCommunities && adminCommunities.length > 0) {
+    return (
+      <div className="min-h-screen bg-kic-lightGray">
+        <CommunityDashboard />
       </div>
     );
   }

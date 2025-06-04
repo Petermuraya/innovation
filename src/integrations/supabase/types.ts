@@ -60,6 +60,13 @@ export type Database = {
             foreignKeyName: "admin_requests_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "admin_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
             referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
@@ -386,6 +393,13 @@ export type Database = {
             foreignKeyName: "community_admin_roles_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_admin_roles_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
             referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
@@ -421,6 +435,55 @@ export type Database = {
             foreignKeyName: "community_admins_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_admins_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_dashboard_permissions: {
+        Row: {
+          admin_user_id: string
+          community_id: string
+          created_at: string | null
+          id: string
+          permissions: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          community_id: string
+          created_at?: string | null
+          id?: string
+          permissions?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          community_id?: string
+          created_at?: string | null
+          id?: string
+          permissions?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_dashboard_permissions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_dashboard_permissions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
             referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
@@ -450,6 +513,13 @@ export type Database = {
             foreignKeyName: "community_events_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_events_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
             referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
@@ -473,8 +543,11 @@ export type Database = {
           is_active: boolean | null
           lead_id: string | null
           meeting_days: string[] | null
+          meeting_location: string | null
           meeting_schedule: string
+          meeting_time: string | null
           name: string
+          next_meeting_date: string | null
           updated_at: string
         }
         Insert: {
@@ -487,8 +560,11 @@ export type Database = {
           is_active?: boolean | null
           lead_id?: string | null
           meeting_days?: string[] | null
+          meeting_location?: string | null
           meeting_schedule: string
+          meeting_time?: string | null
           name: string
+          next_meeting_date?: string | null
           updated_at?: string
         }
         Update: {
@@ -501,11 +577,59 @@ export type Database = {
           is_active?: boolean | null
           lead_id?: string | null
           meeting_days?: string[] | null
+          meeting_location?: string | null
           meeting_schedule?: string
+          meeting_time?: string | null
           name?: string
+          next_meeting_date?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      community_meeting_attendance: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          id: string
+          marked_by: string
+          meeting_date: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          id?: string
+          marked_by: string
+          meeting_date: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          id?: string
+          marked_by?: string
+          meeting_date?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_meeting_attendance_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_meeting_attendance_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_memberships: {
         Row: {
@@ -530,6 +654,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "community_memberships_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
           {
             foreignKeyName: "community_memberships_community_id_fkey"
             columns: ["community_id"]
@@ -572,6 +703,13 @@ export type Database = {
             foreignKeyName: "community_projects_community_id_fkey"
             columns: ["community_id"]
             isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_projects_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
             referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
@@ -587,6 +725,60 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "project_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_reminders: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          created_by: string
+          id: string
+          message: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string | null
+          title: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          created_by: string
+          id?: string
+          message: string
+          reminder_type?: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string | null
+          title: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          message?: string
+          reminder_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_reminders_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_reminders_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -1318,6 +1510,17 @@ export type Database = {
       }
     }
     Views: {
+      community_dashboard_stats: {
+        Row: {
+          attended_last_meeting: number | null
+          community_id: string | null
+          community_name: string | null
+          total_events: number | null
+          total_members: number | null
+          total_projects: number | null
+        }
+        Relationships: []
+      }
       featured_projects: {
         Row: {
           author_name: string | null
