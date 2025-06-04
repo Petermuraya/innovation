@@ -17,11 +17,31 @@ interface CommunityAttendanceTabProps {
   communityId: string;
 }
 
+interface AttendanceRecord {
+  id: string;
+  user_id: string;
+  meeting_date: string;
+  notes?: string;
+  created_at: string;
+  members?: {
+    name: string;
+    email: string;
+  };
+}
+
+interface CommunityMember {
+  user_id: string;
+  members?: {
+    name: string;
+    email: string;
+  };
+}
+
 const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [attendance, setAttendance] = useState<any[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [members, setMembers] = useState<CommunityMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMarkDialog, setShowMarkDialog] = useState(false);
   const [attendanceForm, setAttendanceForm] = useState({
@@ -141,7 +161,7 @@ const CommunityAttendanceTab = ({ communityId }: CommunityAttendanceTabProps) =>
     }
     acc[date].push(record);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, AttendanceRecord[]>);
 
   return (
     <Card>
