@@ -7,7 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import clubLogo from "/public/inovationclub.svg";
+import Logo from "@/assets/Logo.svg";
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -137,7 +138,7 @@ const Navbar = () => {
   >
     {/* Logo */}
     <img 
-      src="public/inovationclub.svg" 
+       src={Logo}
       alt="Innovation Club Logo"
       className="w-16 h-16 object-contain"
     />
@@ -148,9 +149,9 @@ const Navbar = () => {
         INNOVATION CLUB
       </h1>
       <p className="text-xs text-gray-600">KARATINA UNIVERSITY</p>
-      <p className="text-xs text-kic-green-600 font-medium italic">
-        DREAM, CREATE AND INSPIRE FOR A BETTER FUTURE
-      </p>
+      <p className="text-[0.65rem] text-kic-green-600 font-medium italic leading-tight tracking-wide">
+  DREAM, CREATE & INSPIRE FOR A BETTER FUTURE
+</p>
     </div>
   </motion.div>
 </Link>
