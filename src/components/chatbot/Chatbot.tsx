@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+// src/components/chatbot/Chatbot.tsx
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useChatbot } from './useChatbot';
 import { defaultConfig } from './utils';
-import type { Message } from './types';
+import { Message } from './types';
 
 const Chatbot = () => {
   const { user } = useAuth();

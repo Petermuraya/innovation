@@ -1,3 +1,4 @@
+// src/components/chatbot/useChatbot.ts
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Message, AuthUser, ChatbotConfig } from './types';
