@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from './assets/logo.png'; // Make sure this path is correct
+import logo from "../../assets/logo.png"; // Ensure the logo path is correct
 
 const RegistrationHeader = () => {
   // Security best practice: Add rel="noopener noreferrer" to external links
