@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,8 @@ import {
   DollarSign, 
   Megaphone, 
   Star,
-  X
+  X,
+  Shield
 } from 'lucide-react';
 
 interface Notification {
@@ -38,6 +40,7 @@ const typeIcons = {
   approval: <Star className="w-4 h-4" />,
   announcement: <Megaphone className="w-4 h-4" />,
   alert: <AlertCircle className="w-4 h-4" />,
+  awold: <Shield className="w-4 h-4" />, // Special icon for awold class
 };
 
 const NotificationsList = ({ 
@@ -95,6 +98,7 @@ const NotificationsList = ({
       case 'approval': return 'bg-amber-100 text-amber-800 border-amber-200';
       case 'announcement': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'alert': return 'bg-red-100 text-red-800 border-red-200';
+      case 'awold': return 'bg-indigo-100 text-indigo-800 border-indigo-200'; // Special styling for awold
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -106,6 +110,14 @@ const NotificationsList = ({
       case 'low': return 'border-l-4 border-l-blue-500';
       default: return '';
     }
+  };
+
+  // Special styling for awold class notifications
+  const getAwoldStyling = (type: string, priority?: string) => {
+    if (type === 'awold') {
+      return 'ring-2 ring-indigo-300 shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50';
+    }
+    return '';
   };
 
   if (localNotifications.length === 0) {
@@ -151,7 +163,7 @@ const NotificationsList = ({
                 : 'bg-white border-gray-300 shadow-sm'
             } ${
               isHovering === notification.id ? 'ring-1 ring-gray-300' : ''
-            }`}>
+            } ${getAwoldStyling(notification.type, notification.priority)}`}>
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -162,8 +174,13 @@ const NotificationsList = ({
                       <div className="flex items-center gap-2">
                         <h4 className={`font-medium text-sm ${
                           notification.is_read ? 'text-gray-600' : 'text-gray-900'
-                        }`}>
+                        } ${notification.type === 'awold' ? 'font-bold' : ''}`}>
                           {notification.title}
+                          {notification.type === 'awold' && (
+                            <span className="ml-2 text-xs bg-indigo-500 text-white px-2 py-1 rounded-full">
+                              AWOLD
+                            </span>
+                          )}
                         </h4>
                         <Badge 
                           variant="outline" 
@@ -177,7 +194,7 @@ const NotificationsList = ({
                   
                   <p className={`text-sm mt-1 ${
                     notification.is_read ? 'text-gray-500' : 'text-gray-700'
-                  }`}>
+                  } ${notification.type === 'awold' ? 'font-medium' : ''}`}>
                     {notification.message}
                   </p>
                   

@@ -2,98 +2,75 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MembersManagement from './MembersManagement';
 import ProjectsManagement from './ProjectsManagement';
-import PaymentsManagement from './PaymentsManagement';
-import EnhancedEventsManagement from './EnhancedEventsManagement';
+import EventsManagement from './EventsManagement';
 import BlogManagement from './BlogManagement';
-import CertificateManager from './CertificateManager';
-import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
-import CommunityAdminManagement from './CommunityAdminManagement';
-import MPesaConfigManager from './MPesaConfigManager';
-import FeaturedProjectsManagement from './FeaturedProjectsManagement';
+import PaymentsManagement from './PaymentsManagement';
 import CareerManagement from './CareerManagement';
+import CommunityAdminManagement from './CommunityAdminManagement';
+import CertificateManager from './CertificateManager';
+import MPesaConfigManager from './MPesaConfigManager';
+import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
+import NotificationSystemTest from './NotificationSystemTest';
 
-interface AdminDashboardTabsProps {
-  stats: any;
-  members: any[];
-  projects: any[];
-  payments: any[];
-  updateMemberStatus: (memberId: string, status: string) => Promise<void>;
-  updateProjectStatus: (projectId: string, status: string) => Promise<void>;
-}
-
-const AdminDashboardTabs = ({
-  stats,
-  members,
-  projects,
-  payments,
-  updateMemberStatus,
-  updateProjectStatus
-}: AdminDashboardTabsProps) => {
+const AdminDashboardTabs = () => {
   return (
-    <Tabs defaultValue="overview" className="space-y-4">
-      <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 gap-1 h-auto p-1">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-          <TabsTrigger value="members" className="text-xs sm:text-sm">Members</TabsTrigger>
-          <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
-          <TabsTrigger value="featured" className="text-xs sm:text-sm">Featured</TabsTrigger>
-          <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
-          <TabsTrigger value="blogs" className="text-xs sm:text-sm">Blogs</TabsTrigger>
-          <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
-          <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
-          <TabsTrigger value="certificates" className="text-xs sm:text-sm">Certificates</TabsTrigger>
-          <TabsTrigger value="requests" className="text-xs sm:text-sm">Requests</TabsTrigger>
-          <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
-        </TabsList>
-      </div>
-
-      <TabsContent value="overview">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {/* Add overview content here */}
-        </div>
-      </TabsContent>
-
+    <Tabs defaultValue="members" className="w-full">
+      <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 mb-6">
+        <TabsTrigger value="members">Members</TabsTrigger>
+        <TabsTrigger value="projects">Projects</TabsTrigger>
+        <TabsTrigger value="events">Events</TabsTrigger>
+        <TabsTrigger value="blogs">Blogs</TabsTrigger>
+        <TabsTrigger value="payments">Payments</TabsTrigger>
+        <TabsTrigger value="careers">Careers</TabsTrigger>
+        <TabsTrigger value="communities">Communities</TabsTrigger>
+        <TabsTrigger value="certificates">Certificates</TabsTrigger>
+        <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
+        <TabsTrigger value="requests">Requests</TabsTrigger>
+        <TabsTrigger value="notifications">Notifications</TabsTrigger>
+      </TabsList>
+      
       <TabsContent value="members">
-        <MembersManagement members={members} updateMemberStatus={updateMemberStatus} />
+        <MembersManagement />
       </TabsContent>
-
+      
       <TabsContent value="projects">
-        <ProjectsManagement projects={projects} updateProjectStatus={updateProjectStatus} />
+        <ProjectsManagement />
       </TabsContent>
-
-      <TabsContent value="featured">
-        <FeaturedProjectsManagement />
-      </TabsContent>
-
+      
       <TabsContent value="events">
-        <EnhancedEventsManagement />
+        <EventsManagement />
       </TabsContent>
-
+      
       <TabsContent value="blogs">
         <BlogManagement />
       </TabsContent>
-
+      
+      <TabsContent value="payments">
+        <PaymentsManagement />
+      </TabsContent>
+      
       <TabsContent value="careers">
         <CareerManagement />
       </TabsContent>
-
-      <TabsContent value="payments">
-        <PaymentsManagement payments={payments} />
+      
+      <TabsContent value="communities">
+        <CommunityAdminManagement />
       </TabsContent>
-
+      
       <TabsContent value="certificates">
         <CertificateManager />
       </TabsContent>
-
+      
+      <TabsContent value="mpesa">
+        <MPesaConfigManager />
+      </TabsContent>
+      
       <TabsContent value="requests">
         <EnhancedAdminRequestsManagement />
       </TabsContent>
-
-      <TabsContent value="settings">
-        <div className="space-y-6">
-          <CommunityAdminManagement />
-          <MPesaConfigManager />
-        </div>
+      
+      <TabsContent value="notifications">
+        <NotificationSystemTest />
       </TabsContent>
     </Tabs>
   );
