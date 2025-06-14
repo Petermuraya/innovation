@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +35,11 @@ const AdminRequestsManagement = () => {
       
       const { data, error } = await supabase
         .from('admin_requests')
-        .select('*')
+        .select(`
+          *,
+          reviewed_by:members!admin_requests_reviewed_by_fkey(name),
+          community:community_groups(name)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -45,7 +48,15 @@ const AdminRequestsManagement = () => {
       }
 
       console.log('Admin requests fetched:', data);
-      setRequests(data || []);
+      
+      // Transform the data to match our expected type structure
+      const transformedData: AdminRequestWithRelations[] = (data || []).map(request => ({
+        ...request,
+        reviewed_by: request.reviewed_by ? { name: request.reviewed_by.name } : null,
+        community: request.community ? { name: request.community.name } : null,
+      }));
+      
+      setRequests(transformedData);
     } catch (error) {
       console.error('Error fetching admin requests:', error);
       toast({
@@ -291,6 +302,9 @@ const AdminRequestsManagement = () => {
                       {request.admin_code && (
                         <span>• Has Admin Code</span>
                       )}
+                      {request.community && (
+                        <span>• Community: {request.community.name}</span>
+                      )}
                     </div>
                   </div>
                   {getStatusBadge(request.status)}
@@ -335,6 +349,9 @@ const AdminRequestsManagement = () => {
                 {request.status !== 'pending' && request.reviewed_at && (
                   <div className="text-sm text-gray-500 space-y-1">
                     <p>Reviewed: {new Date(request.reviewed_at).toLocaleString()}</p>
+                    {request.reviewed_by && (
+                      <p>Reviewed by: {request.reviewed_by.name}</p>
+                    )}
                   </div>
                 )}
               </CardContent>
