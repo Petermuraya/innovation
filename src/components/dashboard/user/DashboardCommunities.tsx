@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, Calendar, MapPin, Award, Settings, Info } from 'lucide-react';
+import { Users, Calendar, MapPin, Award, Settings, Info, Eye, LogIn } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +28,7 @@ const DashboardCommunities = () => {
   const [communities, setCommunities] = useState<CommunityGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [userMembershipCount, setUserMembershipCount] = useState(0);
+  const [visitingCommunity, setVisitingCommunity] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -115,6 +116,43 @@ const DashboardCommunities = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const visitCommunity = async (communityId: string, communityName: string) => {
+    if (!user) return;
+
+    try {
+      setVisitingCommunity(communityId);
+
+      // Call the database function to track the visit
+      const { data, error } = await supabase.rpc('track_community_visit', {
+        user_id_param: user.id,
+        community_id_param: communityId
+      });
+
+      if (error) throw error;
+
+      // Show appropriate message based on whether points were awarded
+      if (data) {
+        toast({
+          title: "Community visited!",
+          description: `You visited ${communityName} and earned 5 points!`,
+        });
+      } else {
+        toast({
+          title: "Community visited!",
+          description: `Welcome back to ${communityName}!`,
+        });
+      }
+    } catch (error) {
+      console.error('Error tracking community visit:', error);
+      toast({
+        title: "Visit recorded",
+        description: `You visited ${communityName}`,
+      });
+    } finally {
+      setVisitingCommunity(null);
     }
   };
 
@@ -256,13 +294,32 @@ const DashboardCommunities = () => {
 
                   <div className="flex gap-2 pt-2">
                     <Button
+                      onClick={() => visitCommunity(community.id, community.name)}
+                      variant="default"
+                      size="sm"
+                      className="flex-1"
+                      disabled={visitingCommunity === community.id}
+                    >
+                      {visitingCommunity === community.id ? (
+                        <>
+                          <Eye className="w-3 h-3 mr-1 animate-pulse" />
+                          Visiting...
+                        </>
+                      ) : (
+                        <>
+                          <LogIn className="w-3 h-3 mr-1" />
+                          Visit Community
+                        </>
+                      )}
+                    </Button>
+                    <Button
                       onClick={() => toggleMembership(community.id)}
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="shrink-0"
                       disabled={userMembershipCount <= 1}
                     >
-                      Leave Community
+                      Leave
                     </Button>
                     {community.is_admin && (
                       <Button
