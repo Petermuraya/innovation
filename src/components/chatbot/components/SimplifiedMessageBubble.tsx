@@ -1,4 +1,3 @@
-
 import { cn } from '@/lib/utils';
 import { Bot, User, Loader2, CheckCheck, AlertCircle, ExternalLink } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -76,7 +75,7 @@ const SimplifiedMessageBubble = ({
   };
 
   const getUserAvatarUrl = () => {
-    return user?.user_metadata?.avatar_url || user?.avatar_url || null;
+    return user?.user_metadata?.avatar_url || null;
   };
 
   const getUserInitials = () => {
