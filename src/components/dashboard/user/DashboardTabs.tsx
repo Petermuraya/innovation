@@ -10,6 +10,7 @@ import DashboardBlogging from './DashboardBlogging';
 import DashboardPayments from './DashboardPayments';
 import DashboardCertificates from './DashboardCertificates';
 import DashboardBadges from './DashboardBadges';
+import DashboardElections from './DashboardElections';
 import { MemberData } from './types';
 
 interface DashboardTabsProps {
@@ -34,12 +35,13 @@ const DashboardTabs = ({
   return (
     <Tabs defaultValue="overview" className="space-y-4">
       <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-9 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-10 gap-1 h-auto p-1">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
           <TabsTrigger value="communities" className="text-xs sm:text-sm">Communities</TabsTrigger>
           <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
           <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
+          <TabsTrigger value="elections" className="text-xs sm:text-sm">Elections</TabsTrigger>
           <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
           <TabsTrigger value="blogging" className="text-xs sm:text-sm">Blogging</TabsTrigger>
           <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
@@ -73,6 +75,10 @@ const DashboardTabs = ({
 
       <TabsContent value="events">
         <DashboardEvents />
+      </TabsContent>
+
+      <TabsContent value="elections">
+        <DashboardElections />
       </TabsContent>
 
       <TabsContent value="careers">

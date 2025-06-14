@@ -14,6 +14,7 @@ import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
 import WorldClassNotificationSystem from './WorldClassNotificationSystem';
 import PointConfigurationManager from '@/components/admin/PointConfigurationManager';
 import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
+import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
 import { Badge } from '@/components/ui/badge';
 
 interface AdminDashboardTabsProps {
@@ -47,6 +48,7 @@ const AdminDashboardTabs = ({
       badgeVariant: 'secondary' as const
     },
     { value: 'events', label: 'Events' },
+    { value: 'elections', label: 'Elections' },
     { value: 'blogs', label: 'Blogs' },
     { value: 'payments', label: 'Payments' },
     { value: 'careers', label: 'Careers' },
@@ -109,6 +111,10 @@ const AdminDashboardTabs = ({
         
         <TabsContent value="events" className="mt-0">
           <EventsManagement events={[]} />
+        </TabsContent>
+        
+        <TabsContent value="elections" className="mt-0">
+          <AdminElectionManagement />
         </TabsContent>
         
         <TabsContent value="blogs" className="mt-0">
