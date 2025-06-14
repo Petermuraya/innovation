@@ -34,14 +34,12 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+  const [lastProcessedMessageId, setLastProcessedMessageId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && !lastMessage.isUser && lastMessage.id !== typingMessageId) {
-      setTypingMessageId(lastMessage.id);
-    }
-  }, [messages, typingMessageId]);
+  // Track the latest bot message that needs typing effect
+  const latestBotMessage = messages.filter(m => !m.isUser).pop();
+  const shouldShowTypingForLatest = latestBotMessage && 
+    latestBotMessage.id !== lastProcessedMessageId;
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -77,7 +75,9 @@ const Chatbot = () => {
   };
 
   const handleTypingComplete = () => {
-    setTypingMessageId(null);
+    if (latestBotMessage) {
+      setLastProcessedMessageId(latestBotMessage.id);
+    }
   };
 
   const userName = getUserName(authUser);
@@ -119,7 +119,7 @@ const Chatbot = () => {
           inputMessage={inputMessage}
           isRecording={isRecording}
           isMobile={isMobile}
-          typingMessageId={typingMessageId}
+          typingMessageId={shouldShowTypingForLatest ? latestBotMessage?.id : null}
           onInputChange={setInputMessage}
           onKeyPress={handleKeyPress}
           onSendMessage={handleSendMessage}

@@ -4,6 +4,7 @@ import { Bot, User, Loader2, CheckCheck, AlertCircle, ExternalLink } from 'lucid
 import { Message } from '../types';
 import EnhancedTypingEffect from './EnhancedTypingEffect';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 interface SimplifiedMessageBubbleProps {
   message: Message;
@@ -61,11 +62,21 @@ const SimplifiedMessageBubble = ({
   showTypingEffect = false,
   onTypingComplete 
 }: SimplifiedMessageBubbleProps) => {
-  if (!message.isUser && showTypingEffect) {
+  const [hasTyped, setHasTyped] = useState(false);
+
+  // Track if this message should show typing effect
+  const shouldShowTyping = !message.isUser && showTypingEffect && !hasTyped;
+
+  const handleTypingComplete = () => {
+    setHasTyped(true);
+    onTypingComplete?.();
+  };
+
+  if (shouldShowTyping) {
     return (
       <EnhancedTypingEffect
         message={message.content}
-        onComplete={onTypingComplete}
+        onComplete={handleTypingComplete}
         isMobile={isMobile}
       />
     );
