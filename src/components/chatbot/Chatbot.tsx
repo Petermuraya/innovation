@@ -1,27 +1,21 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, X, Bot, Mic, Minimize2, Maximize2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useChatbot } from './useChatbot';
 import { defaultConfig, getUserName } from './utils';
-import MessageBubble from './components/MessageBubble';
-import LoadingIndicator from './components/LoadingIndicator';
-import QuickReplies from './components/QuickReplies';
-import MessageInput from './components/MessageInput';
+import ChatbotButton from './components/ChatbotButton';
+import ChatbotHeader from './components/ChatbotHeader';
+import ChatbotContent from './components/ChatbotContent';
 
 const Chatbot = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const isTablet = useMediaQuery('(max-width: 1024px)');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   
   // Convert Supabase User to our AuthUser type
   const authUser = user ? {
@@ -44,20 +38,6 @@ const Chatbot = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages, typingMessageId]);
-
-  // Focus input when chat opens
-  useEffect(() => {
-    if (isOpen && !isMobile && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [isOpen, isMobile]);
-
   // Handle typing effect for new bot messages
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
@@ -76,8 +56,6 @@ const Chatbot = () => {
     setInputMessage(reply);
     if (isMobile) {
       handleSendMessage();
-    } else {
-      inputRef.current?.focus();
     }
   };
 
@@ -121,23 +99,10 @@ const Chatbot = () => {
   // Floating action button when closed
   if (!isOpen) {
     return (
-      <Button
+      <ChatbotButton 
         onClick={toggleChat}
-        className={cn(
-          "fixed shadow-xl transition-all duration-300 hover:scale-105 z-50",
-          "bg-kic-green-600 hover:bg-kic-green-700",
-          isMobile 
-            ? "bottom-4 right-4 h-12 w-12 rounded-full" 
-            : "bottom-6 right-6 h-14 w-14 rounded-full"
-        )}
-        size="icon"
-        aria-label="open chat assistant"
-      >
-        <MessageCircle className={cn("text-white", isMobile ? "h-5 w-5" : "h-6 w-6")} />
-        
-        {/* Pulse animation for attention */}
-        <div className="absolute inset-0 rounded-full bg-kic-green-600 animate-ping opacity-75" />
-      </Button>
+        isMobile={isMobile}
+      />
     );
   }
 
@@ -157,119 +122,33 @@ const Chatbot = () => {
         "animate-scale-in"
       ]
     )}>
-      {/* Header */}
-      <CardHeader className={cn(
-        "flex flex-row items-center justify-between space-y-0 pb-3",
-        "bg-gradient-to-r from-kic-green-600 to-kic-green-700 text-white",
-        isMobile ? "px-4 py-3 rounded-t-none" : "px-4 py-3 rounded-t-lg",
-        "border-b border-kic-green-800"
-      )}>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Bot className={cn("text-white", isMobile ? "h-5 w-5" : "h-6 w-6")} />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-          </div>
-          <div>
-            <CardTitle className={cn("font-bold text-white", isMobile ? "text-lg" : "text-xl")}>
-              kuic assistant
-            </CardTitle>
-            <p className="text-xs text-green-100 opacity-90">
-              {user ? `hello, ${userName || 'there'}!` : "ready to help"}
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMinimize}
-              className="h-8 w-8 text-white hover:bg-kic-green-800 transition-colors"
-              aria-label={isMinimized ? "Expand chat" : "Minimize chat"}
-            >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-            </Button>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleRecording}
-            className={cn(
-              "h-8 w-8 text-white transition-all duration-200",
-              isRecording 
-                ? "bg-red-500 hover:bg-red-600 animate-pulse shadow-lg" 
-                : "hover:bg-kic-green-800"
-            )}
-            aria-label={isRecording ? "Stop recording" : "Start recording"}
-          >
-            <Mic className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleChat}
-            className="h-8 w-8 text-white hover:bg-kic-green-800 transition-colors"
-            aria-label="Close chat"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
+      <ChatbotHeader
+        user={user}
+        userName={userName}
+        isMobile={isMobile}
+        isMinimized={isMinimized}
+        isRecording={isRecording}
+        onClose={toggleChat}
+        onToggleMinimize={toggleMinimize}
+        onToggleRecording={toggleRecording}
+      />
       
       {/* Chat content - hidden when minimized */}
       {!isMinimized && (
-        <>
-          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-            {/* Messages area */}
-            <ScrollArea className={cn(
-              "flex-1",
-              isMobile ? "px-3 py-4" : "px-4 py-4"
-            )}>
-              <div className="space-y-4">
-                {messages.map((message, index) => (
-                  <MessageBubble 
-                    key={message.id} 
-                    message={message} 
-                    isRecording={isRecording}
-                    isMobile={isMobile}
-                    showTypingEffect={
-                      !message.isUser && 
-                      message.id === typingMessageId && 
-                      index === messages.length - 1
-                    }
-                    onTypingComplete={handleTypingComplete}
-                  />
-                ))}
-                
-                {isLoading && <LoadingIndicator isMobile={isMobile} />}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-            
-            {/* Quick replies - show for first message */}
-            {messages.length === 1 && (
-              <QuickReplies 
-                replies={quickReplies} 
-                onSelect={handleQuickReply}
-                isMobile={isMobile}
-              />
-            )}
-            
-            {/* Input area */}
-            <MessageInput
-              inputRef={inputRef}
-              value={inputMessage}
-              onChange={setInputMessage}
-              onKeyPress={handleKeyPress}
-              isLoading={isLoading}
-              onSend={handleSendMessage}
-              isMobile={isMobile}
-            />
-          </CardContent>
-        </>
+        <ChatbotContent
+          messages={messages}
+          isLoading={isLoading}
+          quickReplies={quickReplies}
+          inputMessage={inputMessage}
+          isRecording={isRecording}
+          isMobile={isMobile}
+          typingMessageId={typingMessageId}
+          onInputChange={setInputMessage}
+          onKeyPress={handleKeyPress}
+          onSendMessage={handleSendMessage}
+          onQuickReply={handleQuickReply}
+          onTypingComplete={handleTypingComplete}
+        />
       )}
     </Card>
   );
