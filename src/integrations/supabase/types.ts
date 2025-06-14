@@ -906,6 +906,36 @@ export type Database = {
           },
         ]
       }
+      community_visits: {
+        Row: {
+          community_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          visit_count: number | null
+          visit_date: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Relationships: []
+      }
       constitution_documents: {
         Row: {
           created_at: string
@@ -2324,6 +2354,10 @@ export type Database = {
       manage_featured_project: {
         Args: { project_id: string; make_featured: boolean; admin_id: string }
         Returns: undefined
+      }
+      track_community_visit: {
+        Args: { user_id_param: string; community_id_param: string }
+        Returns: boolean
       }
       track_website_visit: {
         Args: { user_id_param: string }
