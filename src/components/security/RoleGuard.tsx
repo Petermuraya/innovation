@@ -9,7 +9,7 @@ type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community
 
 interface RoleGuardProps {
   children: ReactNode;
-  requiredRole: ComprehensiveRole;
+  requiredRole?: ComprehensiveRole;
   fallback?: ReactNode;
   requirePermission?: string;
 }
@@ -41,7 +41,7 @@ const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: Role
           } else {
             setHasAccess(data);
           }
-        } else {
+        } else if (requiredRole) {
           // Check role hierarchy
           const { data, error } = await supabase.rpc('has_role_or_higher', {
             _user_id: user.id,
@@ -54,6 +54,9 @@ const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: Role
           } else {
             setHasAccess(data);
           }
+        } else {
+          // No permission or role check specified, default to false
+          setHasAccess(false);
         }
       } catch (error) {
         console.error('Access check failed:', error);

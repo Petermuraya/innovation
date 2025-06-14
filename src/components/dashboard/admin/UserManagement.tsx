@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Shield, UserPlus, Search } from 'lucide-react';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
 interface User {
   id: string;
@@ -31,7 +31,9 @@ const ROLE_LABELS: Record<ComprehensiveRole, string> = {
   finance_admin: 'Finance Admin',
   content_admin: 'Content Admin',
   technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin'
+  marketing_admin: 'Marketing Admin',
+  chairman: 'Chairman',
+  vice_chairman: 'Vice Chairman'
 };
 
 const UserManagement = () => {
