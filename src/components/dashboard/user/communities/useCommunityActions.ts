@@ -1,12 +1,13 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const useCommunityActions = (userMembershipCount: number, onDataUpdate: () => void) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [visitingCommunity, setVisitingCommunity] = useState<string | null>(null);
 
   const visitCommunity = async (communityId: string, communityName: string) => {
@@ -35,12 +36,18 @@ export const useCommunityActions = (userMembershipCount: number, onDataUpdate: (
           description: `Welcome back to ${communityName}!`,
         });
       }
+
+      // Navigate to the community dashboard
+      navigate(`/community-dashboard/${communityId}`);
     } catch (error) {
       console.error('Error tracking community visit:', error);
       toast({
         title: "Visit recorded",
         description: `You visited ${communityName}`,
       });
+      
+      // Still navigate even if tracking fails
+      navigate(`/community-dashboard/${communityId}`);
     } finally {
       setVisitingCommunity(null);
     }

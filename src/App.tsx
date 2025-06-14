@@ -31,6 +31,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
+// Community Dashboard Components
+import CommunityDashboardRouter from "@/components/dashboard/community/CommunityDashboardRouter";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -73,6 +76,14 @@ const App = () => {
                         element={
                           <ProtectedRoute requireApproval={true}>
                             <Dashboard />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="community-dashboard/:communityId" 
+                        element={
+                          <ProtectedRoute requireApproval={true}>
+                            <CommunityDashboardRouter />
                           </ProtectedRoute>
                         } 
                       />
