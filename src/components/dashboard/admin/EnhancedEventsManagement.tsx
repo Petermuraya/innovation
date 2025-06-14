@@ -13,6 +13,7 @@ import { Calendar, MapPin, Users, Plus, Edit, Trash2, Eye, EyeOff } from 'lucide
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import ImageUploader from '@/components/uploads/ImageUploader';
 
 interface Event {
   id: string;
@@ -27,6 +28,7 @@ interface Event {
   max_attendees?: number;
   requires_registration: boolean;
   created_at: string;
+  image_url?: string;
 }
 
 const EnhancedEventsManagement = () => {
@@ -48,6 +50,7 @@ const EnhancedEventsManagement = () => {
   const [visibility, setVisibility] = useState('members');
   const [isPublished, setIsPublished] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -85,6 +88,33 @@ const EnhancedEventsManagement = () => {
     setVisibility('members');
     setIsPublished(false);
     setEditingEvent(null);
+    setSelectedImage(null);
+  };
+
+  const uploadEventImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `event-banners/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
   };
 
   const handleCreateEvent = async () => {
@@ -99,6 +129,22 @@ const EnhancedEventsManagement = () => {
 
     setSubmitting(true);
     try {
+      let imageUrl = editingEvent?.image_url || null;
+
+      // Upload new image if selected
+      if (selectedImage) {
+        const uploadedImageUrl = await uploadEventImage(selectedImage);
+        if (uploadedImageUrl) {
+          imageUrl = uploadedImageUrl;
+        } else {
+          toast({
+            title: "Image upload failed",
+            description: "The event will be saved without an image",
+            variant: "destructive",
+          });
+        }
+      }
+
       const eventData = {
         title: title.trim(),
         description: description.trim(),
@@ -111,6 +157,7 @@ const EnhancedEventsManagement = () => {
         is_published: isPublished,
         status: isPublished ? 'published' : 'draft',
         created_by: user.id,
+        image_url: imageUrl,
       };
 
       let error;
@@ -158,6 +205,7 @@ const EnhancedEventsManagement = () => {
     setRequiresRegistration(event.requires_registration);
     setVisibility(event.visibility);
     setIsPublished(event.is_published);
+    setSelectedImage(null);
     setShowCreateForm(true);
   };
 
@@ -238,13 +286,22 @@ const EnhancedEventsManagement = () => {
                 Create Event
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingEvent ? 'Edit Event' : 'Create New Event'}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                <ImageUploader
+                  onImageSelect={setSelectedImage}
+                  onImageRemove={() => setSelectedImage(null)}
+                  selectedImage={selectedImage}
+                  previewUrl={editingEvent?.image_url}
+                  maxSize={5}
+                  className="mb-4"
+                />
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="title">Title *</Label>
@@ -374,42 +431,51 @@ const EnhancedEventsManagement = () => {
           {events.map((event) => (
             <div key={event.id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-medium text-kic-gray">{event.title}</h4>
-                    <Badge variant={event.is_published ? 'default' : 'secondary'}>
-                      {event.is_published ? 'Published' : 'Draft'}
-                    </Badge>
-                    <Badge variant="outline">
-                      {event.visibility === 'everyone' ? 'Public' : 'Members Only'}
-                    </Badge>
-                    {event.requires_registration && (
-                      <Badge variant="outline">Registration Required</Badge>
-                    )}
-                  </div>
-                  
-                  <p className="text-sm text-kic-gray/70 mb-2">{event.description}</p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-kic-gray/70">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString()}
+                <div className="flex gap-4 flex-1">
+                  {event.image_url && (
+                    <img
+                      src={event.image_url}
+                      alt={event.title}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium text-kic-gray">{event.title}</h4>
+                      <Badge variant={event.is_published ? 'default' : 'secondary'}>
+                        {event.is_published ? 'Published' : 'Draft'}
+                      </Badge>
+                      <Badge variant="outline">
+                        {event.visibility === 'everyone' ? 'Public' : 'Members Only'}
+                      </Badge>
+                      {event.requires_registration && (
+                        <Badge variant="outline">Registration Required</Badge>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {event.location}
-                    </div>
-                    {event.max_attendees && (
+                    
+                    <p className="text-sm text-kic-gray/70 mb-2">{event.description}</p>
+                    
+                    <div className="flex items-center gap-4 text-sm text-kic-gray/70">
                       <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        Max {event.max_attendees}
+                        <Calendar className="h-4 w-4" />
+                        {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString()}
                       </div>
-                    )}
-                    {event.price > 0 && (
-                      <div className="font-medium text-kic-green-600">
-                        KSh {event.price}
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {event.location}
                       </div>
-                    )}
+                      {event.max_attendees && (
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          Max {event.max_attendees}
+                        </div>
+                      )}
+                      {event.price > 0 && (
+                        <div className="font-medium text-kic-green-600">
+                          KSh {event.price}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 

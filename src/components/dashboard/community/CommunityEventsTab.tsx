@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Calendar, MapPin, Clock, Plus } from 'lucide-react';
+import ImageUploader from '@/components/uploads/ImageUploader';
 
 interface CommunityEventsTabProps {
   communityId: string;
@@ -22,6 +23,7 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [eventForm, setEventForm] = useState({
     title: '',
     description: '',
@@ -44,7 +46,8 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
             location,
             max_attendees,
             status,
-            created_at
+            created_at,
+            image_url
           )
         `)
         .eq('community_id', communityId);
@@ -63,6 +66,32 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
     }
   };
 
+  const uploadEventImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `community-event-banners/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('event-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
+
   const createEvent = async () => {
     if (!eventForm.title || !eventForm.date) {
       toast({
@@ -74,6 +103,20 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
     }
 
     try {
+      let imageUrl = null;
+
+      // Upload image if selected
+      if (selectedImage) {
+        imageUrl = await uploadEventImage(selectedImage);
+        if (!imageUrl) {
+          toast({
+            title: "Image upload failed",
+            description: "The event will be created without an image",
+            variant: "destructive",
+          });
+        }
+      }
+
       // Create the event
       const { data: eventData, error: eventError } = await supabase
         .from('events')
@@ -86,6 +129,7 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
           created_by: user?.id,
           visibility: 'members',
           is_published: true,
+          image_url: imageUrl,
         })
         .select()
         .single();
@@ -109,6 +153,7 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
 
       setShowCreateDialog(false);
       setEventForm({ title: '', description: '', date: '', location: '', max_attendees: '' });
+      setSelectedImage(null);
       fetchCommunityEvents();
     } catch (error) {
       console.error('Error creating event:', error);
@@ -142,11 +187,19 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
               Create Event
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Community Event</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              <ImageUploader
+                onImageSelect={setSelectedImage}
+                onImageRemove={() => setSelectedImage(null)}
+                selectedImage={selectedImage}
+                maxSize={5}
+                className="mb-4"
+              />
+
               <div>
                 <Label htmlFor="title">Event Title *</Label>
                 <Input
@@ -195,7 +248,10 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                <Button variant="outline" onClick={() => {
+                  setShowCreateDialog(false);
+                  setSelectedImage(null);
+                }}>
                   Cancel
                 </Button>
                 <Button onClick={createEvent}>
@@ -211,22 +267,31 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
           {events.map((event) => (
             <div key={event.id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-kic-gray">{event.title}</h4>
-                  {event.description && (
-                    <p className="text-sm text-gray-600">{event.description}</p>
+                <div className="flex gap-4 flex-1">
+                  {event.image_url && (
+                    <img
+                      src={event.image_url}
+                      alt={event.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
                   )}
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      {new Date(event.date).toLocaleString()}
-                    </div>
-                    {event.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        {event.location}
-                      </div>
+                  <div className="space-y-2 flex-1">
+                    <h4 className="font-medium text-kic-gray">{event.title}</h4>
+                    {event.description && (
+                      <p className="text-sm text-gray-600">{event.description}</p>
                     )}
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {new Date(event.date).toLocaleString()}
+                      </div>
+                      {event.location && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          {event.location}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <Badge variant={event.status === 'upcoming' ? 'default' : 'secondary'}>

@@ -1106,6 +1106,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          image_url: string | null
           is_published: boolean | null
           location: string | null
           max_attendees: number | null
@@ -1123,6 +1124,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_published?: boolean | null
           location?: string | null
           max_attendees?: number | null
@@ -1140,6 +1142,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_published?: boolean | null
           location?: string | null
           max_attendees?: number | null
@@ -1225,13 +1228,18 @@ export type Database = {
           bio: string | null
           course: string | null
           created_at: string | null
+          current_academic_year: number | null
           email: string
           github_username: string | null
           id: string
+          is_alumni: boolean | null
           linkedin_url: string | null
+          membership_expires_at: string | null
           name: string
           phone: string | null
+          registration_number: string | null
           registration_status: string | null
+          registration_year: number | null
           skills: string[] | null
           updated_at: string | null
           user_id: string | null
@@ -1242,13 +1250,18 @@ export type Database = {
           bio?: string | null
           course?: string | null
           created_at?: string | null
+          current_academic_year?: number | null
           email: string
           github_username?: string | null
           id?: string
+          is_alumni?: boolean | null
           linkedin_url?: string | null
+          membership_expires_at?: string | null
           name: string
           phone?: string | null
+          registration_number?: string | null
           registration_status?: string | null
+          registration_year?: number | null
           skills?: string[] | null
           updated_at?: string | null
           user_id?: string | null
@@ -1259,13 +1272,18 @@ export type Database = {
           bio?: string | null
           course?: string | null
           created_at?: string | null
+          current_academic_year?: number | null
           email?: string
           github_username?: string | null
           id?: string
+          is_alumni?: boolean | null
           linkedin_url?: string | null
+          membership_expires_at?: string | null
           name?: string
           phone?: string | null
+          registration_number?: string | null
           registration_status?: string | null
+          registration_year?: number | null
           skills?: string[] | null
           updated_at?: string | null
           user_id?: string | null
@@ -2151,6 +2169,10 @@ export type Database = {
           badges_count: number
         }[]
       }
+      calculate_membership_expiry: {
+        Args: { current_year: number; reg_year?: number }
+        Returns: string
+      }
       can_user_vote: {
         Args: { election_id_param: string; user_id_param: string }
         Returns: boolean
@@ -2217,6 +2239,10 @@ export type Database = {
       track_website_visit: {
         Args: { user_id_param: string }
         Returns: boolean
+      }
+      update_alumni_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
