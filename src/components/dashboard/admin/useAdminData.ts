@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +10,7 @@ interface AdminStats {
   pendingProjects: number;
   totalEvents: number;
   totalPayments: number;
+  totalCertificates: number;
   pendingAdminRequests: number;
 }
 
@@ -24,6 +24,7 @@ export const useAdminData = () => {
     pendingProjects: 0,
     totalEvents: 0,
     totalPayments: 0,
+    totalCertificates: 0,
     pendingAdminRequests: 0
   });
   const [members, setMembers] = useState<any[]>([]);
@@ -98,6 +99,19 @@ export const useAdminData = () => {
         setPayments(paymentsData || []);
       }
 
+      // Fetch certificates
+      console.log('Fetching certificates...');
+      const { data: certificatesData, error: certificatesError } = await supabase
+        .from('certificates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (certificatesError) {
+        console.error('Error fetching certificates:', certificatesError);
+      } else {
+        console.log('Certificates fetched:', certificatesData?.length || 0, 'certificates');
+      }
+
       // Fetch admin requests
       console.log('Fetching admin requests...');
       const { data: adminRequestsData, error: adminRequestsError } = await supabase
@@ -117,6 +131,7 @@ export const useAdminData = () => {
         pendingProjects: projectsData?.filter(p => p.status === 'pending').length || 0,
         totalEvents: eventsData?.length || 0,
         totalPayments: paymentsData?.length || 0,
+        totalCertificates: certificatesData?.length || 0,
         pendingAdminRequests: adminRequestsData?.filter(r => r.status === 'pending').length || 0
       };
 
