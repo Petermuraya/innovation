@@ -42,13 +42,14 @@ const Chatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, typingMessageId]);
 
   // Focus input when chat opens
   useEffect(() => {
@@ -56,6 +57,14 @@ const Chatbot = () => {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen, isMobile]);
+
+  // Handle typing effect for new bot messages
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && !lastMessage.isUser && lastMessage.id !== typingMessageId) {
+      setTypingMessageId(lastMessage.id);
+    }
+  }, [messages, typingMessageId]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -82,7 +91,7 @@ const Chatbot = () => {
   const toggleRecording = () => {
     setIsRecording(prev => {
       toast({
-        title: prev ? "Recording stopped" : "Recording started",
+        title: prev ? "recording stopped" : "recording started",
         duration: 2000,
       });
       return !prev;
@@ -102,6 +111,10 @@ const Chatbot = () => {
     setIsMinimized(prev => !prev);
   };
 
+  const handleTypingComplete = () => {
+    setTypingMessageId(null);
+  };
+
   // Get user name safely
   const userName = getUserName(authUser);
 
@@ -118,7 +131,7 @@ const Chatbot = () => {
             : "bottom-6 right-6 h-14 w-14 rounded-full"
         )}
         size="icon"
-        aria-label="Open chat assistant"
+        aria-label="open chat assistant"
       >
         <MessageCircle className={cn("text-white", isMobile ? "h-5 w-5" : "h-6 w-6")} />
         
@@ -158,10 +171,10 @@ const Chatbot = () => {
           </div>
           <div>
             <CardTitle className={cn("font-bold text-white", isMobile ? "text-lg" : "text-xl")}>
-              KUIC Assistant
+              kuic assistant
             </CardTitle>
             <p className="text-xs text-green-100 opacity-90">
-              {user ? `Hello, ${userName || 'there'}!` : "Ready to help"}
+              {user ? `hello, ${userName || 'there'}!` : "ready to help"}
             </p>
           </div>
         </div>
@@ -216,12 +229,18 @@ const Chatbot = () => {
               isMobile ? "px-3 py-4" : "px-4 py-4"
             )}>
               <div className="space-y-4">
-                {messages.map((message) => (
+                {messages.map((message, index) => (
                   <MessageBubble 
                     key={message.id} 
                     message={message} 
                     isRecording={isRecording}
                     isMobile={isMobile}
+                    showTypingEffect={
+                      !message.isUser && 
+                      message.id === typingMessageId && 
+                      index === messages.length - 1
+                    }
+                    onTypingComplete={handleTypingComplete}
                   />
                 ))}
                 

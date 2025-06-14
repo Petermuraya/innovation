@@ -35,17 +35,17 @@ export const getUserName = (user: AuthUser | null): string | undefined => {
 
 export const defaultConfig: ChatbotConfig = {
   quickReplies: [
-    "How do I join KUIC?",
-    "What events are coming up?",
-    "Tell me about projects",
-    "How do I submit a project?",
-    "What are the membership benefits?",
-    "Help with the website"
+    "how do i join kuic?",
+    "what events are coming up?",
+    "tell me about projects",
+    "how do i submit a project?",
+    "what are the membership benefits?",
+    "help with the website"
   ],
   welcomeMessage: (userName?: string) => {
     if (userName) {
-      return `Hello ${userName}! 👋 Welcome back to KUIC! I'm your AI assistant, ready to help you with anything about the club, website navigation, project guidance, or tech questions. What can I assist you with today?`;
+      return `hello ${userName}! 👋 welcome back to kuic! i'm your ai assistant, ready to help you with anything about the club, website navigation, project guidance, or tech questions. what can i assist you with today?`;
     }
-    return `Welcome to Karatina University Innovation Club! 🚀 I'm your AI assistant, here to help you learn about our club, navigate our website, and answer any tech-related questions. I can help you with membership, events, projects, and much more. What would you like to know?`;
+    return `welcome to karatina university innovation club! 🚀 i'm your ai assistant, here to help you learn about our club, navigate our website, and answer any tech-related questions. i can help you with membership, events, projects, and much more. what would you like to know?`;
   }
 };
