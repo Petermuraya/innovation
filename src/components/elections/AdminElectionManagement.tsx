@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Settings, Users, CheckCircle, XCircle } from 'lucide-react';
 
+type ElectionStatus = 'draft' | 'nomination_open' | 'voting_open' | 'completed' | 'cancelled';
+type PositionType = 'chairman' | 'vice_chairman' | 'treasurer' | 'secretary' | 'vice_secretary' | 'organizing_secretary' | 'auditor';
+
 const AdminElectionManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -27,10 +29,10 @@ const AdminElectionManagement = () => {
     nomination_end_date: '',
     voting_start_date: '',
     voting_end_date: '',
-    positions: [] as string[],
+    positions: [] as PositionType[],
   });
 
-  const positions = [
+  const positions: PositionType[] = [
     'chairman',
     'vice_chairman',
     'treasurer',
@@ -48,7 +50,7 @@ const AdminElectionManagement = () => {
         .select(`
           *,
           election_positions(*),
-          election_candidates(*, members(name))
+          election_candidates(*, members!inner(name))
         `)
         .order('created_at', { ascending: false });
 
@@ -64,7 +66,7 @@ const AdminElectionManagement = () => {
         .from('election_candidates')
         .select(`
           *,
-          members(name, email),
+          members!inner(name, email),
           elections(title)
         `)
         .eq('status', 'pending')
@@ -94,7 +96,7 @@ const AdminElectionManagement = () => {
       if (electionError) throw electionError;
 
       // Create election positions
-      const positionInserts = electionData.positions.map((position: string) => ({
+      const positionInserts = electionData.positions.map((position: PositionType) => ({
         election_id: election.id,
         position_type: position,
       }));
@@ -134,7 +136,7 @@ const AdminElectionManagement = () => {
   });
 
   const updateElectionStatus = useMutation({
-    mutationFn: async ({ electionId, status }: { electionId: string; status: string }) => {
+    mutationFn: async ({ electionId, status }: { electionId: string; status: ElectionStatus }) => {
       const { error } = await supabase
         .from('elections')
         .update({ status })
@@ -188,7 +190,7 @@ const AdminElectionManagement = () => {
     createElection.mutate(newElection);
   };
 
-  const togglePosition = (position: string) => {
+  const togglePosition = (position: PositionType) => {
     setNewElection(prev => ({
       ...prev,
       positions: prev.positions.includes(position)
@@ -368,13 +370,13 @@ const AdminElectionManagement = () => {
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="font-semibold">{candidate.members.name}</h3>
-                    <p className="text-sm text-gray-600">{candidate.members.email}</p>
+                    <h3 className="font-semibold">{candidate.members?.name}</h3>
+                    <p className="text-sm text-gray-600">{candidate.members?.email}</p>
                     <p className="text-sm font-medium mt-1 capitalize">
                       Position: {candidate.position_type.replace('_', ' ')}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Election: {candidate.elections.title}
+                      Election: {candidate.elections?.title}
                     </p>
                     {candidate.manifesto && (
                       <div className="mt-3">

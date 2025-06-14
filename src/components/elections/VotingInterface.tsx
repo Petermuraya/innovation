@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Vote, CheckCircle, AlertCircle } from 'lucide-react';
 
+type PositionType = 'chairman' | 'vice_chairman' | 'treasurer' | 'secretary' | 'vice_secretary' | 'organizing_secretary' | 'auditor';
+
 const VotingInterface = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -71,7 +73,7 @@ const VotingInterface = () => {
   });
 
   const submitVote = useMutation({
-    mutationFn: async ({ candidateId, positionType }: { candidateId: string; positionType: string }) => {
+    mutationFn: async ({ candidateId, positionType }: { candidateId: string; positionType: PositionType }) => {
       const { error } = await supabase
         .from('election_votes')
         .insert({
@@ -129,7 +131,7 @@ const VotingInterface = () => {
     return acc;
   }, {}) || {};
 
-  const handleVote = (positionType: string, candidateId: string) => {
+  const handleVote = (positionType: PositionType, candidateId: string) => {
     if (userVotesByPosition[positionType]) {
       toast({
         title: "Already Voted",
@@ -204,7 +206,7 @@ const VotingInterface = () => {
                             {!hasVoted ? (
                               <Button
                                 size="sm"
-                                onClick={() => handleVote(positionType, candidate.id)}
+                                onClick={() => handleVote(positionType as PositionType, candidate.id)}
                                 disabled={submitVote.isPending}
                               >
                                 Vote

@@ -11,11 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { UserPlus, CheckCircle, Clock, XCircle } from 'lucide-react';
 
+type PositionType = 'chairman' | 'vice_chairman' | 'treasurer' | 'secretary' | 'vice_secretary' | 'organizing_secretary' | 'auditor';
+
 const CandidateApplication = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedPosition, setSelectedPosition] = useState('');
+  const [selectedPosition, setSelectedPosition] = useState<PositionType | ''>('');
   const [manifesto, setManifesto] = useState('');
 
   const { data: activeElection } = useQuery({
@@ -55,7 +57,7 @@ const CandidateApplication = () => {
   });
 
   const applyForPosition = useMutation({
-    mutationFn: async ({ positionType, manifesto }: { positionType: string; manifesto: string }) => {
+    mutationFn: async ({ positionType, manifesto }: { positionType: PositionType; manifesto: string }) => {
       const { error } = await supabase
         .from('election_candidates')
         .insert({
@@ -97,7 +99,7 @@ const CandidateApplication = () => {
       return;
     }
 
-    applyForPosition.mutate({ positionType: selectedPosition, manifesto });
+    applyForPosition.mutate({ positionType: selectedPosition as PositionType, manifesto });
   };
 
   if (!activeElection) {
@@ -189,7 +191,7 @@ const CandidateApplication = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+                <Select value={selectedPosition} onValueChange={(value: PositionType) => setSelectedPosition(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a position to apply for" />
                   </SelectTrigger>
