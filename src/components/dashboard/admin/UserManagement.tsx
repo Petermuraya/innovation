@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
-import { Shield, UserPlus, Search } from 'lucide-react';
+import { Shield, UserPlus, Search, Crown } from 'lucide-react';
 
 type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
@@ -38,7 +38,7 @@ const ROLE_LABELS: Record<ComprehensiveRole, string> = {
 
 const UserManagement = () => {
   const { toast } = useToast();
-  const { isSuperAdmin, hasPermission } = useRolePermissions();
+  const { isSuperAdmin, roleInfo } = useRolePermissions();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchEmail, setSearchEmail] = useState('');
@@ -133,14 +133,12 @@ const UserManagement = () => {
     }
   };
 
-  const handleGrantSuperAdmin = async () => {
-    await grantRole('sammypeter1944@gmail.com', 'super_admin');
-  };
-
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchEmail.toLowerCase()) ||
     user.name.toLowerCase().includes(searchEmail.toLowerCase())
   );
+
+  const canManageUsers = isSuperAdmin || roleInfo?.assignedRole === 'chairman';
 
   return (
     <div className="space-y-6">
@@ -149,30 +147,36 @@ const UserManagement = () => {
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
             User Management
+            {isSuperAdmin && <Crown className="w-4 h-4 text-yellow-500" title="Super Admin Access" />}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {isSuperAdmin && (
-              <Button 
-                onClick={handleGrantSuperAdmin}
-                disabled={loading}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Grant Super Admin to sammypeter1944@gmail.com
-              </Button>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="w-4 h-4 text-yellow-600" />
+                  <span className="font-medium text-yellow-800">Super Admin Mode</span>
+                </div>
+                <p className="text-sm text-yellow-700">
+                  You have full system access and can manage all users and roles.
+                </p>
+              </div>
             )}
 
             <div className="flex gap-2">
               <div className="flex-1">
                 <Label htmlFor="search">Search Users</Label>
-                <Input
-                  id="search"
-                  placeholder="Search by email or name..."
-                  value={searchEmail}
-                  onChange={(e) => setSearchEmail(e.target.value)}
-                />
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="search"
+                    placeholder="Search by email or name..."
+                    value={searchEmail}
+                    onChange={(e) => setSearchEmail(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -181,7 +185,7 @@ const UserManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle>All Users ({filteredUsers.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -200,7 +204,11 @@ const UserManagement = () => {
                         </Badge>
                         {user.roles && user.roles.length > 0 ? (
                           user.roles.map((role) => (
-                            <Badge key={role} variant="outline" className="text-blue-600 border-blue-600">
+                            <Badge 
+                              key={role} 
+                              variant={role === 'super_admin' ? 'destructive' : 'outline'} 
+                              className={role === 'super_admin' ? 'text-yellow-600 border-yellow-600' : 'text-blue-600 border-blue-600'}
+                            >
                               {ROLE_LABELS[role]}
                             </Badge>
                           ))
@@ -210,7 +218,7 @@ const UserManagement = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {isSuperAdmin && (
+                      {canManageUsers && (
                         <div className="flex gap-2 items-center">
                           <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as ComprehensiveRole)}>
                             <SelectTrigger className="w-[160px]">

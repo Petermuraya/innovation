@@ -55,6 +55,9 @@ export const useRolePermissions = () => {
   const hasRole = async (role: ComprehensiveRole): Promise<boolean> => {
     if (!user) return false;
     
+    // Super admin always has access to everything
+    if (roleInfo?.assignedRole === 'super_admin') return true;
+    
     try {
       const { data, error } = await supabase.rpc('has_role_or_higher', {
         _user_id: user.id,
@@ -70,6 +73,9 @@ export const useRolePermissions = () => {
   const hasPermission = async (permission: string): Promise<boolean> => {
     if (!user) return false;
     
+    // Super admin always has all permissions
+    if (roleInfo?.assignedRole === 'super_admin') return true;
+    
     try {
       const { data, error } = await supabase.rpc('has_permission', {
         _user_id: user.id,
@@ -82,7 +88,7 @@ export const useRolePermissions = () => {
     }
   };
 
-  const isAdmin = roleInfo?.assignedRole !== 'member';
+  const isAdmin = roleInfo?.assignedRole !== 'member' && roleInfo?.assignedRole !== null;
   const isSuperAdmin = roleInfo?.assignedRole === 'super_admin';
   const isChairman = roleInfo?.assignedRole === 'chairman';
   const isViceChairman = roleInfo?.assignedRole === 'vice_chairman';
