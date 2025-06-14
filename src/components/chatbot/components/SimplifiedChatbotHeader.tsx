@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot, X, Minimize2, Maximize2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 interface SimplifiedChatbotHeaderProps {
@@ -21,6 +22,17 @@ const SimplifiedChatbotHeader = ({
   onClose,
   onToggleMinimize
 }: SimplifiedChatbotHeaderProps) => {
+  const getUserAvatarUrl = () => {
+    return user?.user_metadata?.avatar_url || user?.avatar_url || null;
+  };
+
+  const getUserInitials = () => {
+    if (userName) {
+      return userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
+  };
+
   return (
     <CardHeader className={cn(
       "flex flex-row items-center justify-between space-y-0 pb-3",
@@ -42,9 +54,19 @@ const SimplifiedChatbotHeader = ({
           )}>
             KUIC Assistant
           </CardTitle>
-          <p className="text-sm text-green-100">
-            {user ? `Hello, ${userName || 'there'}!` : "Ready to help"}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-green-100">
+              {user ? `Hello, ${userName || 'there'}!` : "Ready to help"}
+            </p>
+            {user && (
+              <Avatar className={cn("border-2 border-white/30", isMobile ? "w-5 h-5" : "w-6 h-6")}>
+                <AvatarImage src={getUserAvatarUrl()} />
+                <AvatarFallback className="text-xs bg-white/20 text-white">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
         </div>
       </div>
       

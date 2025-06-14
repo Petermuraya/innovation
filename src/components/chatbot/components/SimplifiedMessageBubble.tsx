@@ -1,10 +1,12 @@
 
 import { cn } from '@/lib/utils';
 import { Bot, User, Loader2, CheckCheck, AlertCircle, ExternalLink } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Message } from '../types';
 import EnhancedTypingEffect from './EnhancedTypingEffect';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SimplifiedMessageBubbleProps {
   message: Message;
@@ -62,6 +64,7 @@ const SimplifiedMessageBubble = ({
   showTypingEffect = false,
   onTypingComplete 
 }: SimplifiedMessageBubbleProps) => {
+  const { user } = useAuth();
   const [hasTyped, setHasTyped] = useState(false);
 
   // Track if this message should show typing effect
@@ -70,6 +73,17 @@ const SimplifiedMessageBubble = ({
   const handleTypingComplete = () => {
     setHasTyped(true);
     onTypingComplete?.();
+  };
+
+  const getUserAvatarUrl = () => {
+    return user?.user_metadata?.avatar_url || user?.avatar_url || null;
+  };
+
+  const getUserInitials = () => {
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
   if (shouldShowTyping) {
@@ -134,10 +148,24 @@ const SimplifiedMessageBubble = ({
       
       {message.isUser && (
         <div className={cn(
-          "rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0 shadow-md",
+          "flex-shrink-0 shadow-md",
           isMobile ? "w-8 h-8" : "w-10 h-10"
         )}>
-          <User className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+          {user ? (
+            <Avatar className={cn("border-2 border-gray-300", isMobile ? "w-8 h-8" : "w-10 h-10")}>
+              <AvatarImage src={getUserAvatarUrl()} />
+              <AvatarFallback className="bg-gray-500 text-white text-sm">
+                {getUserInitials()}
+              </AvatarFallback>
+            </Avatar>
+          ) : (
+            <div className={cn(
+              "rounded-full bg-gray-500 flex items-center justify-center",
+              isMobile ? "w-8 h-8" : "w-10 h-10"
+            )}>
+              <User className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+            </div>
+          )}
         </div>
       )}
     </div>

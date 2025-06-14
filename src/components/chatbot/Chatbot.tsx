@@ -19,7 +19,8 @@ const Chatbot = () => {
   const authUser = user ? {
     id: user.id,
     email: user.email,
-    user_metadata: user.user_metadata
+    user_metadata: user.user_metadata,
+    avatar_url: user.user_metadata?.avatar_url
   } : null;
 
   const {
