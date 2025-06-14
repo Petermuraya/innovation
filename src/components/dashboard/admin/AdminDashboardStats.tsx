@@ -176,7 +176,7 @@ const AdminDashboardStats = ({ stats }: AdminDashboardStatsProps) => {
         display: true,
         text: 'Dashboard Overview',
         color: '#22c55e',
-        font: { size: 16, weight: 'bold' },
+        font: { size: 16, weight: 'bold' as const },
         padding: { bottom: 20 }
       },
       tooltip: {

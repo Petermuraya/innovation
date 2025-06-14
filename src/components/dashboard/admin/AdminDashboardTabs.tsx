@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import MembersManagement from './MembersManagement';
+import EnhancedMembersManagement from './EnhancedMembersManagement';
 import ProjectsManagement from './ProjectsManagement';
 import EventsManagement from './EventsManagement';
 import BlogManagement from './BlogManagement';
@@ -100,7 +100,7 @@ const AdminDashboardTabs = ({
       {/* Tab Content */}
       <div className="p-4 sm:p-6">
         <TabsContent value="members" className="mt-0">
-          <MembersManagement members={members} updateMemberStatus={updateMemberStatus} />
+          <EnhancedMembersManagement members={members} updateMemberStatus={updateMemberStatus} />
         </TabsContent>
         
         <TabsContent value="projects" className="mt-0">
