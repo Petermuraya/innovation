@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,27 +52,27 @@ const DashboardConstitution = () => {
     }
   };
 
-  const handleDownload = async (document: ConstitutionDocument) => {
+  const handleDownload = async (constitutionDoc: ConstitutionDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('constitution-documents')
-        .download(document.file_url);
+        .download(constitutionDoc.file_url);
 
       if (error) throw error;
 
-      // Create download link
+      // Create download link using global document object
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
+      const a = globalThis.document.createElement('a');
       a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
+      a.download = constitutionDoc.file_name;
+      globalThis.document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      globalThis.document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
       toast({
         title: "Success",
-        description: `Downloaded ${document.title}`,
+        description: `Downloaded ${constitutionDoc.title}`,
       });
     } catch (error) {
       console.error('Error downloading document:', error);
