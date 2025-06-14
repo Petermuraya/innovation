@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,25 +27,46 @@ const CommunityMembersTab = ({ communityId, isAdmin = false }: CommunityMembersT
 
   const fetchCommunityMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get the community memberships
+      const { data: memberships, error: membershipsError } = await supabase
         .from('community_memberships')
-        .select(`
-          id,
-          user_id,
-          status,
-          joined_at,
-          members (
-            name,
-            email,
-            phone,
-            course
-          )
-        `)
+        .select('id, user_id, status, joined_at')
         .eq('community_id', communityId)
         .eq('status', 'active');
 
-      if (error) throw error;
-      setMembers(data || []);
+      if (membershipsError) throw membershipsError;
+
+      if (!memberships || memberships.length === 0) {
+        setMembers([]);
+        return;
+      }
+
+      // Get user IDs from memberships
+      const userIds = memberships.map(m => m.user_id);
+
+      // Fetch member details for these user IDs
+      const { data: memberDetails, error: membersError } = await supabase
+        .from('members')
+        .select('user_id, name, email, phone, course')
+        .in('user_id', userIds);
+
+      if (membersError) throw membersError;
+
+      // Combine membership data with member details
+      const combinedData = memberships.map(membership => {
+        const memberDetail = memberDetails?.find(m => m.user_id === membership.user_id);
+        return {
+          ...membership,
+          members: memberDetail || {
+            name: 'Unknown',
+            email: 'Unknown',
+            phone: null,
+            course: null
+          }
+        };
+      });
+
+      setMembers(combinedData);
     } catch (error) {
       console.error('Error fetching community members:', error);
       toast({
@@ -68,11 +90,16 @@ const CommunityMembersTab = ({ communityId, isAdmin = false }: CommunityMembersT
 
       const existingIds = existingMemberIds?.map(m => m.user_id) || [];
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('members')
         .select('user_id, name, email')
-        .eq('registration_status', 'approved')
-        .not('user_id', 'in', `(${existingIds.join(',')})`);
+        .eq('registration_status', 'approved');
+
+      if (existingIds.length > 0) {
+        query = query.not('user_id', 'in', `(${existingIds.join(',')})`);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setAvailableUsers(data || []);
