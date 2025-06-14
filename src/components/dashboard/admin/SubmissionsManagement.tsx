@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +47,7 @@ const SubmissionsManagement = () => {
   const [newStatus, setNewStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'complaint' | 'recommendation' | 'thought'>('all');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -290,7 +289,7 @@ const SubmissionsManagement = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All ({submissions.length})</TabsTrigger>
           <TabsTrigger value="complaint">Complaints</TabsTrigger>
