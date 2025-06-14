@@ -20,7 +20,7 @@ export const useProjectManagement = (initialProjects: Project[], updateProjectSt
     try {
       console.log('Fetching projects with details...');
       
-      // First get all projects
+      // First get all projects without role filtering
       const { data: projectsData, error: projectsError } = await supabase
         .from('project_submissions')
         .select('*')
@@ -47,12 +47,11 @@ export const useProjectManagement = (initialProjects: Project[], updateProjectSt
 
       console.log('User IDs to fetch:', userIds);
 
-      // Get member data for these user IDs with only approved members
+      // Get member data for these user IDs - simplified query without role filtering
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('user_id, name, email')
-        .in('user_id', userIds)
-        .eq('registration_status', 'approved');
+        .in('user_id', userIds);
 
       if (membersError) {
         console.error('Error fetching members:', membersError);
