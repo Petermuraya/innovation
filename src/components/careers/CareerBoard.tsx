@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import CareerOpportunityForm from './CareerOpportunityForm';
 
 const CareerBoard = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,7 +70,7 @@ const CareerBoard = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Career & Internship Board</h2>
-        {user && (
+        {user && isAdmin && (
           <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Post Opportunity
