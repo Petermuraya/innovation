@@ -34,6 +34,8 @@ const AdminDashboardTabs = ({
   updateMemberStatus, 
   updateProjectStatus 
 }: AdminDashboardTabsProps) => {
+  console.log("AdminDashboardTabs rendering - Elections tab should be visible");
+  
   const tabData = [
     { 
       value: 'members', 
@@ -48,7 +50,11 @@ const AdminDashboardTabs = ({
       badgeVariant: 'secondary' as const
     },
     { value: 'events', label: 'Events' },
-    { value: 'elections', label: 'Elections' },
+    { 
+      value: 'elections', 
+      label: 'Elections',
+      highlight: true // Special highlight for elections
+    },
     { value: 'blogs', label: 'Blogs' },
     { value: 'payments', label: 'Payments' },
     { value: 'careers', label: 'Careers' },
@@ -76,13 +82,14 @@ const AdminDashboardTabs = ({
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="
+                className={`
                   relative flex items-center gap-2 px-3 py-2 text-xs sm:text-sm
                   data-[state=active]:bg-white data-[state=active]:text-kic-green-700
                   data-[state=active]:shadow-sm data-[state=active]:border
                   hover:bg-white/70 transition-all duration-200
                   whitespace-nowrap
-                "
+                  ${tab.highlight ? 'bg-kic-green-100 text-kic-green-700 font-semibold border border-kic-green-300' : ''}
+                `}
               >
                 {tab.label}
                 {tab.badge && (

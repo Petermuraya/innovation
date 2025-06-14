@@ -32,16 +32,18 @@ const DashboardTabs = ({
   payments,
   onDataUpdate,
 }: DashboardTabsProps) => {
+  console.log("DashboardTabs rendering - Elections tab should be visible");
+  
   return (
     <Tabs defaultValue="overview" className="space-y-4">
       <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 md:grid-cols-10 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-5 sm:grid-cols-6 md:grid-cols-11 gap-1 h-auto p-1">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
           <TabsTrigger value="communities" className="text-xs sm:text-sm">Communities</TabsTrigger>
           <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
           <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
-          <TabsTrigger value="elections" className="text-xs sm:text-sm">Elections</TabsTrigger>
+          <TabsTrigger value="elections" className="text-xs sm:text-sm bg-kic-green-100 text-kic-green-700 font-semibold">Elections</TabsTrigger>
           <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
           <TabsTrigger value="blogging" className="text-xs sm:text-sm">Blogging</TabsTrigger>
           <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
