@@ -8,16 +8,14 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { useChatbot } from './useChatbot';
 import { defaultConfig, getUserName } from './utils';
 import ChatbotButton from './components/ChatbotButton';
-import ChatbotHeader from './components/ChatbotHeader';
-import PremiumChatbotContent from './components/PremiumChatbotContent';
+import SimplifiedChatbotHeader from './components/SimplifiedChatbotHeader';
+import SimplifiedChatbotContent from './components/SimplifiedChatbotContent';
 
 const Chatbot = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const isTablet = useMediaQuery('(max-width: 1024px)');
   
-  // Convert Supabase User to our AuthUser type
   const authUser = user ? {
     id: user.id,
     email: user.email,
@@ -38,7 +36,6 @@ const Chatbot = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
 
-  // Handle typing effect for new bot messages
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && !lastMessage.isUser && lastMessage.id !== typingMessageId) {
@@ -66,16 +63,6 @@ const Chatbot = () => {
     }
   };
 
-  const toggleRecording = () => {
-    setIsRecording(prev => {
-      toast({
-        title: prev ? "recording stopped" : "recording started",
-        duration: 2000,
-      });
-      return !prev;
-    });
-  };
-
   const toggleChat = () => {
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
@@ -93,10 +80,8 @@ const Chatbot = () => {
     setTypingMessageId(null);
   };
 
-  // Get user name safely
   const userName = getUserName(authUser);
 
-  // Floating action button when closed
   if (!isOpen) {
     return (
       <ChatbotButton 
@@ -106,37 +91,28 @@ const Chatbot = () => {
     );
   }
 
-  // Premium responsive chat window
   return (
     <Card className={cn(
-      "fixed shadow-2xl z-50 flex flex-col transition-all duration-500 transform bg-white dark:bg-gray-900 backdrop-blur-xl border border-gray-200 dark:border-gray-700",
-      // Mobile styles
+      "fixed shadow-xl z-50 flex flex-col transition-all duration-300 bg-white dark:bg-gray-900",
       isMobile ? [
-        "inset-0 w-full h-full max-h-none rounded-none border-0",
-        "animate-slide-in-right"
+        "inset-0 w-full h-full max-h-none rounded-none"
       ] : [
-        // Desktop/tablet styles
-        "bottom-6 right-6 rounded-2xl border-2",
-        isTablet ? "w-80 h-[500px]" : "w-96 h-[600px]",
-        isMinimized && "h-16",
-        "animate-scale-in",
-        "ring-4 ring-kic-green-200 ring-opacity-20 hover:ring-opacity-40 transition-all duration-300"
+        "bottom-6 right-6 rounded-lg",
+        "w-96 h-[600px]",
+        isMinimized && "h-16"
       ]
     )}>
-      <ChatbotHeader
+      <SimplifiedChatbotHeader
         user={user}
         userName={userName}
         isMobile={isMobile}
         isMinimized={isMinimized}
-        isRecording={isRecording}
         onClose={toggleChat}
         onToggleMinimize={toggleMinimize}
-        onToggleRecording={toggleRecording}
       />
       
-      {/* Premium chat content - hidden when minimized */}
       {!isMinimized && (
-        <PremiumChatbotContent
+        <SimplifiedChatbotContent
           messages={messages}
           isLoading={isLoading}
           quickReplies={quickReplies}

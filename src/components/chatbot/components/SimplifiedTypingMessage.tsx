@@ -1,0 +1,66 @@
+
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { Bot } from 'lucide-react';
+
+interface SimplifiedTypingMessageProps {
+  message: string;
+  onComplete?: () => void;
+  isMobile: boolean;
+}
+
+const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTypingMessageProps) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (currentIndex < message.length) {
+      const timer = setTimeout(() => {
+        setDisplayedText(prev => prev + message[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 30);
+
+      return () => clearTimeout(timer);
+    } else if (!isComplete) {
+      setIsComplete(true);
+      onComplete?.();
+    }
+  }, [currentIndex, message, onComplete, isComplete]);
+
+  return (
+    <div className="flex items-start gap-3 animate-fade-in">
+      <div className={cn(
+        "rounded-full bg-kic-green-600 flex items-center justify-center flex-shrink-0",
+        isMobile ? "w-8 h-8" : "w-10 h-10"
+      )}>
+        <Bot className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+      </div>
+      
+      <div className={cn(
+        "bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md max-w-[80%] border border-gray-200 dark:border-gray-700"
+      )}>
+        <p className="whitespace-pre-wrap leading-relaxed text-sm text-gray-900 dark:text-gray-100">
+          {displayedText}
+          {!isComplete && (
+            <span className="inline-block w-0.5 h-4 bg-kic-green-600 ml-1 animate-pulse" />
+          )}
+        </p>
+        
+        {isComplete && (
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <span className="text-xs text-gray-500 dark:text-gray-400">KUIC Assistant</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {new Date().toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SimplifiedTypingMessage;
