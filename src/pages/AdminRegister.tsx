@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Lock } from "lucide-react";
@@ -19,7 +21,8 @@ const AdminRegister = () => {
     password: "",
     confirmPassword: "",
     justification: "",
-    adminCode: ""
+    adminCode: "",
+    adminType: "general"
   });
   
   const [loading, setLoading] = useState(false);
@@ -29,6 +32,10 @@ const AdminRegister = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -67,6 +74,8 @@ const AdminRegister = () => {
     }
     
     try {
+      console.log('Starting admin registration process...');
+      
       // Create user account
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -78,29 +87,43 @@ const AdminRegister = () => {
             course: formData.course,
             admin_request: true,
             justification: formData.justification,
-            admin_code: formData.adminCode
+            admin_code: formData.adminCode,
+            admin_type: formData.adminType
           }
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Sign up error:', signUpError);
+        throw signUpError;
+      }
+
+      console.log('User created successfully:', data.user?.id);
 
       // Create admin request record
       if (data.user) {
-        const { error: requestError } = await supabase
-          .from('admin_requests' as any)
-          .insert({
-            user_id: data.user.id,
-            email: formData.email,
-            name: formData.name,
-            justification: formData.justification,
-            admin_code: formData.adminCode || null,
-            status: 'pending'
-          });
+        const requestData = {
+          user_id: data.user.id,
+          email: formData.email,
+          name: formData.name,
+          justification: formData.justification,
+          admin_code: formData.adminCode || null,
+          admin_type: formData.adminType,
+          status: 'pending'
+        };
+
+        console.log('Creating admin request with data:', requestData);
+
+        const { error: requestError, data: requestResult } = await supabase
+          .from('admin_requests')
+          .insert(requestData);
 
         if (requestError) {
-          console.warn('Could not create admin request record:', requestError);
+          console.error('Admin request creation error:', requestError);
+          throw new Error(`Failed to create admin request: ${requestError.message}`);
         }
+
+        console.log('Admin request created successfully:', requestResult);
       }
 
       toast({
@@ -110,8 +133,8 @@ const AdminRegister = () => {
 
       navigate("/admin-request-pending");
     } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.");
       console.error("Admin registration error:", err);
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -206,6 +229,19 @@ const AdminRegister = () => {
                   onChange={handleChange}
                   className="border-kic-lightGray focus:border-kic-green-500"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="adminType" className="text-kic-gray">Admin Type *</Label>
+                <Select value={formData.adminType} onValueChange={(value) => handleSelectChange("adminType", value)}>
+                  <SelectTrigger className="border-kic-lightGray focus:border-kic-green-500">
+                    <SelectValue placeholder="Select admin type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General Admin</SelectItem>
+                    <SelectItem value="community">Community Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

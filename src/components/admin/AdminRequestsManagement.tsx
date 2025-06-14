@@ -32,30 +32,20 @@ const AdminRequestsManagement = () => {
   const fetchAdminRequests = async () => {
     try {
       setLoading(true);
+      console.log('Fetching admin requests...');
+      
       const { data, error } = await supabase
         .from('admin_requests')
-        .select(`
-          *,
-          reviewed_by:profiles!admin_requests_reviewed_by_fkey(name),
-          community:community_groups!admin_requests_community_id_fkey(name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching admin requests:', error);
+        throw error;
+      }
 
-      // Normalize relations to ensure correct shape
-      const normalized = (data as any[]).map((item) => ({
-        ...item,
-        reviewed_by:
-          item.reviewed_by && typeof item.reviewed_by === 'object' && 'name' in item.reviewed_by
-            ? item.reviewed_by
-            : null,
-        community:
-          item.community && typeof item.community === 'object' && 'name' in item.community
-            ? item.community
-            : null,
-      })) as AdminRequestWithRelations[];
-      setRequests(normalized);
+      console.log('Admin requests fetched:', data);
+      setRequests(data || []);
     } catch (error) {
       console.error('Error fetching admin requests:', error);
       toast({
@@ -74,12 +64,18 @@ const AdminRequestsManagement = () => {
     try {
       setProcessing((prev) => ({ ...prev, [requestId]: true }));
       const request = requests.find((r) => r.id === requestId);
-      if (!request) return;
+      if (!request) {
+        throw new Error('Request not found');
+      }
+
+      console.log(`Processing ${action} for request:`, request);
 
       const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-      if (authError || !currentUser?.id) throw new Error(authError?.message || 'User not authenticated');
+      if (authError || !currentUser?.id) {
+        throw new Error('User not authenticated');
+      }
 
-      // Start a transaction
+      // Update the admin request status
       const { error: updateError } = await supabase
         .from('admin_requests')
         .update({
@@ -89,47 +85,90 @@ const AdminRequestsManagement = () => {
         })
         .eq('id', requestId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating admin request:', updateError);
+        throw updateError;
+      }
+
+      console.log('Admin request status updated successfully');
 
       if (action === 'approve' && request.user_id) {
-        // Update member status
-        await supabase
+        console.log('Processing approval for user:', request.user_id);
+        
+        // Update member status to approved
+        const { error: memberError } = await supabase
           .from('members')
-          .update({ registration_status: 'approved' })
+          .update({ 
+            registration_status: 'approved',
+            updated_at: new Date().toISOString()
+          })
           .eq('user_id', request.user_id);
 
-        // Assign general admin role instead of 'admin'
-        await supabase
+        if (memberError) {
+          console.error('Error updating member status:', memberError);
+          // Don't throw error, just log it since the main request was processed
+        } else {
+          console.log('Member status updated to approved');
+        }
+
+        // Assign the appropriate role based on admin type
+        const roleToAssign = request.admin_type === 'general' ? 'general_admin' : 'community_admin';
+        
+        const { error: roleError } = await supabase
           .from('user_roles')
           .upsert({ 
             user_id: request.user_id, 
-            role: 'general_admin' 
+            role: roleToAssign 
           });
 
-        // If community-specific admin, add to community_admin_roles
-        if (request.community_id) {
-          await supabase.from('community_admin_roles').insert({
-            user_id: request.user_id,
-            community_id: request.community_id,
-            assigned_by: currentUser.id,
-            role: request.admin_type || 'admin',
-            is_active: true
-          });
+        if (roleError) {
+          console.error('Error assigning role:', roleError);
+          throw new Error(`Failed to assign role: ${roleError.message}`);
+        }
+
+        console.log(`Role ${roleToAssign} assigned successfully`);
+
+        // If community admin, add to community_admin_roles (if community_id exists)
+        if (request.admin_type === 'community' && request.community_id) {
+          const { error: communityRoleError } = await supabase
+            .from('community_admin_roles')
+            .insert({
+              user_id: request.user_id,
+              community_id: request.community_id,
+              assigned_by: currentUser.id,
+              role: 'admin',
+              is_active: true
+            });
+
+          if (communityRoleError) {
+            console.error('Error assigning community role:', communityRoleError);
+            // Don't throw error, just log it
+          } else {
+            console.log('Community admin role assigned successfully');
+          }
 
           // Set default permissions for community admin
-          await supabase.from('community_dashboard_permissions').upsert({
-            community_id: request.community_id,
-            admin_user_id: request.user_id,
-            permissions: {
-              add_users: true,
-              add_events: true,
-              upload_blogs: true,
-              view_members: true,
-              send_reminders: true,
-              mark_attendance: true,
-              upload_projects: true
-            }
-          });
+          const { error: permissionsError } = await supabase
+            .from('community_dashboard_permissions')
+            .upsert({
+              community_id: request.community_id,
+              admin_user_id: request.user_id,
+              permissions: {
+                add_users: true,
+                add_events: true,
+                upload_blogs: true,
+                view_members: true,
+                send_reminders: true,
+                mark_attendance: true,
+                upload_projects: true
+              }
+            });
+
+          if (permissionsError) {
+            console.error('Error setting community permissions:', permissionsError);
+          } else {
+            console.log('Community permissions set successfully');
+          }
         }
       }
 
@@ -160,6 +199,7 @@ const AdminRequestsManagement = () => {
     if (!pendingAction) return;
     await handleRequestReview(pendingAction.requestId, pendingAction.action);
     setDialogOpen(false);
+    setPendingAction(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -220,7 +260,7 @@ const AdminRequestsManagement = () => {
       {requests.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No pending admin requests found</p>
+            <p className="text-gray-500">No admin requests found</p>
           </CardContent>
         </Card>
       ) : (
@@ -245,11 +285,11 @@ const AdminRequestsManagement = () => {
                       <span>
                         Requested: {new Date(request.created_at).toLocaleDateString()}
                       </span>
-                      {request.community?.name && (
-                        <span>• Community: {request.community.name}</span>
-                      )}
                       {request.admin_type && (
                         <span>• Type: {request.admin_type}</span>
+                      )}
+                      {request.admin_code && (
+                        <span>• Has Admin Code</span>
                       )}
                     </div>
                   </div>
@@ -295,7 +335,6 @@ const AdminRequestsManagement = () => {
                 {request.status !== 'pending' && request.reviewed_at && (
                   <div className="text-sm text-gray-500 space-y-1">
                     <p>Reviewed: {new Date(request.reviewed_at).toLocaleString()}</p>
-                    {request.reviewed_by?.name && <p>By: {request.reviewed_by.name}</p>}
                   </div>
                 )}
               </CardContent>
