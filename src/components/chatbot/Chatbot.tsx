@@ -9,7 +9,7 @@ import { useChatbot } from './useChatbot';
 import { defaultConfig, getUserName } from './utils';
 import ChatbotButton from './components/ChatbotButton';
 import ChatbotHeader from './components/ChatbotHeader';
-import ChatbotContent from './components/ChatbotContent';
+import PremiumChatbotContent from './components/PremiumChatbotContent';
 
 const Chatbot = () => {
   const { user } = useAuth();
@@ -106,20 +106,21 @@ const Chatbot = () => {
     );
   }
 
-  // Responsive chat window
+  // Premium responsive chat window
   return (
     <Card className={cn(
-      "fixed shadow-2xl z-50 flex flex-col transition-all duration-300 transform bg-white dark:bg-gray-900",
+      "fixed shadow-2xl z-50 flex flex-col transition-all duration-500 transform bg-white dark:bg-gray-900 backdrop-blur-xl border border-gray-200 dark:border-gray-700",
       // Mobile styles
       isMobile ? [
-        "inset-0 w-full h-full max-h-none rounded-none",
+        "inset-0 w-full h-full max-h-none rounded-none border-0",
         "animate-slide-in-right"
       ] : [
         // Desktop/tablet styles
-        "bottom-6 right-6 rounded-lg",
+        "bottom-6 right-6 rounded-2xl border-2",
         isTablet ? "w-80 h-[500px]" : "w-96 h-[600px]",
-        isMinimized && "h-14",
-        "animate-scale-in"
+        isMinimized && "h-16",
+        "animate-scale-in",
+        "ring-4 ring-kic-green-200 ring-opacity-20 hover:ring-opacity-40 transition-all duration-300"
       ]
     )}>
       <ChatbotHeader
@@ -133,9 +134,9 @@ const Chatbot = () => {
         onToggleRecording={toggleRecording}
       />
       
-      {/* Chat content - hidden when minimized */}
+      {/* Premium chat content - hidden when minimized */}
       {!isMinimized && (
-        <ChatbotContent
+        <PremiumChatbotContent
           messages={messages}
           isLoading={isLoading}
           quickReplies={quickReplies}
