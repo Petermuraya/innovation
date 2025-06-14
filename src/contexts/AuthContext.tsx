@@ -53,7 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 r.role === 'finance_admin' ||
                 r.role === 'content_admin' ||
                 r.role === 'technical_admin' ||
-                r.role === 'marketing_admin'
+                r.role === 'marketing_admin' ||
+                r.role === 'chairman' ||
+                r.role === 'vice_chairman'
               ) || false);
             } catch (error) {
               console.error('Error checking user role:', error);

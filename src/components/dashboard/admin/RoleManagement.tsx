@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Shield, Users, Settings } from 'lucide-react';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
 interface UserWithRole {
   user_id: string;
@@ -28,7 +28,9 @@ const ROLE_LABELS: Record<ComprehensiveRole, string> = {
   finance_admin: 'Finance Admin',
   content_admin: 'Content Admin',
   technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin'
+  marketing_admin: 'Marketing Admin',
+  chairman: 'Chairman',
+  vice_chairman: 'Vice Chairman'
 };
 
 const ROLE_COLORS: Record<ComprehensiveRole, string> = {
@@ -41,22 +43,27 @@ const ROLE_COLORS: Record<ComprehensiveRole, string> = {
   finance_admin: 'outline',
   content_admin: 'outline',
   technical_admin: 'outline',
-  marketing_admin: 'outline'
+  marketing_admin: 'outline',
+  chairman: 'destructive',
+  vice_chairman: 'secondary'
 };
 
 const RoleManagement = () => {
   const { toast } = useToast();
-  const { roleInfo, isSuperAdmin } = useRolePermissions();
+  const { roleInfo, isSuperAdmin, isChairman } = useRolePermissions();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<ComprehensiveRole>('member');
 
+  // Only super admins and chairman can manage roles
+  const canManageRoles = isSuperAdmin || isChairman;
+
   useEffect(() => {
-    if (isSuperAdmin) {
+    if (canManageRoles) {
       fetchUsers();
     }
-  }, [isSuperAdmin]);
+  }, [canManageRoles]);
 
   const fetchUsers = async () => {
     try {
@@ -114,14 +121,14 @@ const RoleManagement = () => {
     }
   };
 
-  if (!isSuperAdmin) {
+  if (!canManageRoles) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="text-center">
             <Shield className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">Access Restricted</h3>
-            <p className="text-muted-foreground">Only Super Admins can manage roles.</p>
+            <p className="text-muted-foreground">Only Super Admins and Chairman can manage roles.</p>
           </div>
         </CardContent>
       </Card>

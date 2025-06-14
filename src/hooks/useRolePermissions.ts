@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
 interface UserRoleInfo {
   assignedRole: ComprehensiveRole;
@@ -84,6 +84,8 @@ export const useRolePermissions = () => {
 
   const isAdmin = roleInfo?.assignedRole !== 'member';
   const isSuperAdmin = roleInfo?.assignedRole === 'super_admin';
+  const isChairman = roleInfo?.assignedRole === 'chairman';
+  const isViceChairman = roleInfo?.assignedRole === 'vice_chairman';
 
   return {
     roleInfo,
@@ -91,6 +93,8 @@ export const useRolePermissions = () => {
     hasRole,
     hasPermission,
     isAdmin,
-    isSuperAdmin
+    isSuperAdmin,
+    isChairman,
+    isViceChairman
   };
 };
