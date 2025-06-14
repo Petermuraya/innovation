@@ -4,10 +4,10 @@ import { CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Message } from '../types';
-import MessageBubble from './MessageBubble';
-import LoadingIndicator from './LoadingIndicator';
-import QuickReplies from './QuickReplies';
-import MessageInput from './MessageInput';
+import EnhancedMessageBubble from './EnhancedMessageBubble';
+import EnhancedLoadingIndicator from './EnhancedLoadingIndicator';
+import EnhancedQuickReplies from './EnhancedQuickReplies';
+import EnhancedMessageInput from './EnhancedMessageInput';
 
 interface ChatbotContentProps {
   messages: Message[];
@@ -49,15 +49,23 @@ const ChatbotContent = ({
   }, [messages, typingMessageId]);
 
   return (
-    <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-      {/* Messages area */}
+    <CardContent className="flex-1 flex flex-col p-0 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Messages area with enhanced styling */}
       <ScrollArea className={cn(
-        "flex-1",
-        isMobile ? "px-3 py-4" : "px-4 py-4"
+        "flex-1 relative",
+        isMobile ? "px-3 py-4" : "px-4 py-6"
       )}>
-        <div className="space-y-4">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20px 20px, rgba(34, 197, 94, 0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        
+        <div className="space-y-6 relative z-10">
           {messages.map((message, index) => (
-            <MessageBubble 
+            <EnhancedMessageBubble 
               key={message.id} 
               message={message} 
               isRecording={isRecording}
@@ -71,22 +79,22 @@ const ChatbotContent = ({
             />
           ))}
           
-          {isLoading && <LoadingIndicator isMobile={isMobile} />}
+          {isLoading && <EnhancedLoadingIndicator isMobile={isMobile} />}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
       
-      {/* Quick replies - show for first message */}
+      {/* Quick replies - show for first message with enhanced styling */}
       {messages.length === 1 && (
-        <QuickReplies 
+        <EnhancedQuickReplies 
           replies={quickReplies} 
           onSelect={onQuickReply}
           isMobile={isMobile}
         />
       )}
       
-      {/* Input area */}
-      <MessageInput
+      {/* Enhanced input area */}
+      <EnhancedMessageInput
         inputRef={inputRef}
         value={inputMessage}
         onChange={onInputChange}
