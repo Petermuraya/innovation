@@ -2,26 +2,30 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Medal, Award, TrendingUp, Star, Zap, Flame, Shield, Sparkles } from 'lucide-react';
+import { Trophy, Medal, Award, TrendingUp, Star, Zap, Flame, Calendar, Code, FileText, Monitor } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface MemberRank {
+interface EnhancedMemberRank {
   user_id: string;
   name: string;
+  email: string;
   avatar_url?: string;
   total_points: number;
+  event_points: number;
+  project_points: number;
+  blog_points: number;
+  visit_points: number;
+  subscription_points: number;
   events_attended: number;
-  badges_earned: number;
   projects_created: number;
-  avg_project_rating: number;
+  blogs_written: number;
+  visit_days: number;
+  subscriptions_made: number;
   rank: number;
-  streak_days?: number;
-  is_premium?: boolean;
-  top_badges?: string[];
 }
 
 const MemberRanking = () => {
-  const [rankings, setRankings] = useState<MemberRank[]>([]);
+  const [rankings, setRankings] = useState<EnhancedMemberRank[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,12 +35,15 @@ const MemberRanking = () => {
   const fetchRankings = async () => {
     try {
       const { data, error } = await supabase
-        .rpc('calculate_detailed_member_ranking');
+        .from('enhanced_member_leaderboard')
+        .select('*')
+        .order('rank')
+        .limit(20);
 
       if (error) throw error;
       setRankings(data || []);
     } catch (error) {
-      console.error('Error fetching rankings:', error);
+      console.error('Error fetching enhanced rankings:', error);
     } finally {
       setLoading(false);
     }
@@ -70,36 +77,16 @@ const MemberRanking = () => {
     }
   };
 
-  const renderBadge = (badgeName: string) => {
-    const badgeStyles: Record<string, string> = {
-      'Top Contributor': 'bg-purple-100 text-purple-800 border-purple-300',
-      'Event Champion': 'bg-green-100 text-green-800 border-green-300',
-      'Project Master': 'bg-blue-100 text-blue-800 border-blue-300',
-      'Quality Expert': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'Innovator': 'bg-pink-100 text-pink-800 border-pink-300',
-      'Early Adopter': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-      'Streak Master': 'bg-red-100 text-red-800 border-red-300',
-      'Premium Member': 'bg-gradient-to-r from-amber-200 to-amber-400 text-amber-900 border-amber-500'
-    };
+  const getPointsBreakdown = (member: EnhancedMemberRank) => {
+    const breakdown = [
+      { label: 'Events', points: member.event_points, icon: Calendar, color: 'text-blue-600' },
+      { label: 'Projects', points: member.project_points, icon: Code, color: 'text-purple-600' },
+      { label: 'Blogs', points: member.blog_points, icon: FileText, color: 'text-orange-600' },
+      { label: 'Visits', points: member.visit_points, icon: Monitor, color: 'text-green-600' },
+      { label: 'Subscriptions', points: member.subscription_points, icon: Zap, color: 'text-yellow-600' },
+    ].filter(item => item.points > 0);
 
-    const badgeIcons: Record<string, JSX.Element> = {
-      'Top Contributor': <Star className="w-3 h-3 mr-1" />,
-      'Event Champion': <Zap className="w-3 h-3 mr-1" />,
-      'Project Master': <Flame className="w-3 h-3 mr-1" />,
-      'Quality Expert': <Shield className="w-3 h-3 mr-1" />,
-      'Innovator': <Sparkles className="w-3 h-3 mr-1" />,
-      'Premium Member': <Sparkles className="w-3 h-3 mr-1" />
-    };
-
-    return (
-      <Badge 
-        key={badgeName}
-        className={`text-xs font-semibold px-2 py-1 border ${badgeStyles[badgeName] || 'bg-gray-100 text-gray-800'}`}
-      >
-        {badgeIcons[badgeName] || null}
-        {badgeName}
-      </Badge>
-    );
+    return breakdown;
   };
 
   if (loading) {
@@ -108,7 +95,7 @@ const MemberRanking = () => {
         <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
           <CardTitle className="flex items-center space-x-2">
             <Trophy className="h-6 w-6 text-yellow-500" />
-            <span>Member Leaderboard</span>
+            <span>Enhanced Member Leaderboard</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -129,107 +116,126 @@ const MemberRanking = () => {
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
         <CardTitle className="flex items-center space-x-2">
           <Trophy className="h-6 w-6 text-yellow-500" />
-          <span>Member Leaderboard</span>
+          <span>Enhanced Member Leaderboard</span>
+          <Badge className="bg-green-100 text-green-800">Points System</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-2">
-          {rankings.map((member) => (
-            <div
-              key={member.user_id}
-              className={`flex items-center justify-between p-4 transition-all ${
-                member.rank === 1 
-                  ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200'
-                  : member.rank === 2 
-                    ? 'bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200'
-                    : member.rank === 3
-                      ? 'bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-200'
-                      : 'bg-white hover:bg-gray-50 border-b border-gray-100'
-              }`}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  {getRankIcon(member.rank)}
-                  <Badge 
-                    className={`${getRankBadgeColor(member.rank)} border font-bold min-w-[40px] flex justify-center`}
-                  >
-                    #{member.rank}
-                  </Badge>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  {member.avatar_url ? (
-                    <img 
-                      src={member.avatar_url} 
-                      alt={member.name}
-                      className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                      {member.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold text-gray-900">{member.name}</h3>
-                      {member.is_premium && (
-                        <Badge className="bg-gradient-to-r from-amber-200 to-amber-400 text-amber-900 border-amber-500 text-xs px-2 py-0.5">
-                          <Sparkles className="w-3 h-3 mr-1" />
-                          Premium
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-6">
-                {/* Badges Section */}
-                <div className="flex space-x-2 max-w-[200px] flex-wrap">
-                  {member.top_badges?.slice(0, 3).map(badge => renderBadge(badge))}
-                  {member.badges_earned > 3 && (
-                    <Badge className="bg-gray-100 text-gray-500 text-xs px-2 py-1">
-                      +{member.badges_earned - 3} more
+          {rankings.map((member) => {
+            const pointsBreakdown = getPointsBreakdown(member);
+            
+            return (
+              <div
+                key={member.user_id}
+                className={`flex items-center justify-between p-4 transition-all ${
+                  member.rank === 1 
+                    ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200'
+                    : member.rank === 2 
+                      ? 'bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200'
+                      : member.rank === 3
+                        ? 'bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-200'
+                        : 'bg-white hover:bg-gray-50 border-b border-gray-100'
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    {getRankIcon(member.rank)}
+                    <Badge 
+                      className={`${getRankBadgeColor(member.rank)} border font-bold min-w-[40px] flex justify-center`}
+                    >
+                      #{member.rank}
                     </Badge>
-                  )}
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    {member.avatar_url ? (
+                      <img 
+                        src={member.avatar_url} 
+                        alt={member.name}
+                        className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                        {member.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{member.name}</h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {pointsBreakdown.slice(0, 3).map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <Badge 
+                              key={item.label}
+                              className="text-xs px-2 py-0.5 bg-white/80 text-gray-700 border-gray-200"
+                            >
+                              <Icon className="w-3 h-3 mr-1" />
+                              {item.points}
+                            </Badge>
+                          );
+                        })}
+                        {pointsBreakdown.length > 3 && (
+                          <Badge className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500">
+                            +{pointsBreakdown.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
-                {/* Stats Section */}
-                <div className="flex items-center space-x-6 text-sm">
-                  <div className="text-center min-w-[60px]">
-                    <div className="font-bold text-green-600 text-lg">{member.total_points}</div>
-                    <div className="text-gray-500 text-xs">Points</div>
+                <div className="flex items-center space-x-6">
+                  {/* Total Points */}
+                  <div className="text-center min-w-[80px]">
+                    <div className="font-bold text-green-600 text-xl">{member.total_points}</div>
+                    <div className="text-gray-500 text-xs">Total Points</div>
                   </div>
-                  <div className="text-center min-w-[60px]">
-                    <div className="font-bold text-blue-600">{member.events_attended}</div>
-                    <div className="text-gray-500 text-xs">Events</div>
-                  </div>
-                  <div className="text-center min-w-[60px]">
-                    <div className="font-bold text-purple-600">{member.projects_created}</div>
-                    <div className="text-gray-500 text-xs">Projects</div>
-                  </div>
-                  {member.streak_days && member.streak_days > 0 && (
-                    <div className="text-center min-w-[60px]">
-                      <div className="font-bold text-red-500 flex items-center justify-center">
-                        <Flame className="w-4 h-4 mr-1" />
-                        {member.streak_days}
+                  
+                  {/* Activity Stats */}
+                  <div className="flex items-center space-x-4 text-sm">
+                    <div className="text-center min-w-[50px]">
+                      <div className="font-bold text-blue-600 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {member.events_attended}
                       </div>
-                      <div className="text-gray-500 text-xs">Day Streak</div>
+                      <div className="text-gray-500 text-xs">Events</div>
                     </div>
-                  )}
-                  {member.avg_project_rating > 0 && (
-                    <div className="text-center min-w-[60px]">
-                      <div className="font-bold text-yellow-600 flex items-center justify-center">
-                        <Star className="w-4 h-4 mr-1" />
-                        {member.avg_project_rating.toFixed(1)}
+                    <div className="text-center min-w-[50px]">
+                      <div className="font-bold text-purple-600 flex items-center justify-center">
+                        <Code className="w-4 h-4 mr-1" />
+                        {member.projects_created}
                       </div>
-                      <div className="text-gray-500 text-xs">Rating</div>
+                      <div className="text-gray-500 text-xs">Projects</div>
                     </div>
-                  )}
+                    <div className="text-center min-w-[50px]">
+                      <div className="font-bold text-orange-600 flex items-center justify-center">
+                        <FileText className="w-4 h-4 mr-1" />
+                        {member.blogs_written}
+                      </div>
+                      <div className="text-gray-500 text-xs">Blogs</div>
+                    </div>
+                    <div className="text-center min-w-[50px]">
+                      <div className="font-bold text-green-600 flex items-center justify-center">
+                        <Monitor className="w-4 h-4 mr-1" />
+                        {member.visit_days}
+                      </div>
+                      <div className="text-gray-500 text-xs">Visit Days</div>
+                    </div>
+                    {member.subscriptions_made > 0 && (
+                      <div className="text-center min-w-[50px]">
+                        <div className="font-bold text-yellow-600 flex items-center justify-center">
+                          <Zap className="w-4 h-4 mr-1" />
+                          {member.subscriptions_made}
+                        </div>
+                        <div className="text-gray-500 text-xs">Subscriptions</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {rankings.length === 0 && (

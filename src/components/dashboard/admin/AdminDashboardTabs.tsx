@@ -11,6 +11,8 @@ import CertificateManager from './CertificateManager';
 import MPesaConfigManager from './MPesaConfigManager';
 import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
 import WorldClassNotificationSystem from './WorldClassNotificationSystem';
+import PointConfigurationManager from '@/components/admin/PointConfigurationManager';
+import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
 
 interface AdminDashboardTabsProps {
   stats?: any;
@@ -31,7 +33,7 @@ const AdminDashboardTabs = ({
 }: AdminDashboardTabsProps) => {
   return (
     <Tabs defaultValue="members" className="w-full">
-      <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 mb-6">
+      <TabsList className="grid w-full grid-cols-6 lg:grid-cols-13 mb-6">
         <TabsTrigger value="members">Members</TabsTrigger>
         <TabsTrigger value="projects">Projects</TabsTrigger>
         <TabsTrigger value="events">Events</TabsTrigger>
@@ -43,6 +45,8 @@ const AdminDashboardTabs = ({
         <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
         <TabsTrigger value="requests">Requests</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsTrigger value="points">Points</TabsTrigger>
+        <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
       </TabsList>
       
       <TabsContent value="members">
@@ -87,6 +91,14 @@ const AdminDashboardTabs = ({
       
       <TabsContent value="notifications">
         <WorldClassNotificationSystem />
+      </TabsContent>
+
+      <TabsContent value="points">
+        <PointConfigurationManager />
+      </TabsContent>
+
+      <TabsContent value="leaderboard">
+        <EnhancedLeaderboardManager />
       </TabsContent>
     </Tabs>
   );

@@ -1185,6 +1185,8 @@ export type Database = {
       }
       member_points: {
         Row: {
+          activity_date: string | null
+          activity_type: string | null
           description: string | null
           earned_at: string
           id: string
@@ -1194,6 +1196,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          activity_date?: string | null
+          activity_type?: string | null
           description?: string | null
           earned_at?: string
           id?: string
@@ -1203,6 +1207,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          activity_date?: string | null
+          activity_type?: string | null
           description?: string | null
           earned_at?: string
           id?: string
@@ -1504,6 +1510,36 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      point_configurations: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          points_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          points_value?: number
+          updated_at?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          points_value?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1809,6 +1845,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_website_visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          visit_count: number | null
+          visit_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Relationships: []
+      }
       weekly_meetings: {
         Row: {
           created_at: string
@@ -1855,6 +1918,27 @@ export type Database = {
           total_events: number | null
           total_members: number | null
           total_projects: number | null
+        }
+        Relationships: []
+      }
+      enhanced_member_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          blog_points: number | null
+          blogs_written: number | null
+          email: string | null
+          event_points: number | null
+          events_attended: number | null
+          name: string | null
+          project_points: number | null
+          projects_created: number | null
+          rank: number | null
+          subscription_points: number | null
+          subscriptions_made: number | null
+          total_points: number | null
+          user_id: string | null
+          visit_days: number | null
+          visit_points: number | null
         }
         Relationships: []
       }
@@ -1964,6 +2048,15 @@ export type Database = {
       }
     }
     Functions: {
+      award_activity_points: {
+        Args: {
+          user_id_param: string
+          activity_type_param: string
+          source_id_param?: string
+          description_param?: string
+        }
+        Returns: undefined
+      }
       award_points: {
         Args: {
           user_id_param: string
@@ -2043,6 +2136,10 @@ export type Database = {
       manage_featured_project: {
         Args: { project_id: string; make_featured: boolean; admin_id: string }
         Returns: undefined
+      }
+      track_website_visit: {
+        Args: { user_id_param: string }
+        Returns: boolean
       }
     }
     Enums: {
