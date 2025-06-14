@@ -5,18 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, Briefcase, Calendar, Plus } from 'lucide-react';
+import { MapPin, Briefcase, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import CareerOpportunityForm from './CareerOpportunityForm';
 
 const CareerBoard = () => {
-  const { user, isAdmin } = useAuth();
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetchOpportunities();
@@ -70,12 +66,6 @@ const CareerBoard = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Career & Internship Board</h2>
-        {user && isAdmin && (
-          <Button onClick={() => setShowForm(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Post Opportunity
-          </Button>
-        )}
       </div>
 
       {/* Filters */}
@@ -178,17 +168,6 @@ const CareerBoard = () => {
           </Card>
         )}
       </div>
-
-      {/* Career Opportunity Form Modal */}
-      {showForm && (
-        <CareerOpportunityForm
-          onClose={() => setShowForm(false)}
-          onSuccess={() => {
-            setShowForm(false);
-            fetchOpportunities();
-          }}
-        />
-      )}
     </div>
   );
 };
