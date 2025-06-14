@@ -11,16 +11,22 @@ interface AdminRequestDialogProps {
     justification: string;
     status: string;
     admin_code?: string;
-    community_groups?: {
-      name: string;
-    };
+    community?: { name: string } | null;
   };
-  reviewing: boolean;
+  communities: Array<{ id: string; name: string }>;
+  isProcessing: boolean;
   onReview: (requestId: string, status: 'approved' | 'rejected') => Promise<void>;
   onClose: () => void;
 }
 
-const AdminRequestDialog = ({ request, reviewing, onReview, onClose }: AdminRequestDialogProps) => {
+const AdminRequestDialog = ({ request, communities, isProcessing, onReview, onClose }: AdminRequestDialogProps) => {
+  const getCommunityName = () => {
+    if (request.community?.name) {
+      return request.community.name;
+    }
+    return 'Unknown Community';
+  };
+
   return (
     <Dialog open={!!request} onOpenChange={() => onClose()}>
       <DialogContent>
@@ -37,9 +43,9 @@ const AdminRequestDialog = ({ request, reviewing, onReview, onClose }: AdminRequ
           <div>
             <strong>Admin Type:</strong> {request.admin_type}
           </div>
-          {request.community_groups?.name && (
+          {request.admin_type === 'community' && (
             <div>
-              <strong>Community:</strong> {request.community_groups.name}
+              <strong>Community:</strong> {getCommunityName()}
             </div>
           )}
           {request.admin_code && (
@@ -58,18 +64,18 @@ const AdminRequestDialog = ({ request, reviewing, onReview, onClose }: AdminRequ
             <div className="flex gap-2 pt-4">
               <Button
                 onClick={() => onReview(request.id, 'approved')}
-                disabled={reviewing}
+                disabled={isProcessing}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
-                {reviewing ? 'Processing...' : 'Approve'}
+                {isProcessing ? 'Processing...' : 'Approve'}
               </Button>
               <Button
                 onClick={() => onReview(request.id, 'rejected')}
-                disabled={reviewing}
+                disabled={isProcessing}
                 variant="destructive"
                 className="flex-1"
               >
-                {reviewing ? 'Processing...' : 'Reject'}
+                {isProcessing ? 'Processing...' : 'Reject'}
               </Button>
             </div>
           )}

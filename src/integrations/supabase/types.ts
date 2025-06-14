@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_communications: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          created_by: string | null
+          deadline: string | null
+          id: string
+          is_read_by: Json | null
+          message: string
+          priority: string
+          requires_response: boolean | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          id?: string
+          is_read_by?: Json | null
+          message: string
+          priority?: string
+          requires_response?: boolean | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          id?: string
+          is_read_by?: Json | null
+          message?: string
+          priority?: string
+          requires_response?: boolean | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_requests: {
         Row: {
           admin_code: string | null
@@ -285,40 +339,55 @@ export type Database = {
       }
       certificates: {
         Row: {
+          achievement_type: string | null
           certificate_type: string | null
           certificate_url: string
           created_at: string | null
           created_by: string | null
+          description: string | null
           event_id: string | null
           id: string
+          is_public: boolean | null
           issue_date: string | null
           metadata: Json | null
+          social_share_enabled: boolean | null
           template_used: string | null
           user_id: string | null
+          verification_code: string | null
         }
         Insert: {
+          achievement_type?: string | null
           certificate_type?: string | null
           certificate_url: string
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           event_id?: string | null
           id?: string
+          is_public?: boolean | null
           issue_date?: string | null
           metadata?: Json | null
+          social_share_enabled?: boolean | null
           template_used?: string | null
           user_id?: string | null
+          verification_code?: string | null
         }
         Update: {
+          achievement_type?: string | null
           certificate_type?: string | null
           certificate_url?: string
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           event_id?: string | null
           id?: string
+          is_public?: boolean | null
           issue_date?: string | null
           metadata?: Json | null
+          social_share_enabled?: boolean | null
           template_used?: string | null
           user_id?: string | null
+          verification_code?: string | null
         }
         Relationships: [
           {
@@ -976,37 +1045,55 @@ export type Database = {
       }
       members: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           course: string | null
           created_at: string | null
           email: string
+          github_username: string | null
           id: string
+          linkedin_url: string | null
           name: string
           phone: string | null
           registration_status: string | null
+          skills: string[] | null
           updated_at: string | null
           user_id: string | null
+          year_of_study: string | null
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           course?: string | null
           created_at?: string | null
           email: string
+          github_username?: string | null
           id?: string
+          linkedin_url?: string | null
           name: string
           phone?: string | null
           registration_status?: string | null
+          skills?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+          year_of_study?: string | null
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           course?: string | null
           created_at?: string | null
           email?: string
+          github_username?: string | null
           id?: string
+          linkedin_url?: string | null
           name?: string
           phone?: string | null
           registration_status?: string | null
+          skills?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+          year_of_study?: string | null
         }
         Relationships: []
       }
@@ -1154,6 +1241,57 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      official_communications: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          priority: string
+          published: boolean
+          published_at: string | null
+          tags: string[] | null
+          target_audience: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          priority?: string
+          published?: boolean
+          published_at?: string | null
+          tags?: string[] | null
+          target_audience?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          priority?: string
+          published?: boolean
+          published_at?: string | null
+          tags?: string[] | null
+          target_audience?: string
+          title?: string
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1555,6 +1693,31 @@ export type Database = {
         }
         Relationships: []
       }
+      member_management_view: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          certificates_earned: number | null
+          course: string | null
+          created_at: string | null
+          email: string | null
+          events_attended: number | null
+          github_username: string | null
+          id: string | null
+          linkedin_url: string | null
+          name: string | null
+          phone: string | null
+          projects_submitted: number | null
+          registration_status: string | null
+          roles: string[] | null
+          skills: string[] | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string | null
+          year_of_study: string | null
+        }
+        Relationships: []
+      }
       project_leaderboard: {
         Row: {
           admin_notes: string | null
@@ -1628,8 +1791,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_or_patron: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       is_community_admin: {
         Args: { _user_id: string; _community_id: string }
+        Returns: boolean
+      }
+      is_patron: {
+        Args: { _user_id: string }
         Returns: boolean
       }
     }
