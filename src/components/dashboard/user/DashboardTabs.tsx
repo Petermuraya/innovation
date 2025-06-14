@@ -11,9 +11,10 @@ import DashboardPayments from './DashboardPayments';
 import DashboardCertificates from './DashboardCertificates';
 import DashboardBadges from './DashboardBadges';
 import DashboardElections from './DashboardElections';
+import DashboardConstitution from './DashboardConstitution';
 import { MemberData } from './types';
 import { Badge } from '@/components/ui/badge';
-import { Vote } from 'lucide-react';
+import { Vote, FileText } from 'lucide-react';
 
 interface DashboardTabsProps {
   memberData: MemberData | null;
@@ -39,7 +40,7 @@ const DashboardTabs = ({
   return (
     <Tabs defaultValue="overview" className="space-y-4">
       <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-5 sm:grid-cols-6 md:grid-cols-11 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-5 sm:grid-cols-6 md:grid-cols-12 gap-1 h-auto p-1">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">
             Overview
           </TabsTrigger>
@@ -64,6 +65,10 @@ const DashboardTabs = ({
             <Badge variant="secondary" className="ml-1 text-xs bg-kic-green-600 text-white">
               NEW
             </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="constitution" className="text-xs sm:text-sm">
+            <FileText className="w-3 h-3 mr-1" />
+            Constitution
           </TabsTrigger>
           <TabsTrigger value="careers" className="text-xs sm:text-sm">
             Careers
@@ -110,6 +115,10 @@ const DashboardTabs = ({
 
       <TabsContent value="elections">
         <DashboardElections />
+      </TabsContent>
+
+      <TabsContent value="constitution">
+        <DashboardConstitution />
       </TabsContent>
 
       <TabsContent value="careers">
