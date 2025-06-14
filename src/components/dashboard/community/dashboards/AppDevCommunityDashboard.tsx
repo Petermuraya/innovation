@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Calendar, Smartphone, Tablet, Monitor, Download, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { CommunityGroup } from '../user/communities/useCommunityData';
+import { CommunityGroup } from '../../user/communities/useCommunityData';
 
 interface AppDevCommunityDashboardProps {
   community: CommunityGroup;

@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Calendar, Shield, Lock, AlertTriangle, Bug, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { CommunityGroup } from '../user/communities/useCommunityData';
+import { CommunityGroup } from '../../user/communities/useCommunityData';
 
 interface CybersecurityCommunityDashboardProps {
   community: CommunityGroup;
