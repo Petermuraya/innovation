@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -123,12 +122,12 @@ const EnhancedAdminRequestsManagement = () => {
         if (!request) throw new Error("Request not found");
 
         if (request.admin_type === 'general' && request.user_id) {
-          // Assign general admin role
+          // Assign general admin role instead of 'admin'
           const { error: roleError } = await supabase
             .from('user_roles')
             .upsert({
               user_id: request.user_id,
-              role: 'admin'
+              role: 'general_admin'
             });
 
           if (roleError) throw roleError;

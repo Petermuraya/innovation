@@ -43,7 +43,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .select('role')
                 .eq('user_id', session.user.id);
               
-              setIsAdmin(roles?.some(r => r.role === 'admin') || false);
+              // Check for any admin role (general_admin, super_admin, etc.)
+              setIsAdmin(roles?.some(r => 
+                r.role === 'general_admin' || 
+                r.role === 'super_admin' ||
+                r.role === 'community_admin' ||
+                r.role === 'events_admin' ||
+                r.role === 'projects_admin' ||
+                r.role === 'finance_admin' ||
+                r.role === 'content_admin' ||
+                r.role === 'technical_admin' ||
+                r.role === 'marketing_admin'
+              ) || false);
             } catch (error) {
               console.error('Error checking user role:', error);
             }

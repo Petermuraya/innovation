@@ -62,7 +62,7 @@ const Elections = () => {
           </TabsContent>
         </Tabs>
 
-        <RoleGuard requiredRole="admin">
+        <RoleGuard requiredRole="general_admin">
           <AnimatedSection delay={400} className="mt-12">
             <div className="border-t pt-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Admin Management</h2>

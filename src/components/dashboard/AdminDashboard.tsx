@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   } = useAdminData();
 
   return (
-    <SecureRoute requiredRole="admin">
+    <SecureRoute requiredRole="general_admin">
       <div className="container mx-auto p-6">
         <AdminDashboardHeader />
         <AdminDashboardStats stats={stats} />

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,12 +98,12 @@ const AdminRequestsManagement = () => {
           .update({ registration_status: 'approved' })
           .eq('user_id', request.user_id);
 
-        // Assign admin role
+        // Assign general admin role instead of 'admin'
         await supabase
           .from('user_roles')
           .upsert({ 
             user_id: request.user_id, 
-            role: 'admin' 
+            role: 'general_admin' 
           });
 
         // If community-specific admin, add to community_admin_roles
