@@ -53,7 +53,7 @@ const App = () => {
                 <MetaHead />
                 <Toaster />
                 <Sonner />
-                <BrowserRouter basename="/innovation">
+                <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Layout />}>
                       <Route index element={<Index />} />
