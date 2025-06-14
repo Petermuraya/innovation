@@ -147,7 +147,7 @@ const UserManagement = () => {
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
             User Management
-            {isSuperAdmin && <Crown className="w-4 h-4 text-yellow-500" title="Super Admin Access" />}
+            {isSuperAdmin && <Crown className="w-4 h-4 text-yellow-500" />}
           </CardTitle>
         </CardHeader>
         <CardContent>
