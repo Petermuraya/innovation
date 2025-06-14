@@ -100,11 +100,8 @@ const DashboardTabs = ({
 
       <TabsContent value="overview">
         <DashboardOverview 
-          memberData={memberData} 
           notifications={notifications}
           upcomingEvents={upcomingEvents}
-          projects={projects}
-          certificates={certificates}
         />
       </TabsContent>
 
@@ -117,7 +114,7 @@ const DashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="projects">
-        <EnhancedDashboardProjects projects={projects} onDataUpdate={onDataUpdate} />
+        <EnhancedDashboardProjects projects={projects} />
       </TabsContent>
 
       <TabsContent value="certificates">
