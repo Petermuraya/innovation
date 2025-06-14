@@ -859,6 +859,169 @@ export type Database = {
           },
         ]
       }
+      election_candidates: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          election_id: string
+          id: string
+          manifesto: string | null
+          position_type: Database["public"]["Enums"]["election_position"]
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          election_id: string
+          id?: string
+          manifesto?: string | null
+          position_type: Database["public"]["Enums"]["election_position"]
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          election_id?: string
+          id?: string
+          manifesto?: string | null
+          position_type?: Database["public"]["Enums"]["election_position"]
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "election_candidates_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "elections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      election_positions: {
+        Row: {
+          created_at: string
+          election_id: string
+          id: string
+          max_candidates: number | null
+          position_type: Database["public"]["Enums"]["election_position"]
+        }
+        Insert: {
+          created_at?: string
+          election_id: string
+          id?: string
+          max_candidates?: number | null
+          position_type: Database["public"]["Enums"]["election_position"]
+        }
+        Update: {
+          created_at?: string
+          election_id?: string
+          id?: string
+          max_candidates?: number | null
+          position_type?: Database["public"]["Enums"]["election_position"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "election_positions_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "elections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      election_votes: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          election_id: string
+          id: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          voter_id: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          election_id: string
+          id?: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          voter_id: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          election_id?: string
+          id?: string
+          position_type?: Database["public"]["Enums"]["election_position"]
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "election_votes_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "election_candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "election_votes_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "elections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      elections: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          nomination_end_date: string
+          nomination_start_date: string
+          status: Database["public"]["Enums"]["election_status"]
+          title: string
+          updated_at: string
+          voting_end_date: string
+          voting_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          nomination_end_date: string
+          nomination_start_date: string
+          status?: Database["public"]["Enums"]["election_status"]
+          title: string
+          updated_at?: string
+          voting_end_date: string
+          voting_start_date: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          nomination_end_date?: string
+          nomination_start_date?: string
+          status?: Database["public"]["Enums"]["election_status"]
+          title?: string
+          updated_at?: string
+          voting_end_date?: string
+          voting_start_date?: string
+        }
+        Relationships: []
+      }
       event_attendance: {
         Row: {
           attended_at: string
@@ -1834,6 +1997,19 @@ export type Database = {
           badges_count: number
         }[]
       }
+      can_user_vote: {
+        Args: { election_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
+      get_election_results: {
+        Args: { election_id_param: string }
+        Returns: {
+          position_type: Database["public"]["Enums"]["election_position"]
+          candidate_id: string
+          candidate_name: string
+          vote_count: number
+        }[]
+      }
       handle_admin_request: {
         Args: {
           request_id: string
@@ -1870,6 +2046,20 @@ export type Database = {
       }
     }
     Enums: {
+      election_position:
+        | "chairman"
+        | "vice_chairman"
+        | "treasurer"
+        | "secretary"
+        | "vice_secretary"
+        | "organizing_secretary"
+        | "auditor"
+      election_status:
+        | "draft"
+        | "nomination_open"
+        | "voting_open"
+        | "completed"
+        | "cancelled"
       user_role: "admin" | "member" | "patron"
     }
     CompositeTypes: {
@@ -1986,6 +2176,22 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      election_position: [
+        "chairman",
+        "vice_chairman",
+        "treasurer",
+        "secretary",
+        "vice_secretary",
+        "organizing_secretary",
+        "auditor",
+      ],
+      election_status: [
+        "draft",
+        "nomination_open",
+        "voting_open",
+        "completed",
+        "cancelled",
+      ],
       user_role: ["admin", "member", "patron"],
     },
   },
