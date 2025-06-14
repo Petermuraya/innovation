@@ -1,5 +1,3 @@
-import { supabase } from "./client"
-
 export type Json =
   | string
   | number
@@ -1612,6 +1610,17 @@ export type Database = {
           badges_count: number
         }[]
       }
+      handle_admin_request: {
+        Args: {
+          request_id: string
+          action: string
+          reviewer_id: string
+          user_id: string
+          community_id: string
+          admin_type: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -1625,7 +1634,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_role: "admin" | "member"
+      user_role: "admin" | "member" | "patron"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1741,65 +1750,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      user_role: ["admin", "member"],
+      user_role: ["admin", "member", "patron"],
     },
   },
 } as const
-
-
-// Extended type for admin requests with relationships
-export type AdminRequestWithRelations = Database['public']['Tables']['admin_requests']['Row'] & {
-  reviewed_by?: { name: string } | null;
-  community?: { name: string } | null;
-};
-
-// Then modify the fetchAdminRequests function:
-const fetchAdminRequests = async () => {
-  try {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('admin_requests')
-      .select(`
-        *,
-        reviewed_by:profiles(name),
-        community:community_groups(name)
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    // Safely normalize the data
-    const normalizedData = (data || []).map(item => ({
-      ...item,
-      reviewed_by: item.reviewed_by && 'name' in item.reviewed_by 
-        ? { name: item.reviewed_by.name } 
-        : null,
-      community: item.community && 'name' in item.community
-        ? { name: item.community.name }
-        : null
-    }));
-
-    setRequests(normalizedData as AdminRequestWithRelations[]);
-  } catch (error) {
-    console.error('Error fetching admin requests:', error);
-    toast({
-      title: 'Error',
-      description: 'Failed to fetch admin requests',
-      variant: 'destructive',
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
-function setLoading(arg0: boolean) {
-  throw new Error("Function not implemented.")
-}
-function setRequests(arg0: AdminRequestWithRelations[]) {
-  throw new Error("Function not implemented.")
-}
-
-function toast(arg0: { title: string; description: string; variant: string }) {
-  throw new Error("Function not implemented.")
-}
-
