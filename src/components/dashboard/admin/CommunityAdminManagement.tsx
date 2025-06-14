@@ -11,6 +11,7 @@ import { UserPlus, Shield, Users, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 interface CommunityAdmin {
   id: string;
@@ -38,6 +39,7 @@ interface Member {
 const CommunityAdminManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isSuperAdmin, isChairman, isViceChairman } = useRolePermissions();
   const [communityAdmins, setCommunityAdmins] = useState<CommunityAdmin[]>([]);
   const [communities, setCommunities] = useState<Community[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
@@ -50,9 +52,16 @@ const CommunityAdminManagement = () => {
   const [adminRole, setAdminRole] = useState('admin');
   const [submitting, setSubmitting] = useState(false);
 
+  // Check if user can assign community admins
+  const canAssignAdmins = isSuperAdmin || isChairman || isViceChairman;
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (canAssignAdmins) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [canAssignAdmins]);
 
   const fetchData = async () => {
     try {
@@ -216,6 +225,22 @@ const CommunityAdminManagement = () => {
 
   if (loading) {
     return <div className="text-center py-8">Loading community admins...</div>;
+  }
+
+  if (!canAssignAdmins) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <Shield className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">Access Restricted</h3>
+            <p className="text-muted-foreground">
+              Only Super Admins, Chairman, and Vice Chairman can manage community admins.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

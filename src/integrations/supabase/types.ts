@@ -2455,6 +2455,10 @@ export type Database = {
         Args: { current_year: number; reg_year?: number }
         Returns: string
       }
+      can_assign_community_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       can_user_vote: {
         Args: { election_id_param: string; user_id_param: string }
         Returns: boolean
