@@ -11,12 +11,14 @@ interface AvatarUploadProps {
   avatarUrl: string | null;
   setAvatarUrl: (url: string | null) => void;
   name: string;
+  onAvatarUpdate?: () => void;
 }
 
-const AvatarUpload = ({ avatarUrl, setAvatarUrl, name }: AvatarUploadProps) => {
+const AvatarUpload = ({ avatarUrl, setAvatarUrl, name, onAvatarUpdate }: AvatarUploadProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [imageKey, setImageKey] = useState(Date.now()); // Force re-render of image
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -42,12 +44,33 @@ const AvatarUpload = ({ avatarUrl, setAvatarUrl, name }: AvatarUploadProps) => {
         .from('avatars')
         .getPublicUrl(fileName);
 
-      setAvatarUrl(data.publicUrl);
+      const newAvatarUrl = data.publicUrl;
+      setAvatarUrl(newAvatarUrl);
+      setImageKey(Date.now()); // Force image re-render
+      
+      // Update the member's avatar in the database
+      await supabase
+        .from('members')
+        .update({ avatar_url: newAvatarUrl })
+        .eq('user_id', user?.id);
+
+      // Update the profile's avatar in the database
+      await supabase
+        .from('profiles')
+        .upsert({
+          user_id: user?.id,
+          avatar_url: newAvatarUrl,
+        });
       
       toast({
         title: "Avatar uploaded",
         description: "Your profile picture has been updated",
       });
+
+      // Trigger parent component refresh if callback provided
+      if (onAvatarUpdate) {
+        onAvatarUpdate();
+      }
     } catch (error) {
       console.error('Error uploading avatar:', error);
       toast({
@@ -63,7 +86,10 @@ const AvatarUpload = ({ avatarUrl, setAvatarUrl, name }: AvatarUploadProps) => {
   return (
     <div className="flex items-center gap-4">
       <Avatar className="w-20 h-20">
-        <AvatarImage src={avatarUrl || undefined} />
+        <AvatarImage 
+          src={avatarUrl ? `${avatarUrl}?t=${imageKey}` : undefined} 
+          key={imageKey}
+        />
         <AvatarFallback>
           {name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
         </AvatarFallback>

@@ -5,21 +5,29 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { User, Phone, Mail, GraduationCap, Edit, Lock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import ProfileEditor from './ProfileEditor';
 import ChangePasswordForm from '@/components/auth/ChangePasswordForm';
 
 interface DashboardProfileProps {
   memberData: any;
+  onDataUpdate?: () => void;
 }
 
-const DashboardProfile = ({ memberData }: DashboardProfileProps) => {
+const DashboardProfile = ({ memberData, onDataUpdate }: DashboardProfileProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [avatarKey, setAvatarKey] = useState(Date.now());
 
   const handleProfileUpdate = () => {
     setShowEditDialog(false);
-    // Trigger a refresh of member data if needed
-    window.location.reload();
+    setAvatarKey(Date.now()); // Force avatar re-render
+    // Trigger a refresh of member data if callback provided
+    if (onDataUpdate) {
+      onDataUpdate();
+    } else {
+      window.location.reload();
+    }
   };
 
   return (
@@ -51,6 +59,23 @@ const DashboardProfile = ({ memberData }: DashboardProfileProps) => {
             </Dialog>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Avatar Display */}
+            <div className="flex items-center space-x-3 pb-4 border-b">
+              <Avatar className="w-16 h-16">
+                <AvatarImage 
+                  src={memberData?.avatar_url ? `${memberData.avatar_url}?t=${avatarKey}` : undefined}
+                  key={avatarKey}
+                />
+                <AvatarFallback className="bg-kic-green-500 text-white">
+                  {memberData?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="font-semibold text-lg">{memberData.name}</h3>
+                <p className="text-sm text-kic-gray/70">{memberData.email}</p>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <User className="h-4 w-4 text-kic-gray/70" />

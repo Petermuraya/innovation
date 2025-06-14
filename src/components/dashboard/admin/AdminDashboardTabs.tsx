@@ -1,189 +1,119 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Users, Calendar, FolderOpen, DollarSign, Settings, UserCog, Star, User } from 'lucide-react';
 import EnhancedMembersManagement from './EnhancedMembersManagement';
+import EnhancedEventsManagement from './EnhancedEventsManagement';
 import ProjectsManagement from './ProjectsManagement';
-import EventsManagement from './EventsManagement';
-import BlogManagement from './BlogManagement';
 import PaymentsManagement from './PaymentsManagement';
-import CareerManagement from './CareerManagement';
-import CommunityAdminManagement from './CommunityAdminManagement';
-import CertificateManager from './CertificateManager';
-import MPesaConfigManager from './MPesaConfigManager';
-import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
-import WorldClassNotificationSystem from './WorldClassNotificationSystem';
-import PointConfigurationManager from '@/components/admin/PointConfigurationManager';
-import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
-import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
-import { Badge } from '@/components/ui/badge';
-import { Vote, Star } from 'lucide-react';
+import RoleManagement from './RoleManagement';
+import FeaturedProjectsManagement from './FeaturedProjectsManagement';
+import DashboardProfile from '../user/DashboardProfile';
+import { useMemberData } from '../user/hooks/useMemberData';
 
 interface AdminDashboardTabsProps {
-  stats?: any;
-  members?: any[];
-  projects?: any[];
-  payments?: any[];
-  updateMemberStatus?: (memberId: string, status: string) => Promise<void>;
-  updateProjectStatus?: (projectId: string, status: string) => Promise<void>;
+  stats: any;
+  members: any[];
+  projects: any[];
+  payments: any[];
+  updateMemberStatus: (memberId: string, status: string) => Promise<void>;
+  updateProjectStatus: (projectId: string, status: string) => Promise<void>;
 }
 
-const AdminDashboardTabs = ({ 
-  stats, 
-  members = [], 
-  projects = [], 
-  payments = [], 
-  updateMemberStatus, 
-  updateProjectStatus 
+const AdminDashboardTabs = ({
+  stats,
+  members,
+  projects,
+  payments,
+  updateMemberStatus,
+  updateProjectStatus
 }: AdminDashboardTabsProps) => {
-  console.log("AdminDashboardTabs rendering - Elections tab should be visible");
-  
-  const tabData = [
-    { 
-      value: 'members', 
-      label: 'Members', 
-      badge: stats?.pendingMembers > 0 ? stats.pendingMembers : null,
-      badgeVariant: 'destructive' as const
+  const { memberData, refetchMemberData } = useMemberData();
+
+  const tabs = [
+    {
+      id: 'members',
+      label: 'Members',
+      icon: <Users className="w-4 h-4" />,
+      component: (
+        <EnhancedMembersManagement
+          members={members}
+          updateMemberStatus={updateMemberStatus}
+        />
+      )
     },
-    { 
-      value: 'projects', 
+    {
+      id: 'projects',
       label: 'Projects',
-      badge: stats?.pendingProjects > 0 ? stats.pendingProjects : null,
-      badgeVariant: 'secondary' as const
+      icon: <FolderOpen className="w-4 h-4" />,
+      component: (
+        <ProjectsManagement
+          projects={projects}
+          updateProjectStatus={updateProjectStatus}
+        />
+      )
     },
-    { value: 'events', label: 'Events' },
-    { 
-      value: 'elections', 
-      label: 'Elections',
-      highlight: true,
-      special: true,
-      icon: Vote
+    {
+      id: 'featured',
+      label: 'Featured',
+      icon: <Star className="w-4 h-4" />,
+      component: <FeaturedProjectsManagement />
     },
-    { value: 'blogs', label: 'Blogs' },
-    { value: 'payments', label: 'Payments' },
-    { value: 'careers', label: 'Careers' },
-    { value: 'communities', label: 'Communities' },
-    { value: 'certificates', label: 'Certificates' },
-    { value: 'mpesa', label: 'M-Pesa' },
-    { 
-      value: 'requests', 
-      label: 'Requests',
-      badge: stats?.pendingAdminRequests > 0 ? stats.pendingAdminRequests : null,
-      badgeVariant: 'destructive' as const
+    {
+      id: 'events',
+      label: 'Events',
+      icon: <Calendar className="w-4 h-4" />,
+      component: <EnhancedEventsManagement />
     },
-    { value: 'notifications', label: 'Notifications' },
-    { value: 'points', label: 'Points' },
-    { value: 'leaderboard', label: 'Leaderboard' }
+    {
+      id: 'payments',
+      label: 'Payments',
+      icon: <DollarSign className="w-4 h-4" />,
+      component: <PaymentsManagement payments={payments} />
+    },
+    {
+      id: 'roles',
+      label: 'Roles',
+      icon: <UserCog className="w-4 h-4" />,
+      component: <RoleManagement />
+    },
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: <User className="w-4 h-4" />,
+      component: memberData ? (
+        <DashboardProfile 
+          memberData={memberData} 
+          onDataUpdate={refetchMemberData}
+        />
+      ) : (
+        <div className="text-center py-8">Loading profile...</div>
+      )
+    }
   ];
 
   return (
-    <Tabs defaultValue="members" className="w-full">
-      {/* Responsive Tab Navigation */}
-      <div className="border-b bg-kic-lightGray/50 px-4 py-2">
-        <ScrollArea className="w-full">
-          <TabsList className="inline-flex h-auto min-w-full bg-transparent gap-1 p-1">
-            {tabData.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className={`
-                  relative flex items-center gap-2 px-3 py-2 text-xs sm:text-sm
-                  data-[state=active]:bg-white data-[state=active]:text-kic-green-700
-                  data-[state=active]:shadow-sm data-[state=active]:border
-                  hover:bg-white/70 transition-all duration-200
-                  whitespace-nowrap
-                  ${tab.highlight ? 'bg-gradient-to-r from-kic-green-100 to-kic-green-200 text-kic-green-800 font-bold border border-kic-green-400 shadow-md' : ''}
-                  ${tab.special ? 'hover:scale-105 transform transition-transform' : ''}
-                `}
-              >
-                {tab.icon && <tab.icon className="w-4 h-4" />}
-                {tab.label}
-                {tab.special && (
-                  <Star className="w-3 h-3 text-kic-green-600 animate-pulse" />
-                )}
-                {tab.badge && (
-                  <Badge 
-                    variant={tab.badgeVariant} 
-                    className="ml-1 h-4 min-w-4 px-1 text-xs leading-none"
-                  >
-                    {tab.badge}
-                  </Badge>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </ScrollArea>
-      </div>
+    <div className="w-full">
+      <Tabs defaultValue="members" className="w-full">
+        <TabsList className="grid w-full grid-cols-7 h-auto p-1 bg-kic-lightGray/30">
+          {tabs.map((tab) => (
+            <TabsTrigger 
+              key={tab.id}
+              value={tab.id} 
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all data-[state=active]:bg-white data-[state=active]:text-kic-green-700 data-[state=active]:shadow-sm"
+            >
+              {tab.icon}
+              <span className="hidden sm:inline">{tab.label}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* Tab Content */}
-      <div className="p-4 sm:p-6">
-        <TabsContent value="members" className="mt-0">
-          <EnhancedMembersManagement members={members} updateMemberStatus={updateMemberStatus} />
-        </TabsContent>
-        
-        <TabsContent value="projects" className="mt-0">
-          <ProjectsManagement projects={projects} updateProjectStatus={updateProjectStatus} />
-        </TabsContent>
-        
-        <TabsContent value="events" className="mt-0">
-          <EventsManagement events={[]} />
-        </TabsContent>
-        
-        <TabsContent value="elections" className="mt-0">
-          <div className="space-y-4">
-            <div className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border border-kic-green-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Vote className="w-6 h-6 text-kic-green-600" />
-                <h2 className="text-xl font-bold text-kic-green-800">Elections Management Center</h2>
-              </div>
-              <p className="text-kic-green-700">
-                Manage club elections, review candidates, and oversee the democratic process.
-              </p>
-            </div>
-            <AdminElectionManagement />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="blogs" className="mt-0">
-          <BlogManagement />
-        </TabsContent>
-        
-        <TabsContent value="payments" className="mt-0">
-          <PaymentsManagement payments={payments} />
-        </TabsContent>
-        
-        <TabsContent value="careers" className="mt-0">
-          <CareerManagement />
-        </TabsContent>
-        
-        <TabsContent value="communities" className="mt-0">
-          <CommunityAdminManagement />
-        </TabsContent>
-        
-        <TabsContent value="certificates" className="mt-0">
-          <CertificateManager />
-        </TabsContent>
-        
-        <TabsContent value="mpesa" className="mt-0">
-          <MPesaConfigManager />
-        </TabsContent>
-        
-        <TabsContent value="requests" className="mt-0">
-          <EnhancedAdminRequestsManagement />
-        </TabsContent>
-        
-        <TabsContent value="notifications" className="mt-0">
-          <WorldClassNotificationSystem />
-        </TabsContent>
-
-        <TabsContent value="points" className="mt-0">
-          <PointConfigurationManager />
-        </TabsContent>
-
-        <TabsContent value="leaderboard" className="mt-0">
-          <EnhancedLeaderboardManager />
-        </TabsContent>
-      </div>
-    </Tabs>
+        {tabs.map((tab) => (
+          <TabsContent key={tab.id} value={tab.id} className="mt-6 space-y-6">
+            {tab.component}
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
   );
 };
 

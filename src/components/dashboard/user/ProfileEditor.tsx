@@ -44,6 +44,7 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
       fetchProfile();
       setName(memberData.name || '');
       setEmail(memberData.email || '');
+      setAvatarUrl(memberData.avatar_url || null);
     }
   }, [user, memberData]);
 
@@ -75,6 +76,13 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
     }
   };
 
+  const handleAvatarUpdate = () => {
+    // Refresh the data to get the latest avatar
+    if (onUpdate) {
+      onUpdate();
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
@@ -88,6 +96,7 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
           name: name.trim(),
           phone: phone.trim() || null,
           course: course.trim() || null,
+          avatar_url: avatarUrl,
         })
         .eq('user_id', user.id);
 
@@ -136,6 +145,7 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
           avatarUrl={avatarUrl}
           setAvatarUrl={setAvatarUrl}
           name={name}
+          onAvatarUpdate={handleAvatarUpdate}
         />
 
         <BasicInfoFields

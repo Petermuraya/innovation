@@ -7,6 +7,7 @@ import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import NotificationsList from '@/components/dashboard/NotificationsList';
+import { useState } from 'react';
 
 interface DashboardHeaderProps {
   memberData: any;
@@ -16,12 +17,16 @@ interface DashboardHeaderProps {
 const DashboardHeader = ({ memberData, user }: DashboardHeaderProps) => {
   const { signOut } = useAuth();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
+  const [avatarKey, setAvatarKey] = useState(Date.now());
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div className="flex items-center gap-4">
         <Avatar className="w-12 h-12">
-          <AvatarImage src={memberData?.avatar_url} />
+          <AvatarImage 
+            src={memberData?.avatar_url ? `${memberData.avatar_url}?t=${avatarKey}` : undefined}
+            key={avatarKey}
+          />
           <AvatarFallback className="bg-kic-green-500 text-white">
             {memberData?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 
              user?.email?.charAt(0).toUpperCase() || 'U'}
