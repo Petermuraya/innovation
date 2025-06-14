@@ -18,6 +18,8 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
+  console.log('EnhancedMembersManagement received members:', members.length);
+
   const {
     searchTerm,
     setSearchTerm,
@@ -31,6 +33,9 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
     courses,
     stats
   } = useMemberManagement(members);
+
+  console.log('Filtered members:', filteredMembers.length);
+  console.log('Member stats:', stats);
 
   const handleStatusUpdate = async (memberId: string, status: string) => {
     setIsLoading(memberId);
@@ -77,6 +82,51 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
       });
     }
   };
+
+  if (members.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-kic-green-200">
+          <CardHeader className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border-b border-kic-green-200">
+            <CardTitle className="flex items-center gap-2 text-kic-green-800">
+              <Users className="h-5 w-5" />
+              Member Management
+            </CardTitle>
+            <CardDescription className="text-kic-green-600">
+              No members found in the system
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-8 text-center">
+            <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 mb-4">
+              There are currently no members in the system. This could be because:
+            </p>
+            <ul className="text-left text-gray-500 mb-6 space-y-2">
+              <li>• No members have registered yet</li>
+              <li>• There's a database connection issue</li>
+              <li>• Member data is not being fetched properly</li>
+            </ul>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="bg-kic-green-600 hover:bg-kic-green-700 text-white"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Add First Member
+            </Button>
+          </CardContent>
+        </Card>
+
+        <AddMemberDialog 
+          open={showAddDialog} 
+          onOpenChange={setShowAddDialog}
+          onSuccess={() => {
+            setShowAddDialog(false);
+            // Refresh data would happen here
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

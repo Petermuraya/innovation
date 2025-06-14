@@ -1,135 +1,209 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+interface AdminStats {
+  totalMembers: number;
+  pendingMembers: number;
+  totalProjects: number;
+  pendingProjects: number;
+  totalEvents: number;
+  totalPayments: number;
+  pendingAdminRequests: number;
+}
+
 export const useAdminData = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<AdminStats>({
     totalMembers: 0,
     pendingMembers: 0,
-    totalEvents: 0,
+    totalProjects: 0,
     pendingProjects: 0,
+    totalEvents: 0,
     totalPayments: 0,
-    totalCertificates: 0,
     pendingAdminRequests: 0
   });
-
   const [members, setMembers] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchAdminData();
+    }
+  }, [user]);
 
   const fetchAdminData = async () => {
+    console.log('Fetching admin data...');
+    setLoading(true);
     try {
-      // Fetch members
-      const { data: membersData } = await supabase
+      // Fetch members - removing the approved filter to see all members
+      console.log('Fetching members...');
+      const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('*')
         .order('created_at', { ascending: false });
-      setMembers(membersData || []);
+
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+      } else {
+        console.log('Members fetched:', membersData?.length || 0, 'members');
+        setMembers(membersData || []);
+      }
+
+      // Fetch projects
+      console.log('Fetching projects...');
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('project_submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (projectsError) {
+        console.error('Error fetching projects:', projectsError);
+      } else {
+        console.log('Projects fetched:', projectsData?.length || 0, 'projects');
+        setProjects(projectsData || []);
+      }
 
       // Fetch events
-      const { data: eventsData } = await supabase
+      console.log('Fetching events...');
+      const { data: eventsData, error: eventsError } = await supabase
         .from('events')
         .select('*')
         .order('created_at', { ascending: false });
-      setEvents(eventsData || []);
 
-      // Fetch project submissions
-      const { data: projectsData } = await supabase
-        .from('project_submissions')
-        .select('*, members(name)')
-        .order('created_at', { ascending: false });
-      setProjects(projectsData || []);
+      if (eventsError) {
+        console.error('Error fetching events:', eventsError);
+      } else {
+        console.log('Events fetched:', eventsData?.length || 0, 'events');
+        setEvents(eventsData || []);
+      }
 
       // Fetch payments
-      const { data: paymentsData } = await supabase
+      console.log('Fetching payments...');
+      const { data: paymentsData, error: paymentsError } = await supabase
         .from('mpesa_payments')
-        .select('*, members(name)')
+        .select('*')
         .order('created_at', { ascending: false });
-      setPayments(paymentsData || []);
 
-      // Fetch certificates count
-      const { data: certificatesData } = await supabase
-        .from('certificates')
-        .select('id');
+      if (paymentsError) {
+        console.error('Error fetching payments:', paymentsError);
+      } else {
+        console.log('Payments fetched:', paymentsData?.length || 0, 'payments');
+        setPayments(paymentsData || []);
+      }
 
-      // Fetch admin requests count
-      const { data: adminRequestsData } = await supabase
+      // Fetch admin requests
+      console.log('Fetching admin requests...');
+      const { data: adminRequestsData, error: adminRequestsError } = await supabase
         .from('admin_requests')
-        .select('id, status')
-        .eq('status', 'pending');
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (adminRequestsError) {
+        console.error('Error fetching admin requests:', adminRequestsError);
+      }
 
       // Calculate stats
-      setStats({
+      const calculatedStats = {
         totalMembers: membersData?.length || 0,
-        pendingMembers: membersData?.filter((m: any) => m.registration_status === 'pending').length || 0,
+        pendingMembers: membersData?.filter(m => m.registration_status === 'pending').length || 0,
+        totalProjects: projectsData?.length || 0,
+        pendingProjects: projectsData?.filter(p => p.status === 'pending').length || 0,
         totalEvents: eventsData?.length || 0,
-        pendingProjects: projectsData?.filter((p: any) => p.status === 'pending').length || 0,
         totalPayments: paymentsData?.length || 0,
-        totalCertificates: certificatesData?.length || 0,
-        pendingAdminRequests: adminRequestsData?.length || 0
-      });
+        pendingAdminRequests: adminRequestsData?.filter(r => r.status === 'pending').length || 0
+      };
+
+      console.log('Calculated stats:', calculatedStats);
+      setStats(calculatedStats);
+
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast({
         title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive",
+        description: "Failed to load admin data. Please try again.",
+        variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateMemberStatus = async (memberId: string, status: string) => {
+    console.log('Updating member status:', memberId, status);
     try {
-      await supabase
+      const { error } = await supabase
         .from('members')
-        .update({ registration_status: status })
+        .update({ 
+          registration_status: status,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', memberId);
+
+      if (error) throw error;
+
+      // Refresh data after update
+      await fetchAdminData();
       
       toast({
-        title: "Member status updated",
-        description: `Registration ${status} successfully.`,
+        title: "Success",
+        description: `Member status updated to ${status}`,
       });
-      
-      fetchAdminData();
     } catch (error) {
       console.error('Error updating member status:', error);
       toast({
         title: "Error",
-        description: "Failed to update member status. Please try again.",
-        variant: "destructive",
+        description: "Failed to update member status",
+        variant: "destructive"
       });
+      throw error;
     }
   };
 
-  const updateProjectStatus = async (projectId: string, status: string) => {
+  const updateProjectStatus = async (projectId: string, status: string, feedback?: string) => {
+    console.log('Updating project status:', projectId, status);
     try {
-      await supabase
+      const updateData: any = {
+        status,
+        reviewed_by: user?.id,
+        reviewed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      if (feedback?.trim()) {
+        updateData.admin_feedback = feedback.trim();
+      }
+
+      const { error } = await supabase
         .from('project_submissions')
-        .update({ status })
+        .update(updateData)
         .eq('id', projectId);
+
+      if (error) throw error;
+
+      // Refresh data after update
+      await fetchAdminData();
       
       toast({
-        title: "Project status updated",
-        description: `Project ${status} successfully.`,
+        title: "Success",
+        description: `Project ${status} successfully`,
       });
-      
-      fetchAdminData();
     } catch (error) {
       console.error('Error updating project status:', error);
       toast({
         title: "Error",
-        description: "Failed to update project status. Please try again.",
-        variant: "destructive",
+        description: "Failed to update project status",
+        variant: "destructive"
       });
+      throw error;
     }
   };
-
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
 
   return {
     stats,
@@ -137,8 +211,9 @@ export const useAdminData = () => {
     events,
     projects,
     payments,
+    loading,
     updateMemberStatus,
     updateProjectStatus,
-    refetchData: fetchAdminData,
+    refreshData: fetchAdminData
   };
 };
