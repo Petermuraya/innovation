@@ -18,6 +18,25 @@ import {
   Sparkles
 } from 'lucide-react';
 
+type PriorityLevel = 'low' | 'medium' | 'high' | 'urgent';
+
+interface WorldClassNotification {
+  type: string;
+  title: string;
+  message: string;
+  priority: PriorityLevel;
+  icon: React.ReactNode;
+  metadata?: Record<string, any>;
+}
+
+interface StandardNotification {
+  type: string;
+  title: string;
+  message: string;
+  priority: PriorityLevel;
+  icon: React.ReactNode;
+}
+
 const WorldClassNotificationTester = () => {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -26,7 +45,7 @@ const WorldClassNotificationTester = () => {
     type: string, 
     title: string, 
     message: string, 
-    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium',
+    priority: PriorityLevel = 'medium',
     metadata?: Record<string, any>
   ) => {
     if (!user) {
@@ -67,12 +86,12 @@ const WorldClassNotificationTester = () => {
     }
   };
 
-  const worldClassNotifications = [
+  const worldClassNotifications: WorldClassNotification[] = [
     {
       type: 'achievement',
       title: '🏆 World-Class Achievement Unlocked!',
       message: 'You have mastered the art of innovation! Your dedication to excellence has earned you the Innovation Champion badge.',
-      priority: 'high' as const,
+      priority: 'high',
       icon: <Trophy className="w-5 h-5 text-yellow-500" />,
       metadata: { isWorldClass: true, animation: 'celebration', category: 'achievement' }
     },
@@ -80,7 +99,7 @@ const WorldClassNotificationTester = () => {
       type: 'success',
       title: '✨ Extraordinary Success!',
       message: 'Your project has been featured as the Project of the Month! Congratulations on this outstanding achievement.',
-      priority: 'urgent' as const,
+      priority: 'urgent',
       icon: <Star className="w-5 h-5 text-purple-500" />,
       metadata: { isWorldClass: true, animation: 'fireworks', category: 'recognition' }
     },
@@ -88,7 +107,7 @@ const WorldClassNotificationTester = () => {
       type: 'announcement',
       title: '👑 Elite Member Status',
       message: 'Welcome to the elite circle! You have been selected for our exclusive leadership program.',
-      priority: 'high' as const,
+      priority: 'high',
       icon: <Crown className="w-5 h-5 text-gold" />,
       metadata: { isWorldClass: true, animation: 'royal', category: 'status' }
     },
@@ -96,42 +115,52 @@ const WorldClassNotificationTester = () => {
       type: 'info',
       title: '🎁 Exclusive Opportunity',
       message: 'A special opportunity awaits! You have been invited to our innovation summit as a VIP guest.',
-      priority: 'high' as const,
+      priority: 'high',
       icon: <Gift className="w-5 h-5 text-green-500" />,
       metadata: { isWorldClass: true, animation: 'sparkle', category: 'opportunity' }
     }
   ];
 
-  const standardNotifications = [
+  const standardNotifications: StandardNotification[] = [
     {
       type: 'event',
       title: 'Weekly Innovation Meeting',
       message: 'Join us for our weekly innovation meeting tomorrow at 2 PM in the main hall.',
-      priority: 'medium' as const,
+      priority: 'medium',
       icon: <Bell className="w-4 h-4" />
     },
     {
       type: 'payment',
       title: 'Payment Confirmation',
       message: 'Your membership payment has been successfully processed. Thank you!',
-      priority: 'low' as const,
+      priority: 'low',
       icon: <CheckCircle className="w-4 h-4" />
     },
     {
       type: 'alert',
       title: 'System Maintenance',
       message: 'Scheduled system maintenance will occur tonight from 10 PM to 2 AM.',
-      priority: 'medium' as const,
+      priority: 'medium',
       icon: <AlertTriangle className="w-4 h-4" />
     },
     {
       type: 'info',
       title: 'New Features Available',
       message: 'Check out the latest features we have added to enhance your experience.',
-      priority: 'low' as const,
+      priority: 'low',
       icon: <Info className="w-4 h-4" />
     }
   ];
+
+  const getPriorityColor = (priority: PriorityLevel): string => {
+    switch (priority) {
+      case 'urgent': return 'bg-red-100 text-red-800';
+      case 'high': return 'bg-orange-100 text-orange-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -168,12 +197,7 @@ const WorldClassNotificationTester = () => {
                       <p className="font-semibold text-gray-900">{notification.title}</p>
                       <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          notification.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                          notification.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                          notification.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
+                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${getPriorityColor(notification.priority)}`}>
                           {notification.priority} priority
                         </span>
                         <span className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 px-3 py-1 rounded-full font-medium">
@@ -215,11 +239,7 @@ const WorldClassNotificationTester = () => {
                     <div>
                       <p className="font-medium text-gray-900">{notification.title}</p>
                       <p className="text-sm text-gray-500">{notification.message}</p>
-                      <span className={`text-xs px-2 py-1 rounded mt-1 inline-block ${
-                        notification.priority === 'high' ? 'bg-red-100 text-red-800' :
-                        notification.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
+                      <span className={`text-xs px-2 py-1 rounded mt-1 inline-block ${getPriorityColor(notification.priority)}`}>
                         {notification.priority} priority
                       </span>
                     </div>
