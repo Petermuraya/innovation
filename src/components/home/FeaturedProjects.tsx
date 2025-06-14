@@ -43,7 +43,7 @@ export default function FeaturedProjects() {
 
   if (loading) {
     return (
-      <section className="pt-16 pb-16 bg-white -mt-24 relative z-10">
+      <section className="pt-8 pb-16 bg-white -mt-32 relative z-10">
         <div className="container-custom">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-12">
             <div>
@@ -76,7 +76,7 @@ export default function FeaturedProjects() {
   }
 
   return (
-    <section className="pt-16 pb-16 bg-white -mt-24 relative z-10">
+    <section className="pt-8 pb-16 bg-white -mt-32 relative z-10">
       <div className="container-custom">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-12">
           <div>
