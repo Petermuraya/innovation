@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,11 +12,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface CareerOpportunityFormProps {
+  opportunity?: any;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const CareerOpportunityForm = ({ onClose, onSuccess }: CareerOpportunityFormProps) => {
+const CareerOpportunityForm = ({ opportunity, onClose, onSuccess }: CareerOpportunityFormProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,27 +34,59 @@ const CareerOpportunityForm = ({ onClose, onSuccess }: CareerOpportunityFormProp
     expires_at: ''
   });
 
+  useEffect(() => {
+    if (opportunity) {
+      setFormData({
+        title: opportunity.title || '',
+        company_name: opportunity.company_name || '',
+        type: opportunity.type || '',
+        location: opportunity.location || '',
+        remote: opportunity.remote || false,
+        description: opportunity.description || '',
+        requirements: opportunity.requirements || '',
+        salary_range: opportunity.salary_range || '',
+        application_url: opportunity.application_url || '',
+        application_email: opportunity.application_email || '',
+        expires_at: opportunity.expires_at ? new Date(opportunity.expires_at).toISOString().split('T')[0] : ''
+      });
+    }
+  }, [opportunity]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('career_opportunities')
-        .insert({
-          ...formData,
-          posted_by: user.id,
-          expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null
-        });
+      const submitData = {
+        ...formData,
+        posted_by: user.id,
+        expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : null
+      };
 
-      if (error) throw error;
+      if (opportunity) {
+        // Update existing opportunity
+        const { error } = await supabase
+          .from('career_opportunities')
+          .update(submitData)
+          .eq('id', opportunity.id);
 
-      toast.success('Opportunity posted successfully!');
+        if (error) throw error;
+        toast.success('Opportunity updated successfully!');
+      } else {
+        // Create new opportunity
+        const { error } = await supabase
+          .from('career_opportunities')
+          .insert(submitData);
+
+        if (error) throw error;
+        toast.success('Opportunity posted successfully!');
+      }
+
       onSuccess();
     } catch (error) {
-      console.error('Error posting opportunity:', error);
-      toast.error('Error posting opportunity');
+      console.error('Error saving opportunity:', error);
+      toast.error('Error saving opportunity');
     } finally {
       setLoading(false);
     }
@@ -69,7 +101,7 @@ const CareerOpportunityForm = ({ onClose, onSuccess }: CareerOpportunityFormProp
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Post Career Opportunity</CardTitle>
+            <CardTitle>{opportunity ? 'Edit' : 'Post'} Career Opportunity</CardTitle>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -201,7 +233,7 @@ const CareerOpportunityForm = ({ onClose, onSuccess }: CareerOpportunityFormProp
 
             <div className="flex gap-2 pt-4">
               <Button type="submit" disabled={loading}>
-                {loading ? 'Posting...' : 'Post Opportunity'}
+                {loading ? (opportunity ? 'Updating...' : 'Posting...') : (opportunity ? 'Update Opportunity' : 'Post Opportunity')}
               </Button>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel

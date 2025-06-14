@@ -10,6 +10,7 @@ import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
 import CommunityAdminManagement from './CommunityAdminManagement';
 import MPesaConfigManager from './MPesaConfigManager';
 import FeaturedProjectsManagement from './FeaturedProjectsManagement';
+import CareerManagement from './CareerManagement';
 
 interface AdminDashboardTabsProps {
   stats: any;
@@ -31,13 +32,14 @@ const AdminDashboardTabs = ({
   return (
     <Tabs defaultValue="overview" className="space-y-4">
       <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 gap-1 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 gap-1 h-auto p-1">
           <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
           <TabsTrigger value="members" className="text-xs sm:text-sm">Members</TabsTrigger>
           <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
           <TabsTrigger value="featured" className="text-xs sm:text-sm">Featured</TabsTrigger>
           <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
           <TabsTrigger value="blogs" className="text-xs sm:text-sm">Blogs</TabsTrigger>
+          <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
           <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
           <TabsTrigger value="certificates" className="text-xs sm:text-sm">Certificates</TabsTrigger>
           <TabsTrigger value="requests" className="text-xs sm:text-sm">Requests</TabsTrigger>
@@ -69,6 +71,10 @@ const AdminDashboardTabs = ({
 
       <TabsContent value="blogs">
         <BlogManagement />
+      </TabsContent>
+
+      <TabsContent value="careers">
+        <CareerManagement />
       </TabsContent>
 
       <TabsContent value="payments">
