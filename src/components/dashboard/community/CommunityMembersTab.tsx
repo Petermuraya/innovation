@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Users, UserPlus, Mail, Phone, GraduationCap } from 'lucide-react';
+import BackToDashboard from './BackToDashboard';
 
 interface CommunityMembersTabProps {
   communityId: string;
@@ -153,107 +154,113 @@ const CommunityMembersTab = ({ communityId, isAdmin = false }: CommunityMembersT
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          Community Members ({members.length})
-        </CardTitle>
-        {isAdmin && (
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add Member
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Member to Community</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="user-select">Select User</Label>
-                  <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a user to add" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableUsers.map((user) => (
-                        <SelectItem key={user.user_id} value={user.user_id}>
-                          {user.name} ({user.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <BackToDashboard />
+      </div>
+      
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Community Members ({members.length})
+          </CardTitle>
+          {isAdmin && (
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Member
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Member to Community</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="user-select">Select User</Label>
+                    <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a user to add" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableUsers.map((user) => (
+                          <SelectItem key={user.user_id} value={user.user_id}>
+                            {user.name} ({user.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={addMemberToCommunity} disabled={!selectedUserId}>
+                      Add Member
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={addMemberToCommunity} disabled={!selectedUserId}>
-                    Add Member
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {members.map((membership) => (
-            <div key={membership.id} className="border rounded-lg p-4">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-kic-gray">{membership.members?.name}</h4>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      {membership.members?.email}
+              </DialogContent>
+            </Dialog>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {members.map((membership) => (
+              <div key={membership.id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-kic-gray">{membership.members?.name}</h4>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        {membership.members?.email}
+                      </div>
+                      {membership.members?.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          {membership.members.phone}
+                        </div>
+                      )}
+                      {membership.members?.course && (
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4" />
+                          {membership.members.course}
+                        </div>
+                      )}
                     </div>
-                    {membership.members?.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4" />
-                        {membership.members.phone}
-                      </div>
-                    )}
-                    {membership.members?.course && (
-                      <div className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4" />
-                        {membership.members.course}
-                      </div>
+                    <p className="text-xs text-gray-500">
+                      Joined: {new Date(membership.joined_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="default">Active</Badge>
+                    {isAdmin && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => removeMemberFromCommunity(membership.id)}
+                      >
+                        Remove
+                      </Button>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Joined: {new Date(membership.joined_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="default">Active</Badge>
-                  {isAdmin && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => removeMemberFromCommunity(membership.id)}
-                    >
-                      Remove
-                    </Button>
-                  )}
                 </div>
               </div>
-            </div>
-          ))}
-          {members.length === 0 && (
-            <div className="text-center py-8">
-              <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Members</h3>
-              <p className="text-gray-500">This community doesn't have any members yet.</p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+            {members.length === 0 && (
+              <div className="text-center py-8">
+                <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Members</h3>
+                <p className="text-gray-500">This community doesn't have any members yet.</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

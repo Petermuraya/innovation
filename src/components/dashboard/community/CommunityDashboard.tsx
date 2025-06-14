@@ -11,6 +11,7 @@ import CommunityEventsTab from './CommunityEventsTab';
 import CommunityProjectsTab from './CommunityProjectsTab';
 import CommunityAttendanceTab from './CommunityAttendanceTab';
 import CommunityRemindersTab from './CommunityRemindersTab';
+import BackToDashboard from './BackToDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const CommunityDashboard = () => {
@@ -32,6 +33,9 @@ const CommunityDashboard = () => {
     return (
       <div className="min-h-screen bg-kic-lightGray">
         <div className="container mx-auto p-6">
+          <div className="mb-6">
+            <BackToDashboard />
+          </div>
           <Card className="max-w-2xl mx-auto">
             <CardContent className="p-6 text-center">
               <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -51,7 +55,10 @@ const CommunityDashboard = () => {
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-kic-gray mb-4">Community Dashboard</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold text-kic-gray">Community Dashboard</h1>
+            <BackToDashboard />
+          </div>
           
           {/* Community Selector */}
           <div className="flex items-center gap-4 mb-4">
