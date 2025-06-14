@@ -20,6 +20,13 @@ interface CommunityStats {
   attended_last_meeting: number;
 }
 
+// Add explicit type for count queries
+interface CountResult {
+  count: number | null;
+  data: any[] | null;
+  error: any;
+}
+
 export const useCommunityAdminData = () => {
   const { user } = useAuth();
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -114,23 +121,28 @@ export const useCommunityAdminData = () => {
       }
 
       try {
-        // Fetch community stats - you may need to adjust these queries based on your actual database structure
+        // Fetch community stats with explicit typing to avoid deep type instantiation
+        const membersQuery = supabase
+          .from('community_memberships')
+          .select('id', { count: 'exact' })
+          .eq('community_id', selectedCommunity.id)
+          .eq('is_active', true);
+        
+        const eventsQuery = supabase
+          .from('events')
+          .select('id', { count: 'exact' })
+          .eq('community_id', selectedCommunity.id);
+        
+        const projectsQuery = supabase
+          .from('projects')
+          .select('id', { count: 'exact' })
+          .eq('community_id', selectedCommunity.id);
+
+        // Execute queries with explicit typing
         const [membersResult, eventsResult, projectsResult] = await Promise.all([
-          supabase
-            .from('community_memberships')
-            .select('id', { count: 'exact' })
-            .eq('community_id', selectedCommunity.id)
-            .eq('is_active', true),
-          
-          supabase
-            .from('events')
-            .select('id', { count: 'exact' })
-            .eq('community_id', selectedCommunity.id),
-          
-          supabase
-            .from('projects')
-            .select('id', { count: 'exact' })
-            .eq('community_id', selectedCommunity.id)
+          membersQuery as Promise<CountResult>,
+          eventsQuery as Promise<CountResult>,
+          projectsQuery as Promise<CountResult>
         ]);
 
         setStats({
