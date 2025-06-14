@@ -49,10 +49,12 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-kic-lightGray py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center justify-center">
-            <div className="bg-kic-green-500 text-kic-white font-bold text-xl rounded-md h-10 w-10 flex items-center justify-center">
-              K
-            </div>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <img 
+              src="/logobanner.png" 
+              alt="Karatina Innovation Club" 
+              className="h-16 w-auto"
+            />
           </Link>
           <h1 className="mt-6 text-3xl font-bold text-kic-gray">Sign in to your account</h1>
           <p className="mt-2 text-kic-gray/70">
