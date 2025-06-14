@@ -72,32 +72,41 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
 
   const fetchAttendanceRecords = async () => {
     try {
-      const { data, error } = await supabase
+      // First get attendance records
+      const { data: attendanceData, error: attendanceError } = await supabase
         .from('community_attendance_tracking')
-        .select(`
-          *,
-          members!inner(name)
-        `)
+        .select('*')
         .eq('community_id', communityId)
         .order('attendance_time', { ascending: false });
 
-      if (error) throw error;
+      if (attendanceError) throw attendanceError;
 
-      const enrichedRecords = (data || []).map((record: any) => ({
-        id: record.id,
-        activity_id: record.activity_id,
-        event_id: record.event_id,
-        workshop_id: record.workshop_id,
-        user_id: record.user_id,
-        attended: record.attended,
-        attendance_time: record.attendance_time,
-        attendance_type: record.attendance_type,
-        member_name: record.members.name,
-        activity_title: `${record.attendance_type} - ${record.activity_id || record.event_id || record.workshop_id}`,
-        notes: record.notes,
-      }));
+      // Then get member information for each attendance record
+      const attendanceWithMembers = await Promise.all(
+        (attendanceData || []).map(async (record) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name')
+            .eq('user_id', record.user_id)
+            .single();
 
-      setAttendanceRecords(enrichedRecords);
+          return {
+            id: record.id,
+            activity_id: record.activity_id,
+            event_id: record.event_id,
+            workshop_id: record.workshop_id,
+            user_id: record.user_id,
+            attended: record.attended,
+            attendance_time: record.attendance_time,
+            attendance_type: record.attendance_type,
+            member_name: memberData?.name || 'Unknown Member',
+            activity_title: `${record.attendance_type} - ${record.activity_id || record.event_id || record.workshop_id}`,
+            notes: record.notes,
+          };
+        })
+      );
+
+      setAttendanceRecords(attendanceWithMembers);
     } catch (error) {
       console.error('Error fetching attendance records:', error);
       toast({
@@ -110,23 +119,32 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
 
   const fetchMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // Get community memberships
+      const { data: memberships, error: membershipsError } = await supabase
         .from('community_memberships')
-        .select(`
-          user_id,
-          members!inner(name)
-        `)
+        .select('user_id')
         .eq('community_id', communityId)
         .eq('status', 'active');
 
-      if (error) throw error;
+      if (membershipsError) throw membershipsError;
 
-      const membersList = (data || []).map((item: any) => ({
-        user_id: item.user_id,
-        name: item.members.name,
-      }));
+      // Get member details for each membership
+      const membersWithDetails = await Promise.all(
+        (memberships || []).map(async (membership) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name')
+            .eq('user_id', membership.user_id)
+            .single();
 
-      setMembers(membersList);
+          return {
+            user_id: membership.user_id,
+            name: memberData?.name || 'Unknown Member',
+          };
+        })
+      );
+
+      setMembers(membersWithDetails);
     } catch (error) {
       console.error('Error fetching members:', error);
     }
