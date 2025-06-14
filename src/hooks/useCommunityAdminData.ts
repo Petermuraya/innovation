@@ -20,13 +20,6 @@ interface CommunityStats {
   attended_last_meeting: number;
 }
 
-// Add explicit type for count queries
-interface CountResult {
-  count: number | null;
-  data: any[] | null;
-  error: any;
-}
-
 export const useCommunityAdminData = () => {
   const { user } = useAuth();
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -121,34 +114,41 @@ export const useCommunityAdminData = () => {
       }
 
       try {
-        // Fetch community stats with explicit typing to avoid deep type instantiation
-        const membersQuery = supabase
+        // Fetch members count
+        const { count: membersCount, error: membersError } = await supabase
           .from('community_memberships')
-          .select('id', { count: 'exact' })
+          .select('id', { count: 'exact', head: true })
           .eq('community_id', selectedCommunity.id)
-          .eq('is_active', true);
-        
-        const eventsQuery = supabase
-          .from('events')
-          .select('id', { count: 'exact' })
-          .eq('community_id', selectedCommunity.id);
-        
-        const projectsQuery = supabase
-          .from('projects')
-          .select('id', { count: 'exact' })
+          .eq('status', 'active');
+
+        if (membersError) {
+          console.error('Error fetching members count:', membersError);
+        }
+
+        // Fetch events count
+        const { count: eventsCount, error: eventsError } = await supabase
+          .from('community_events')
+          .select('id', { count: 'exact', head: true })
           .eq('community_id', selectedCommunity.id);
 
-        // Execute queries with explicit typing
-        const [membersResult, eventsResult, projectsResult] = await Promise.all([
-          membersQuery as Promise<CountResult>,
-          eventsQuery as Promise<CountResult>,
-          projectsQuery as Promise<CountResult>
-        ]);
+        if (eventsError) {
+          console.error('Error fetching events count:', eventsError);
+        }
+
+        // Fetch projects count
+        const { count: projectsCount, error: projectsError } = await supabase
+          .from('community_projects')
+          .select('id', { count: 'exact', head: true })
+          .eq('community_id', selectedCommunity.id);
+
+        if (projectsError) {
+          console.error('Error fetching projects count:', projectsError);
+        }
 
         setStats({
-          total_members: membersResult.count || 0,
-          total_events: eventsResult.count || 0,
-          total_projects: projectsResult.count || 0,
+          total_members: membersCount || 0,
+          total_events: eventsCount || 0,
+          total_projects: projectsCount || 0,
           attended_last_meeting: 0 // This would need a more complex query based on your attendance tracking
         });
       } catch (error) {
