@@ -1,23 +1,33 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  User, 
+  Calendar, 
+  FolderOpen, 
+  Award, 
+  CreditCard, 
+  MessageCircle, 
+  FileText,
+  Users,
+  Vote,
+  PenTool,
+  Briefcase
+} from 'lucide-react';
 import DashboardOverview from './DashboardOverview';
 import DashboardProfile from './DashboardProfile';
-import DashboardCommunities from './DashboardCommunities';
-import EnhancedDashboardProjects from './EnhancedDashboardProjects';
 import DashboardEvents from './DashboardEvents';
-import DashboardCareers from './DashboardCareers';
-import DashboardBlogging from './DashboardBlogging';
-import DashboardPayments from './DashboardPayments';
+import EnhancedDashboardProjects from './EnhancedDashboardProjects';
 import DashboardCertificates from './DashboardCertificates';
-import DashboardBadges from './DashboardBadges';
-import DashboardElections from './DashboardElections';
+import DashboardPayments from './DashboardPayments';
 import DashboardConstitution from './DashboardConstitution';
-import { MemberData } from './types';
-import { Badge } from '@/components/ui/badge';
-import { Vote, FileText } from 'lucide-react';
+import DashboardCommunities from './DashboardCommunities';
+import DashboardElections from './DashboardElections';
+import DashboardBlogging from './DashboardBlogging';
+import DashboardCareers from './DashboardCareers';
+import DashboardSubmissions from './DashboardSubmissions';
 
 interface DashboardTabsProps {
-  memberData: MemberData | null;
+  memberData: any;
   notifications: any[];
   upcomingEvents: any[];
   projects: any[];
@@ -26,118 +36,120 @@ interface DashboardTabsProps {
   onDataUpdate: () => void;
 }
 
-const DashboardTabs = ({
-  memberData,
-  notifications,
-  upcomingEvents,
-  projects,
-  certificates,
-  payments,
-  onDataUpdate,
+const DashboardTabs = ({ 
+  memberData, 
+  notifications, 
+  upcomingEvents, 
+  projects, 
+  certificates, 
+  payments, 
+  onDataUpdate 
 }: DashboardTabsProps) => {
-  console.log("DashboardTabs rendering - Elections tab should be visible");
-  
   return (
-    <Tabs defaultValue="overview" className="space-y-4">
-      <div className="overflow-x-auto">
-        <TabsList className="grid w-full grid-cols-5 sm:grid-cols-6 md:grid-cols-12 gap-1 h-auto p-1">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="text-xs sm:text-sm">
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="communities" className="text-xs sm:text-sm">
-            Communities
-          </TabsTrigger>
-          <TabsTrigger value="projects" className="text-xs sm:text-sm">
-            Projects
-          </TabsTrigger>
-          <TabsTrigger value="events" className="text-xs sm:text-sm">
-            Events
-          </TabsTrigger>
-          <TabsTrigger 
-            value="elections" 
-            className="text-xs sm:text-sm bg-gradient-to-r from-kic-green-100 to-kic-green-200 text-kic-green-800 font-semibold border border-kic-green-300 hover:from-kic-green-200 hover:to-kic-green-300 transition-all duration-200"
-          >
-            <Vote className="w-3 h-3 mr-1" />
-            Elections
-            <Badge variant="secondary" className="ml-1 text-xs bg-kic-green-600 text-white">
-              NEW
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="constitution" className="text-xs sm:text-sm">
-            <FileText className="w-3 h-3 mr-1" />
-            Constitution
-          </TabsTrigger>
-          <TabsTrigger value="careers" className="text-xs sm:text-sm">
-            Careers
-          </TabsTrigger>
-          <TabsTrigger value="blogging" className="text-xs sm:text-sm">
-            Blogging
-          </TabsTrigger>
-          <TabsTrigger value="payments" className="text-xs sm:text-sm">
-            Payments
-          </TabsTrigger>
-          <TabsTrigger value="certificates" className="text-xs sm:text-sm">
-            Certificates
-          </TabsTrigger>
-        </TabsList>
-      </div>
+    <Tabs defaultValue="overview" className="w-full">
+      <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12 mb-6">
+        <TabsTrigger value="overview" className="flex items-center gap-2">
+          <User className="w-4 h-4" />
+          <span className="hidden sm:inline">Overview</span>
+        </TabsTrigger>
+        <TabsTrigger value="profile" className="flex items-center gap-2">
+          <User className="w-4 h-4" />
+          <span className="hidden sm:inline">Profile</span>
+        </TabsTrigger>
+        <TabsTrigger value="events" className="flex items-center gap-2">
+          <Calendar className="w-4 h-4" />
+          <span className="hidden sm:inline">Events</span>
+        </TabsTrigger>
+        <TabsTrigger value="projects" className="flex items-center gap-2">
+          <FolderOpen className="w-4 h-4" />
+          <span className="hidden sm:inline">Projects</span>
+        </TabsTrigger>
+        <TabsTrigger value="certificates" className="flex items-center gap-2">
+          <Award className="w-4 h-4" />
+          <span className="hidden sm:inline">Certificates</span>
+        </TabsTrigger>
+        <TabsTrigger value="payments" className="flex items-center gap-2">
+          <CreditCard className="w-4 h-4" />
+          <span className="hidden sm:inline">Payments</span>
+        </TabsTrigger>
+        <TabsTrigger value="submissions" className="flex items-center gap-2">
+          <MessageCircle className="w-4 h-4" />
+          <span className="hidden sm:inline">Submissions</span>
+        </TabsTrigger>
+        <TabsTrigger value="constitution" className="flex items-center gap-2">
+          <FileText className="w-4 h-4" />
+          <span className="hidden sm:inline">Constitution</span>
+        </TabsTrigger>
+        <TabsTrigger value="communities" className="flex items-center gap-2">
+          <Users className="w-4 h-4" />
+          <span className="hidden sm:inline">Communities</span>
+        </TabsTrigger>
+        <TabsTrigger value="elections" className="flex items-center gap-2">
+          <Vote className="w-4 h-4" />
+          <span className="hidden sm:inline">Elections</span>
+        </TabsTrigger>
+        <TabsTrigger value="blogging" className="flex items-center gap-2">
+          <PenTool className="w-4 h-4" />
+          <span className="hidden sm:inline">Blogging</span>
+        </TabsTrigger>
+        <TabsTrigger value="careers" className="flex items-center gap-2">
+          <Briefcase className="w-4 h-4" />
+          <span className="hidden sm:inline">Careers</span>
+        </TabsTrigger>
+      </TabsList>
 
       <TabsContent value="overview">
         <DashboardOverview 
+          memberData={memberData} 
           notifications={notifications}
           upcomingEvents={upcomingEvents}
+          projects={projects}
+          certificates={certificates}
         />
       </TabsContent>
 
       <TabsContent value="profile">
-        {memberData && (
-          <DashboardProfile memberData={memberData} />
-        )}
-      </TabsContent>
-
-      <TabsContent value="communities">
-        <DashboardCommunities />
-      </TabsContent>
-
-      <TabsContent value="projects">
-        <EnhancedDashboardProjects 
-          projects={projects} 
-          onSuccess={onDataUpdate} 
-        />
+        <DashboardProfile memberData={memberData} onDataUpdate={onDataUpdate} />
       </TabsContent>
 
       <TabsContent value="events">
-        <DashboardEvents />
+        <DashboardEvents upcomingEvents={upcomingEvents} />
       </TabsContent>
 
-      <TabsContent value="elections">
-        <DashboardElections />
+      <TabsContent value="projects">
+        <EnhancedDashboardProjects projects={projects} onDataUpdate={onDataUpdate} />
       </TabsContent>
 
-      <TabsContent value="constitution">
-        <DashboardConstitution />
-      </TabsContent>
-
-      <TabsContent value="careers">
-        <DashboardCareers />
-      </TabsContent>
-
-      <TabsContent value="blogging">
-        <DashboardBlogging />
+      <TabsContent value="certificates">
+        <DashboardCertificates certificates={certificates} />
       </TabsContent>
 
       <TabsContent value="payments">
         <DashboardPayments payments={payments} />
       </TabsContent>
 
-      <TabsContent value="certificates">
-        <div className="grid gap-6">
-          <DashboardCertificates certificates={certificates} />
-          <DashboardBadges />
-        </div>
+      <TabsContent value="submissions">
+        <DashboardSubmissions />
+      </TabsContent>
+
+      <TabsContent value="constitution">
+        <DashboardConstitution />
+      </TabsContent>
+
+      <TabsContent value="communities">
+        <DashboardCommunities />
+      </TabsContent>
+
+      <TabsContent value="elections">
+        <DashboardElections />
+      </TabsContent>
+
+      <TabsContent value="blogging">
+        <DashboardBlogging />
+      </TabsContent>
+
+      <TabsContent value="careers">
+        <DashboardCareers />
       </TabsContent>
     </Tabs>
   );

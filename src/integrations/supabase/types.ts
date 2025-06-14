@@ -2012,6 +2012,99 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          submission_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          submission_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          submission_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_attachments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_attachments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "user_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submission_responses: {
+        Row: {
+          admin_id: string
+          created_at: string
+          id: string
+          is_public: boolean
+          response_content: string
+          submission_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          response_content: string
+          submission_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          response_content?: string
+          submission_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_responses_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_responses_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "user_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -2027,6 +2120,54 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["comprehensive_role"]
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_submissions: {
+        Row: {
+          content: string
+          created_at: string
+          directed_to: Database["public"]["Enums"]["admin_category"]
+          id: string
+          is_anonymous: boolean
+          priority: number
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submission_type: Database["public"]["Enums"]["submission_type"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          directed_to?: Database["public"]["Enums"]["admin_category"]
+          id?: string
+          is_anonymous?: boolean
+          priority?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_type: Database["public"]["Enums"]["submission_type"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          directed_to?: Database["public"]["Enums"]["admin_category"]
+          id?: string
+          is_anonymous?: boolean
+          priority?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_type?: Database["public"]["Enums"]["submission_type"]
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2231,6 +2372,28 @@ export type Database = {
         }
         Relationships: []
       }
+      submissions_with_stats: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          directed_to: Database["public"]["Enums"]["admin_category"] | null
+          id: string | null
+          is_anonymous: boolean | null
+          last_response_at: string | null
+          priority: number | null
+          resolved_at: string | null
+          resolved_by: string | null
+          response_count: number | null
+          status: Database["public"]["Enums"]["submission_status"] | null
+          submission_type: Database["public"]["Enums"]["submission_type"] | null
+          submitter_email: string | null
+          submitter_name: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       user_roles_with_hierarchy: {
         Row: {
           assigned_role:
@@ -2369,6 +2532,13 @@ export type Database = {
       }
     }
     Enums: {
+      admin_category:
+        | "super_admin"
+        | "patron_chairman"
+        | "treasurer"
+        | "organizing_secretary"
+        | "community_admin"
+        | "general_admin"
       comprehensive_role:
         | "member"
         | "super_admin"
@@ -2396,6 +2566,8 @@ export type Database = {
         | "voting_open"
         | "completed"
         | "cancelled"
+      submission_status: "pending" | "in_progress" | "resolved" | "closed"
+      submission_type: "complaint" | "recommendation" | "thought"
       user_role: "admin" | "member" | "patron"
     }
     CompositeTypes: {
@@ -2512,6 +2684,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_category: [
+        "super_admin",
+        "patron_chairman",
+        "treasurer",
+        "organizing_secretary",
+        "community_admin",
+        "general_admin",
+      ],
       comprehensive_role: [
         "member",
         "super_admin",
@@ -2542,6 +2722,8 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      submission_status: ["pending", "in_progress", "resolved", "closed"],
+      submission_type: ["complaint", "recommendation", "thought"],
       user_role: ["admin", "member", "patron"],
     },
   },
