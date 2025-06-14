@@ -45,40 +45,72 @@ const ProtectedRoute = ({
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  // Check specific role requirement
+  // Check specific role requirement using async function
   if (requiredRole) {
-    hasRole(requiredRole).then(hasRequiredRole => {
-      if (!hasRequiredRole) {
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-            <Alert variant="destructive" className="max-w-md">
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
-                You need {requiredRole.replace('_', ' ')} privileges to access this page.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-      }
-    });
+    const [hasRequiredRole, setHasRequiredRole] = React.useState<boolean | null>(null);
+    
+    React.useEffect(() => {
+      hasRole(requiredRole).then(setHasRequiredRole);
+    }, [requiredRole]);
+
+    if (hasRequiredRole === null) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
+          <Card>
+            <CardContent className="p-6">
+              <p>Checking permissions...</p>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (!hasRequiredRole) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
+          <Alert variant="destructive" className="max-w-md">
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              You need {requiredRole.replace('_', ' ')} privileges to access this page.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
   }
 
-  // Check specific permission requirement
+  // Check specific permission requirement using async function
   if (requirePermission) {
-    checkPermission(requirePermission).then(hasRequiredPermission => {
-      if (!hasRequiredPermission) {
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-            <Alert variant="destructive" className="max-w-md">
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
-                You don't have the required permissions to access this page.
-              </AlertDescription>
-            </Alert>
-          </div>
-        );
-      }
-    });
+    const [hasRequiredPermission, setHasRequiredPermission] = React.useState<boolean | null>(null);
+    
+    React.useEffect(() => {
+      checkPermission(requirePermission).then(setHasRequiredPermission);
+    }, [requirePermission]);
+
+    if (hasRequiredPermission === null) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
+          <Card>
+            <CardContent className="p-6">
+              <p>Checking permissions...</p>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (!hasRequiredPermission) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
+          <Alert variant="destructive" className="max-w-md">
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              You don't have the required permissions to access this page.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
   }
 
   // Member approval requirement (skip for admins)

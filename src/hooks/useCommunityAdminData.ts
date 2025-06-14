@@ -1,103 +1,86 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
-interface CommunityAdminData {
-  communities: any[];
-  selectedCommunity: any;
-  loading: boolean;
-  stats: any;
+interface Community {
+  id: string;
+  name: string;
+  description: string;
+  is_active: boolean;
 }
 
 export const useCommunityAdminData = () => {
   const { user } = useAuth();
-  const [data, setData] = useState<CommunityAdminData>({
-    communities: [],
-    selectedCommunity: null,
-    loading: true,
-    stats: null,
-  });
-
-  const fetchCommunityAdminData = async () => {
-    if (!user) return;
-
-    try {
-      // Fetch communities where user is admin
-      const { data: adminCommunities, error: communitiesError } = await supabase
-        .from('community_admins')
-        .select(`
-          community_id,
-          community_groups (
-            id,
-            name,
-            description,
-            meeting_schedule,
-            meeting_time,
-            meeting_location,
-            next_meeting_date,
-            focus_areas,
-            activities
-          )
-        `)
-        .eq('user_id', user.id)
-        .eq('is_active', true);
-
-      if (communitiesError) throw communitiesError;
-
-      const communities = adminCommunities?.map(ac => ac.community_groups) || [];
-      
-      // Set the first community as selected by default
-      const selectedCommunity = communities[0] || null;
-
-      // Fetch stats for selected community
-      let stats = null;
-      if (selectedCommunity) {
-        const { data: statsData } = await supabase
-          .from('community_dashboard_stats')
-          .select('*')
-          .eq('community_id', selectedCommunity.id)
-          .single();
-        
-        stats = statsData;
-      }
-
-      setData({
-        communities,
-        selectedCommunity,
-        loading: false,
-        stats,
-      });
-    } catch (error) {
-      console.error('Error fetching community admin data:', error);
-      setData(prev => ({ ...prev, loading: false }));
-    }
-  };
-
-  const selectCommunity = async (community: any) => {
-    setData(prev => ({ ...prev, selectedCommunity: community }));
-    
-    // Fetch stats for the selected community
-    try {
-      const { data: statsData } = await supabase
-        .from('community_dashboard_stats')
-        .select('*')
-        .eq('community_id', community.id)
-        .single();
-      
-      setData(prev => ({ ...prev, stats: statsData }));
-    } catch (error) {
-      console.error('Error fetching community stats:', error);
-    }
-  };
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchCommunityAdminData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Check if user has general admin role or community admin role
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+
+        if (rolesError) throw rolesError;
+
+        // Check if user is a general admin (can manage all communities)
+        const isGeneralAdmin = userRoles?.some(r => 
+          r.role === 'general_admin' || r.role === 'super_admin'
+        );
+
+        if (isGeneralAdmin) {
+          // Fetch all communities for general admins
+          const { data: allCommunities, error: communitiesError } = await supabase
+            .from('community_groups')
+            .select('id, name, description, is_active')
+            .eq('is_active', true)
+            .order('name');
+
+          if (communitiesError) throw communitiesError;
+          setCommunities(allCommunities || []);
+        } else {
+          // Fetch only communities where user is admin
+          const { data: adminCommunities, error: adminError } = await supabase
+            .from('community_admin_roles')
+            .select(`
+              community_id,
+              community_groups!inner(id, name, description, is_active)
+            `)
+            .eq('user_id', user.id)
+            .eq('is_active', true);
+
+          if (adminError) throw adminError;
+
+          const formattedCommunities = adminCommunities?.map(ac => ({
+            id: ac.community_groups.id,
+            name: ac.community_groups.name,
+            description: ac.community_groups.description,
+            is_active: ac.community_groups.is_active
+          })) || [];
+
+          setCommunities(formattedCommunities);
+        }
+      } catch (error) {
+        console.error('Error fetching community admin data:', error);
+        setCommunities([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCommunityAdminData();
   }, [user]);
 
   return {
-    ...data,
-    selectCommunity,
-    refreshData: fetchCommunityAdminData,
+    communities,
+    loading
   };
 };
