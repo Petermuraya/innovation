@@ -110,11 +110,11 @@ const DashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="events">
-        <DashboardEvents upcomingEvents={upcomingEvents} />
+        <DashboardEvents />
       </TabsContent>
 
       <TabsContent value="projects">
-        <EnhancedDashboardProjects projects={projects} />
+        <EnhancedDashboardProjects projects={projects} onSuccess={onDataUpdate} />
       </TabsContent>
 
       <TabsContent value="certificates">
