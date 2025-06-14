@@ -36,7 +36,7 @@ export const useProjectManagement = (initialProjects: Project[], updateProjectSt
         ...projectsData.map(p => p.reviewed_by).filter(Boolean)
       ])];
 
-      // Get member names for these user IDs
+      // Get member names for these user IDs - using a simpler query to avoid enum conflicts
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('user_id, name')
