@@ -20,6 +20,7 @@ interface Project {
   author_name: string;
   created_at: string;
   featured_order: number | null;
+  user_id: string;
 }
 
 const FeaturedProjectsManagement = () => {
@@ -35,20 +36,32 @@ const FeaturedProjectsManagement = () => {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase
+      // First fetch projects
+      const { data: projectsData, error: projectsError } = await supabase
         .from('project_submissions')
-        .select(`
-          *,
-          members!project_submissions_user_id_fkey(name)
-        `)
+        .select('*')
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (projectsError) throw projectsError;
 
-      const projectsWithAuthor = (data || []).map(project => ({
+      // Then fetch member names for these projects
+      const userIds = projectsData?.map(p => p.user_id).filter(Boolean) || [];
+      
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('user_id, name')
+        .in('user_id', userIds);
+
+      if (membersError) throw membersError;
+
+      // Create a map of user_id to name
+      const memberMap = new Map(membersData?.map(m => [m.user_id, m.name]) || []);
+
+      // Combine the data
+      const projectsWithAuthor = (projectsData || []).map(project => ({
         ...project,
-        author_name: project.members?.name || 'Anonymous'
+        author_name: memberMap.get(project.user_id) || 'Anonymous'
       }));
 
       setProjects(projectsWithAuthor);
