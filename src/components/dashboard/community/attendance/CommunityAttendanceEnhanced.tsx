@@ -101,7 +101,6 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
             attendance_type: record.attendance_type,
             member_name: memberData?.name || 'Unknown Member',
             activity_title: `${record.attendance_type} - ${record.activity_id || record.event_id || record.workshop_id}`,
-            notes: record.notes,
           };
         })
       );
