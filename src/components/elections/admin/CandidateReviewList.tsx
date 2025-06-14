@@ -20,14 +20,30 @@ export const CandidateReviewList = () => {
         .from('election_candidates')
         .select(`
           *,
-          members!election_candidates_user_id_fkey(name, email),
           elections(title)
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      // Get member details separately to avoid foreign key issues
+      const candidatesWithMembers = await Promise.all(
+        data.map(async (candidate) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name, email')
+            .eq('user_id', candidate.user_id)
+            .single();
+
+          return {
+            ...candidate,
+            member: memberData
+          };
+        })
+      );
+
+      return candidatesWithMembers;
     },
   });
 
@@ -60,8 +76,8 @@ export const CandidateReviewList = () => {
           <CardContent className="pt-6">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="font-semibold">{candidate.members?.name}</h3>
-                <p className="text-sm text-gray-600">{candidate.members?.email}</p>
+                <h3 className="font-semibold">{candidate.member?.name || 'Unknown'}</h3>
+                <p className="text-sm text-gray-600">{candidate.member?.email || 'No email'}</p>
                 <p className="text-sm font-medium mt-1 capitalize">
                   Position: {candidate.position_type.replace('_', ' ')}
                 </p>
