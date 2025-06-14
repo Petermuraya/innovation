@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -63,22 +62,48 @@ const ProjectsManagement = ({ projects: initialProjects, updateProjectStatus }: 
 
   const fetchProjectsWithDetails = async () => {
     try {
-      const { data, error } = await supabase
+      // First get all projects
+      const { data: projectsData, error: projectsError } = await supabase
         .from('project_submissions')
-        .select(`
-          *,
-          members!project_submissions_user_id_fkey(name),
-          reviewer:members!project_submissions_reviewed_by_fkey(name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (projectsError) throw projectsError;
 
-      const projectsWithNames = data?.map(project => ({
+      if (!projectsData || projectsData.length === 0) {
+        setProjects([]);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set([
+        ...projectsData.map(p => p.user_id).filter(Boolean),
+        ...projectsData.map(p => p.reviewed_by).filter(Boolean)
+      ])];
+
+      // Get member names for these user IDs
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('user_id, name')
+        .in('user_id', userIds);
+
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+        // Continue without member names if this fails
+      }
+
+      // Create a mapping of user_id to name
+      const memberNamesMap = (membersData || []).reduce((acc, member) => {
+        acc[member.user_id] = member.name;
+        return acc;
+      }, {} as Record<string, string>);
+
+      // Combine the data
+      const projectsWithNames = projectsData.map(project => ({
         ...project,
-        author_name: project.members?.name || 'Unknown',
-        reviewer_name: project.reviewer?.name || null
-      })) || [];
+        author_name: memberNamesMap[project.user_id] || 'Unknown',
+        reviewer_name: project.reviewed_by ? memberNamesMap[project.reviewed_by] || 'Unknown' : null
+      }));
 
       setProjects(projectsWithNames);
     } catch (error) {
