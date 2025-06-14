@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -179,17 +180,19 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Updated bottom wave separator to eliminate gap */}
-      <div className="absolute bottom-0 left-0 w-full">
+      {/* Seamless bottom wave separator */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
         <svg 
-          className="w-full h-32 text-white" 
-          preserveAspectRatio="none" 
-          viewBox="0 0 1440 120"
+          className="relative block w-full h-24" 
+          data-name="Layer 1" 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 1200 120" 
+          preserveAspectRatio="none"
           style={{ transform: `translateY(${scrollY * 0.1}px)` }}
         >
           <path 
-            fill="currentColor" 
-            d="M0,44 C240,0 480,0 720,44 C960,88 1200,88 1440,44 L1440,120 L0,120 Z"
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
+            className="fill-white"
           />
         </svg>
       </div>
