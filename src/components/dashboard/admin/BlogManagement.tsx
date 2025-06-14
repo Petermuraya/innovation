@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, XCircle, Clock, Eye, FileText, User, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, FileText, User, Calendar, Image, Video, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,12 +18,22 @@ interface Blog {
   user_id: string;
   created_at: string;
   featured_image?: string;
+  video_url?: string;
   tags?: string[];
   view_count?: number;
   verified_by?: string;
   verified_at?: string;
   author_name?: string;
   verifier_name?: string;
+  attachments?: BlogAttachment[];
+}
+
+interface BlogAttachment {
+  id: string;
+  file_url: string;
+  file_type: 'image' | 'video';
+  file_name: string;
+  file_size: number;
 }
 
 const BlogManagement = () => {
@@ -42,7 +52,7 @@ const BlogManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch blogs with author and verifier names
+      // Fetch blogs with basic info
       const { data: blogsData, error } = await supabase
         .from('blogs')
         .select('*')
@@ -50,7 +60,7 @@ const BlogManagement = () => {
 
       if (error) throw error;
 
-      // Enrich blogs with author and verifier names
+      // Enrich blogs with author names, verifier names, and attachments
       const enrichedBlogs = await Promise.all(
         (blogsData || []).map(async (blog) => {
           // Get author name
@@ -71,10 +81,17 @@ const BlogManagement = () => {
             verifierName = verifier?.name;
           }
 
+          // Get attachments
+          const { data: attachments } = await supabase
+            .from('blog_attachments')
+            .select('*')
+            .eq('blog_id', blog.id);
+
           return {
             ...blog,
             author_name: author?.name || 'Unknown Author',
             verifier_name: verifierName,
+            attachments: attachments || [],
           };
         })
       );
@@ -103,7 +120,8 @@ const BlogManagement = () => {
           status,
           admin_verified: status === 'published',
           verified_by: user.id,
-          verified_at: new Date().toISOString()
+          verified_at: new Date().toISOString(),
+          published_at: status === 'published' ? new Date().toISOString() : null,
         })
         .eq('id', blogId);
 
@@ -128,6 +146,34 @@ const BlogManagement = () => {
     }
   };
 
+  const handleDeleteBlog = async (blogId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('blogs')
+        .delete()
+        .eq('id', blogId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Blog deleted",
+        description: "Blog has been permanently removed",
+      });
+
+      setSelectedBlog(null);
+      await fetchBlogs();
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete blog",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -139,6 +185,10 @@ const BlogManagement = () => {
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    return (bytes / 1024 / 1024).toFixed(1) + 'MB';
   };
 
   if (loading) {
@@ -175,6 +225,23 @@ const BlogManagement = () => {
                       {blog.excerpt}
                     </p>
                   )}
+
+                  {/* Show attachments info */}
+                  {blog.attachments && blog.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {blog.attachments.map((attachment) => (
+                        <div key={attachment.id} className="flex items-center gap-1 text-xs bg-gray-100 rounded px-2 py-1">
+                          {attachment.file_type === 'image' ? (
+                            <Image className="h-3 w-3 text-blue-500" />
+                          ) : (
+                            <Video className="h-3 w-3 text-green-500" />
+                          )}
+                          <span>{attachment.file_name}</span>
+                          <span className="text-gray-500">({formatFileSize(attachment.file_size)})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   
                   <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                     <span>Views: {blog.view_count || 0}</span>
@@ -209,7 +276,7 @@ const BlogManagement = () => {
                         {blog.status === 'pending' ? 'Review' : 'View'}
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Blog Post Details</DialogTitle>
                       </DialogHeader>
@@ -226,9 +293,39 @@ const BlogManagement = () => {
                             <p className="mt-1 text-sm text-muted-foreground">{blog.excerpt}</p>
                           </div>
                         )}
+
+                        {/* Display attachments */}
+                        {blog.attachments && blog.attachments.length > 0 && (
+                          <div>
+                            <strong>Attachments:</strong>
+                            <div className="mt-2 space-y-2">
+                              {blog.attachments.map((attachment) => (
+                                <div key={attachment.id} className="border rounded p-2">
+                                  {attachment.file_type === 'image' ? (
+                                    <img 
+                                      src={attachment.file_url} 
+                                      alt={attachment.file_name}
+                                      className="max-h-64 w-auto rounded"
+                                    />
+                                  ) : (
+                                    <video 
+                                      src={attachment.file_url} 
+                                      controls
+                                      className="max-h-64 w-auto rounded"
+                                    />
+                                  )}
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {attachment.file_name} ({formatFileSize(attachment.file_size)})
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <div>
                           <strong>Content:</strong>
-                          <div className="mt-1 p-3 bg-muted rounded-md text-sm max-h-60 overflow-y-auto">
+                          <div className="mt-1 p-3 bg-muted rounded-md text-sm max-h-60 overflow-y-auto whitespace-pre-wrap">
                             {blog.content}
                           </div>
                         </div>
@@ -271,6 +368,19 @@ const BlogManagement = () => {
                             </Button>
                           </div>
                         )}
+
+                        {/* Delete option for all blogs */}
+                        <div className="border-t pt-4">
+                          <Button
+                            onClick={() => handleDeleteBlog(blog.id)}
+                            variant="destructive"
+                            size="sm"
+                            className="flex items-center gap-1"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Blog
+                          </Button>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>

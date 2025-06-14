@@ -8,6 +8,15 @@ import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import BlogAttachmentUpload from './BlogAttachmentUpload';
+
+interface BlogAttachment {
+  id: string;
+  file_url: string;
+  file_type: 'image' | 'video';
+  file_name: string;
+  file_size: number;
+}
 
 interface BlogCreateFormProps {
   onBlogCreated: () => void;
@@ -24,6 +33,7 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [tags, setTags] = useState('');
+  const [attachments, setAttachments] = useState<BlogAttachment[]>([]);
 
   const handleCreateBlog = async () => {
     if (!user) {
@@ -48,7 +58,8 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
     try {
       const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
-      const { error } = await supabase
+      // Create the blog post
+      const { data: blogData, error: blogError } = await supabase
         .from('blogs')
         .insert({
           title: title.trim(),
@@ -56,11 +67,34 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
           excerpt: excerpt.trim() || null,
           tags: tagsArray.length > 0 ? tagsArray : null,
           user_id: user.id,
-          status: 'pending', // Requires admin verification
+          status: 'pending',
           admin_verified: false,
-        });
+          featured_image: attachments.find(a => a.file_type === 'image')?.file_url || null,
+          video_url: attachments.find(a => a.file_type === 'video')?.file_url || null,
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (blogError) throw blogError;
+
+      // Create attachment records
+      if (attachments.length > 0 && blogData) {
+        const attachmentRecords = attachments.map(attachment => ({
+          blog_id: blogData.id,
+          file_url: attachment.file_url,
+          file_type: attachment.file_type,
+          file_size: attachment.file_size,
+          file_name: attachment.file_name,
+        }));
+
+        const { error: attachmentError } = await supabase
+          .from('blog_attachments')
+          .insert(attachmentRecords);
+
+        if (attachmentError) {
+          console.error('Error creating attachment records:', attachmentError);
+        }
+      }
 
       toast({
         title: "Blog submitted",
@@ -72,6 +106,7 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
       setContent('');
       setExcerpt('');
       setTags('');
+      setAttachments([]);
       setShowCreateForm(false);
 
       // Refresh blogs
@@ -100,7 +135,7 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
           Create Post
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Blog Post</DialogTitle>
           <p className="text-sm text-gray-600">
@@ -125,6 +160,13 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
             onChange={(e) => setContent(e.target.value)}
             rows={10}
           />
+          
+          <BlogAttachmentUpload
+            attachments={attachments}
+            onAttachmentsChange={setAttachments}
+            disabled={submitting}
+          />
+          
           <Input
             placeholder="Tags (comma-separated)"
             value={tags}

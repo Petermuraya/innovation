@@ -10,6 +10,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import BlogAttachmentUpload from '@/components/blogs/BlogAttachmentUpload';
+
+interface BlogAttachment {
+  id: string;
+  file_url: string;
+  file_type: 'image' | 'video';
+  file_name: string;
+  file_size: number;
+}
 
 const BlogCreator = () => {
   const { user } = useAuth();
@@ -22,6 +31,7 @@ const BlogCreator = () => {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [attachments, setAttachments] = useState<BlogAttachment[]>([]);
 
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -56,7 +66,8 @@ const BlogCreator = () => {
     try {
       setLoading(true);
 
-      const { error } = await supabase
+      // Create the blog post
+      const { data: blogData, error: blogError } = await supabase
         .from('blogs')
         .insert({
           title: title.trim(),
@@ -64,10 +75,33 @@ const BlogCreator = () => {
           excerpt: excerpt.trim() || null,
           tags: tags.length > 0 ? tags : null,
           user_id: user.id,
-          status: 'pending', // Requires admin verification
-        });
+          status: 'pending',
+          featured_image: attachments.find(a => a.file_type === 'image')?.file_url || null,
+          video_url: attachments.find(a => a.file_type === 'video')?.file_url || null,
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (blogError) throw blogError;
+
+      // Create attachment records
+      if (attachments.length > 0 && blogData) {
+        const attachmentRecords = attachments.map(attachment => ({
+          blog_id: blogData.id,
+          file_url: attachment.file_url,
+          file_type: attachment.file_type,
+          file_size: attachment.file_size,
+          file_name: attachment.file_name,
+        }));
+
+        const { error: attachmentError } = await supabase
+          .from('blog_attachments')
+          .insert(attachmentRecords);
+
+        if (attachmentError) {
+          console.error('Error creating attachment records:', attachmentError);
+        }
+      }
 
       toast({
         title: "Blog submitted",
@@ -80,6 +114,7 @@ const BlogCreator = () => {
       setContent('');
       setTags([]);
       setTagInput('');
+      setAttachments([]);
     } catch (error) {
       console.error('Error creating blog:', error);
       toast({
@@ -133,6 +168,12 @@ const BlogCreator = () => {
             rows={12}
           />
         </div>
+
+        <BlogAttachmentUpload
+          attachments={attachments}
+          onAttachmentsChange={setAttachments}
+          disabled={loading}
+        />
 
         <div>
           <label className="block text-sm font-medium mb-2">Tags</label>

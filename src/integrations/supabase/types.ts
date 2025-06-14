@@ -126,6 +126,44 @@ export type Database = {
           },
         ]
       }
+      blog_attachments: {
+        Row: {
+          blog_id: string
+          created_at: string
+          file_name: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          id: string
+        }
+        Insert: {
+          blog_id: string
+          created_at?: string
+          file_name?: string | null
+          file_size: number
+          file_type: string
+          file_url: string
+          id?: string
+        }
+        Update: {
+          blog_id?: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_attachments_blog_id_fkey"
+            columns: ["blog_id"]
+            isOneToOne: false
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_comments: {
         Row: {
           blog_id: string
@@ -197,6 +235,7 @@ export type Database = {
           created_at: string
           excerpt: string | null
           featured_image: string | null
+          featured_image_size: number | null
           id: string
           published_at: string | null
           slug: string | null
@@ -207,6 +246,8 @@ export type Database = {
           user_id: string
           verified_at: string | null
           verified_by: string | null
+          video_size: number | null
+          video_url: string | null
           view_count: number | null
         }
         Insert: {
@@ -215,6 +256,7 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           featured_image?: string | null
+          featured_image_size?: number | null
           id?: string
           published_at?: string | null
           slug?: string | null
@@ -225,6 +267,8 @@ export type Database = {
           user_id: string
           verified_at?: string | null
           verified_by?: string | null
+          video_size?: number | null
+          video_url?: string | null
           view_count?: number | null
         }
         Update: {
@@ -233,6 +277,7 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           featured_image?: string | null
+          featured_image_size?: number | null
           id?: string
           published_at?: string | null
           slug?: string | null
@@ -243,6 +288,8 @@ export type Database = {
           user_id?: string
           verified_at?: string | null
           verified_by?: string | null
+          video_size?: number | null
+          video_url?: string | null
           view_count?: number | null
         }
         Relationships: []
