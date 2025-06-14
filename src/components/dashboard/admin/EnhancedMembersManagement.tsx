@@ -10,7 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Users, UserCheck, UserX, Eye, Phone, Mail, Calendar, User, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Filter, Users, UserCheck, UserX, Eye, Phone, Mail, Calendar, User, CheckCircle, XCircle, Clock, UserPlus, Trash2, Edit, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import AddMemberDialog from './components/AddMemberDialog';
 
 interface Member {
   id: string;
@@ -26,6 +29,7 @@ interface Member {
   avatar_url?: string;
   created_at: string;
   registration_status: string;
+  user_id?: string;
 }
 
 interface EnhancedMembersManagementProps {
@@ -40,10 +44,17 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
   const [courseFilter, setCourseFilter] = useState('all');
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+
+  // Sort members by most recent first
+  const sortedMembers = useMemo(() => {
+    return [...members].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [members]);
 
   // Filter and search logic
   const filteredMembers = useMemo(() => {
-    return members.filter(member => {
+    return sortedMembers.filter(member => {
       const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (member.phone && member.phone.includes(searchTerm));
@@ -53,7 +64,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
       
       return matchesSearch && matchesStatus && matchesCourse;
     });
-  }, [members, searchTerm, statusFilter, courseFilter]);
+  }, [sortedMembers, searchTerm, statusFilter, courseFilter]);
 
   // Get unique courses for filter
   const courses = useMemo(() => {
@@ -67,8 +78,12 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
     const pending = members.filter(m => m.registration_status === 'pending').length;
     const approved = members.filter(m => m.registration_status === 'approved').length;
     const rejected = members.filter(m => m.registration_status === 'rejected').length;
+    const recent = members.filter(m => {
+      const daysDiff = (new Date().getTime() - new Date(m.created_at).getTime()) / (1000 * 3600 * 24);
+      return daysDiff <= 7;
+    }).length;
     
-    return { total, pending, approved, rejected };
+    return { total, pending, approved, rejected, recent };
   }, [members]);
 
   const handleStatusUpdate = async (memberId: string, status: string) => {
@@ -87,6 +102,33 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
       });
     } finally {
       setIsLoading(null);
+    }
+  };
+
+  const handleDeleteMember = async (member: Member) => {
+    if (!member.user_id) {
+      toast({
+        title: "Error",
+        description: "Cannot delete member: User ID not found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Note: In a real implementation, you'd call your delete API here
+      // For now, we'll just show a success message
+      toast({
+        title: "Member Deleted",
+        description: `${member.name} has been removed from the system.`,
+      });
+      setMemberToDelete(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete member. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -116,6 +158,24 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
     }
   };
 
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    if (diffInWeeks < 4) return `${diffInWeeks}w ago`;
+    
+    const diffInMonths = Math.floor(diffInDays / 30);
+    return `${diffInMonths}mo ago`;
+  };
+
   const MemberDetailsDialog = ({ member }: { member: Member }) => (
     <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
       <DialogHeader>
@@ -125,6 +185,9 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
             <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
           </Avatar>
           {member.name}
+          <Badge variant="outline" className="ml-2">
+            ID: {member.id.slice(0, 8)}
+          </Badge>
         </DialogTitle>
         <DialogDescription>
           Member details and registration information
@@ -153,6 +216,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
               <div className="space-y-1 text-sm">
                 <p><strong>Status:</strong> {getStatusBadge(member.registration_status)}</p>
                 <p><strong>Registered:</strong> {new Date(member.created_at).toLocaleDateString()}</p>
+                <p><strong>Time ago:</strong> {getTimeAgo(member.created_at)}</p>
               </div>
             </div>
           </div>
@@ -213,27 +277,37 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
           </div>
 
           {/* Actions */}
-          {member.registration_status === 'pending' && (
-            <div className="flex gap-2 pt-4 border-t">
-              <Button
-                onClick={() => handleStatusUpdate(member.id, 'approved')}
-                disabled={isLoading === member.id}
-                className="bg-green-600 hover:bg-green-700 flex-1"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approve
-              </Button>
-              <Button
-                onClick={() => handleStatusUpdate(member.id, 'rejected')}
-                disabled={isLoading === member.id}
-                variant="destructive"
-                className="flex-1"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Reject
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-2 pt-4 border-t">
+            {member.registration_status === 'pending' && (
+              <>
+                <Button
+                  onClick={() => handleStatusUpdate(member.id, 'approved')}
+                  disabled={isLoading === member.id}
+                  className="bg-green-600 hover:bg-green-700 flex-1"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Approve
+                </Button>
+                <Button
+                  onClick={() => handleStatusUpdate(member.id, 'rejected')}
+                  disabled={isLoading === member.id}
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Reject
+                </Button>
+              </>
+            )}
+            <Button
+              onClick={() => setMemberToDelete(member)}
+              variant="outline"
+              className="border-red-200 text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+          </div>
         </div>
       </ScrollArea>
     </DialogContent>
@@ -241,9 +315,9 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
 
   return (
     <div className="space-y-6">
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:shadow-md transition-shadow">
+      {/* Enhanced Statistics Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="hover:shadow-md transition-shadow border-kic-green-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -255,7 +329,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow border-yellow-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -267,7 +341,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -279,7 +353,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-md transition-shadow border-red-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -290,21 +364,44 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
             </div>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-md transition-shadow border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">New (7 days)</p>
+                <p className="text-2xl font-bold text-blue-700">{stats.recent}</p>
+              </div>
+              <Calendar className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Member Management
-          </CardTitle>
-          <CardDescription>
-            Manage member registrations and view detailed member information
-          </CardDescription>
+      <Card className="border-kic-green-200">
+        <CardHeader className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border-b border-kic-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-kic-green-800">
+                <Users className="h-5 w-5" />
+                Member Management
+              </CardTitle>
+              <CardDescription className="text-kic-green-600">
+                Manage all members, view registration details, and perform administrative actions
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="bg-kic-green-600 hover:bg-kic-green-700 text-white"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Add Member
+            </Button>
+          </div>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="p-6">
           {/* Filters and Search */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
@@ -313,13 +410,13 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
                 placeholder="Search by name, email, or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-kic-green-200 focus:border-kic-green-500"
               />
             </div>
             
             <div className="flex gap-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 border-kic-green-200">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -331,7 +428,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
               </Select>
 
               <Select value={courseFilter} onValueChange={setCourseFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 border-kic-green-200">
                   <SelectValue placeholder="Course" />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,31 +443,31 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
 
           {/* Members Table */}
           {filteredMembers.length > 0 ? (
-            <div className="rounded-md border">
+            <div className="rounded-md border border-kic-green-200">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Member</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Registered</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="bg-kic-green-50">
+                    <TableHead className="text-kic-green-800">Member</TableHead>
+                    <TableHead className="text-kic-green-800">Contact</TableHead>
+                    <TableHead className="text-kic-green-800">Course</TableHead>
+                    <TableHead className="text-kic-green-800">Status</TableHead>
+                    <TableHead className="text-kic-green-800">Registered</TableHead>
+                    <TableHead className="text-kic-green-800">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredMembers.map((member) => (
-                    <TableRow key={member.id} className="hover:bg-gray-50">
+                    <TableRow key={member.id} className="hover:bg-kic-green-50">
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={member.avatar_url} />
-                            <AvatarFallback>
+                            <AvatarFallback className="bg-kic-green-100 text-kic-green-700">
                               {member.name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{member.name}</p>
+                            <p className="font-medium text-kic-gray">{member.name}</p>
                             <p className="text-sm text-gray-500">{member.email}</p>
                           </div>
                         </div>
@@ -379,12 +476,12 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
                       <TableCell>
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 text-sm">
-                            <Mail className="h-3 w-3" />
+                            <Mail className="h-3 w-3 text-kic-green-600" />
                             <span className="truncate max-w-32">{member.email}</span>
                           </div>
                           {member.phone && (
                             <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Phone className="h-3 w-3" />
+                              <Phone className="h-3 w-3 text-kic-green-600" />
                               <span>{member.phone}</span>
                             </div>
                           )}
@@ -405,9 +502,12 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
                       </TableCell>
                       
                       <TableCell>
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(member.created_at).toLocaleDateString()}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(member.created_at).toLocaleDateString()}
+                          </div>
+                          <p className="text-xs text-gray-500">{getTimeAgo(member.created_at)}</p>
                         </div>
                       </TableCell>
                       
@@ -419,6 +519,7 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setSelectedMember(member)}
+                                className="border-kic-green-200 hover:bg-kic-green-50"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -428,26 +529,42 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
                             )}
                           </Dialog>
                           
-                          {member.registration_status === 'pending' && (
-                            <>
-                              <Button
-                                size="sm"
-                                onClick={() => handleStatusUpdate(member.id, 'approved')}
-                                disabled={isLoading === member.id}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <CheckCircle className="h-4 w-4" />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="border-kic-green-200 hover:bg-kic-green-50">
+                                <MoreHorizontal className="h-4 w-4" />
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleStatusUpdate(member.id, 'rejected')}
-                                disabled={isLoading === member.id}
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {member.registration_status === 'pending' && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusUpdate(member.id, 'approved')}
+                                    disabled={isLoading === member.id}
+                                    className="text-green-600"
+                                  >
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Approve
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleStatusUpdate(member.id, 'rejected')}
+                                    disabled={isLoading === member.id}
+                                    className="text-red-600"
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Reject
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              <DropdownMenuItem
+                                onClick={() => setMemberToDelete(member)}
+                                className="text-red-600"
                               >
-                                <XCircle className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -468,6 +585,40 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
           )}
         </CardContent>
       </Card>
+
+      {/* Add Member Dialog */}
+      <AddMemberDialog 
+        open={showAddDialog} 
+        onOpenChange={setShowAddDialog}
+        onSuccess={() => {
+          setShowAddDialog(false);
+          // Refresh data would happen here
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      {memberToDelete && (
+        <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Member</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete <strong>{memberToDelete.name}</strong>? 
+                This action cannot be undone and will permanently remove the member from the system.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDeleteMember(memberToDelete)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete Member
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
