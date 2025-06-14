@@ -10,6 +10,7 @@ interface Blog {
   content: string;
   excerpt: string | null;
   featured_image: string | null;
+  video_url: string | null;
   status: string;
   tags: string[] | null;
   published_at: string | null;

@@ -9,6 +9,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface BlogAttachment {
+  id: string;
+  file_url: string;
+  file_type: 'image' | 'video';
+  file_name: string | null;
+  file_size: number;
+}
+
 interface Blog {
   id: string;
   title: string;
@@ -26,14 +34,6 @@ interface Blog {
   author_name?: string;
   verifier_name?: string;
   attachments?: BlogAttachment[];
-}
-
-interface BlogAttachment {
-  id: string;
-  file_url: string;
-  file_type: 'image' | 'video';
-  file_name: string;
-  file_size: number;
 }
 
 const BlogManagement = () => {
@@ -81,17 +81,23 @@ const BlogManagement = () => {
             verifierName = verifier?.name;
           }
 
-          // Get attachments
+          // Get attachments with proper type casting
           const { data: attachments } = await supabase
             .from('blog_attachments')
             .select('*')
             .eq('blog_id', blog.id);
 
+          // Cast attachments to proper type
+          const typedAttachments: BlogAttachment[] = (attachments || []).map(attachment => ({
+            ...attachment,
+            file_type: attachment.file_type as 'image' | 'video'
+          }));
+
           return {
             ...blog,
             author_name: author?.name || 'Unknown Author',
             verifier_name: verifierName,
-            attachments: attachments || [],
+            attachments: typedAttachments,
           };
         })
       );
@@ -304,7 +310,7 @@ const BlogManagement = () => {
                                   {attachment.file_type === 'image' ? (
                                     <img 
                                       src={attachment.file_url} 
-                                      alt={attachment.file_name}
+                                      alt={attachment.file_name || 'Attachment'}
                                       className="max-h-64 w-auto rounded"
                                     />
                                   ) : (
