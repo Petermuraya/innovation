@@ -5,23 +5,42 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Shield, UserPlus, Search } from 'lucide-react';
+
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
 
 interface User {
   id: string;
   email: string;
   name: string;
-  roles: string[];
+  roles: ComprehensiveRole[];
   registration_status: string;
 }
 
+const ROLE_LABELS: Record<ComprehensiveRole, string> = {
+  member: 'Member',
+  super_admin: 'Super Admin',
+  general_admin: 'General Admin',
+  community_admin: 'Community Admin',
+  events_admin: 'Events Admin',
+  projects_admin: 'Projects Admin',
+  finance_admin: 'Finance Admin',
+  content_admin: 'Content Admin',
+  technical_admin: 'Technical Admin',
+  marketing_admin: 'Marketing Admin'
+};
+
 const UserManagement = () => {
   const { toast } = useToast();
+  const { isSuperAdmin, hasPermission } = useRolePermissions();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchEmail, setSearchEmail] = useState('');
+  const [selectedRole, setSelectedRole] = useState<ComprehensiveRole>('general_admin');
 
   useEffect(() => {
     fetchUsers();
@@ -31,40 +50,20 @@ const UserManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch members with their roles
       const { data: members, error } = await supabase
-        .from('members')
-        .select(`
-          id,
-          user_id,
-          email,
-          name,
-          registration_status
-        `)
+        .from('member_management_view')
+        .select('user_id, email, name, registration_status, roles')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // For each member, fetch their roles separately to avoid relation issues
-      const formattedUsers = await Promise.all(
-        (members || []).map(async (member) => {
-          const { data: userRoles, error: rolesError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', member.user_id);
-
-          // Handle the case where user_roles query might fail
-          const roles = rolesError ? [] : (userRoles?.map(ur => ur.role) || []);
-
-          return {
-            id: member.user_id || '',
-            email: member.email,
-            name: member.name,
-            roles,
-            registration_status: member.registration_status,
-          };
-        })
-      );
+      const formattedUsers = (members || []).map(member => ({
+        id: member.user_id || '',
+        email: member.email,
+        name: member.name,
+        roles: member.roles || [],
+        registration_status: member.registration_status,
+      }));
 
       setUsers(formattedUsers);
     } catch (error) {
@@ -79,11 +78,10 @@ const UserManagement = () => {
     }
   };
 
-  const grantAdminRole = async (email: string) => {
+  const grantRole = async (email: string, role: ComprehensiveRole) => {
     try {
       setLoading(true);
 
-      // Find the user by email
       const user = users.find(u => u.email === email);
       if (!user) {
         toast({
@@ -94,12 +92,12 @@ const UserManagement = () => {
         return;
       }
 
-      // Add admin role
+      // Assign the role
       const { error: roleError } = await supabase
         .from('user_roles')
         .upsert({
           user_id: user.id,
-          role: 'admin'
+          role: role
         });
 
       if (roleError) throw roleError;
@@ -117,15 +115,15 @@ const UserManagement = () => {
 
       toast({
         title: "Success",
-        description: `Admin privileges granted to ${email}`,
+        description: `${ROLE_LABELS[role]} role granted to ${email}`,
       });
 
-      fetchUsers(); // Refresh the list
+      fetchUsers();
     } catch (error) {
-      console.error('Error granting admin role:', error);
+      console.error('Error granting role:', error);
       toast({
         title: "Error",
-        description: "Failed to grant admin privileges",
+        description: "Failed to grant role",
         variant: "destructive",
       });
     } finally {
@@ -133,8 +131,8 @@ const UserManagement = () => {
     }
   };
 
-  const handleGrantAdminToSpecificUser = async () => {
-    await grantAdminRole('sammypeter1944@gmail.com');
+  const handleGrantSuperAdmin = async () => {
+    await grantRole('sammypeter1944@gmail.com', 'super_admin');
   };
 
   const filteredUsers = users.filter(user => 
@@ -153,14 +151,16 @@ const UserManagement = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <Button 
-              onClick={handleGrantAdminToSpecificUser}
-              disabled={loading}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Grant Super Admin to sammypeter1944@gmail.com
-            </Button>
+            {isSuperAdmin && (
+              <Button 
+                onClick={handleGrantSuperAdmin}
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Grant Super Admin to sammypeter1944@gmail.com
+              </Button>
+            )}
 
             <div className="flex gap-2">
               <div className="flex-1">
@@ -196,22 +196,40 @@ const UserManagement = () => {
                         <Badge variant={user.registration_status === 'approved' ? 'default' : 'secondary'}>
                           {user.registration_status}
                         </Badge>
-                        {user.roles.map((role) => (
-                          <Badge key={role} variant="outline" className="text-red-600 border-red-600">
-                            {role}
-                          </Badge>
-                        ))}
+                        {user.roles && user.roles.length > 0 ? (
+                          user.roles.map((role) => (
+                            <Badge key={role} variant="outline" className="text-blue-600 border-blue-600">
+                              {ROLE_LABELS[role]}
+                            </Badge>
+                          ))
+                        ) : (
+                          <Badge variant="outline">Member</Badge>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      {!user.roles.includes('admin') && (
-                        <Button
-                          size="sm"
-                          onClick={() => grantAdminRole(user.email)}
-                          disabled={loading}
-                        >
-                          Grant Admin
-                        </Button>
+                      {isSuperAdmin && (
+                        <div className="flex gap-2 items-center">
+                          <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as ComprehensiveRole)}>
+                            <SelectTrigger className="w-[160px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(ROLE_LABELS).filter(([key]) => key !== 'member').map(([key, label]) => (
+                                <SelectItem key={key} value={key}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            onClick={() => grantRole(user.email, selectedRole)}
+                            disabled={loading}
+                          >
+                            Grant Role
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>

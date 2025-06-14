@@ -1,12 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, XCircle, Clock, Eye, Users, Shield, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Shield, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import AdminRequestCard from './components/AdminRequestCard';
 import AdminRequestDialog from './components/AdminRequestDialog';
 import { useAdminRequests } from './hooks/useAdminRequests';
@@ -30,6 +31,7 @@ interface UseAdminRequestsReturn {
 const RefactoredAdminRequestsManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { hasPermission } = useRolePermissions();
   const {
     requests,
     communities,
@@ -41,6 +43,15 @@ const RefactoredAdminRequestsManagement = () => {
   const [selectedRequest, setSelectedRequest] = useState<AdminRequest | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [canManageRequests, setCanManageRequests] = useState(false);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const canManage = await hasPermission('role_management') || await hasPermission('user_management');
+      setCanManageRequests(canManage);
+    };
+    checkPermissions();
+  }, [hasPermission]);
 
   useEffect(() => {
     const init = async () => {
@@ -100,7 +111,7 @@ const RefactoredAdminRequestsManagement = () => {
             .from('user_roles')
             .upsert({
               user_id: request.user_id,
-              role: 'admin'
+              role: 'general_admin'
             });
 
           if (roleError) throw roleError;
@@ -112,7 +123,17 @@ const RefactoredAdminRequestsManagement = () => {
             .eq('user_id', request.user_id);
 
         } else if (request.admin_type === 'community' && request.community_id) {
-          // Assign community admin role with default permissions
+          // Assign community admin role
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .upsert({
+              user_id: request.user_id,
+              role: 'community_admin'
+            });
+
+          if (roleError) throw roleError;
+
+          // Also assign to community admin roles table
           const { error: communityAdminError } = await supabase
             .from('community_admin_roles')
             .upsert({
@@ -162,6 +183,20 @@ const RefactoredAdminRequestsManagement = () => {
       setIsReviewing(false);
     }
   };
+
+  if (!canManageRequests) {
+    return (
+      <Card className="border-0 shadow-sm">
+        <CardContent className="p-6">
+          <div className="text-center">
+            <Shield className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">Access Restricted</h3>
+            <p className="text-muted-foreground">You don't have permission to manage admin requests.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (loading && requests.length === 0) {
     return (

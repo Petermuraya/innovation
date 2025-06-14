@@ -1827,20 +1827,68 @@ export type Database = {
         }
         Relationships: []
       }
+      role_hierarchy: {
+        Row: {
+          child_role: Database["public"]["Enums"]["comprehensive_role"]
+          created_at: string | null
+          id: string
+          parent_role: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Insert: {
+          child_role: Database["public"]["Enums"]["comprehensive_role"]
+          created_at?: string | null
+          id?: string
+          parent_role: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Update: {
+          child_role?: Database["public"]["Enums"]["comprehensive_role"]
+          created_at?: string | null
+          id?: string
+          parent_role?: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          permission_key: string
+          permission_name: string
+          role: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          permission_key: string
+          permission_name: string
+          role: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          permission_key?: string
+          permission_name?: string
+          role?: Database["public"]["Enums"]["comprehensive_role"]
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
-          role: Database["public"]["Enums"]["user_role"]
+          role: Database["public"]["Enums"]["comprehensive_role"]
           user_id: string | null
         }
         Insert: {
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["comprehensive_role"]
           user_id?: string | null
         }
         Update: {
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["comprehensive_role"]
           user_id?: string | null
         }
         Relationships: []
@@ -2017,7 +2065,7 @@ export type Database = {
           phone: string | null
           projects_submitted: number | null
           registration_status: string | null
-          roles: string[] | null
+          roles: Database["public"]["Enums"]["comprehensive_role"][] | null
           skills: string[] | null
           total_points: number | null
           updated_at: string | null
@@ -2042,6 +2090,19 @@ export type Database = {
           thumbnail_url: string | null
           title: string | null
           updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      user_roles_with_hierarchy: {
+        Row: {
+          assigned_role:
+            | Database["public"]["Enums"]["comprehensive_role"]
+            | null
+          inherited_roles:
+            | Database["public"]["Enums"]["comprehensive_role"][]
+            | null
+          permissions: string[] | null
           user_id: string | null
         }
         Relationships: []
@@ -2114,10 +2175,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      has_permission: {
+        Args: { _user_id: string; _permission_key: string }
+        Returns: boolean
+      }
       has_role: {
+        Args:
+          | {
+              _user_id: string
+              _role: Database["public"]["Enums"]["comprehensive_role"]
+            }
+          | {
+              _user_id: string
+              _role: Database["public"]["Enums"]["user_role"]
+            }
+        Returns: boolean
+      }
+      has_role_or_higher: {
         Args: {
           _user_id: string
-          _role: Database["public"]["Enums"]["user_role"]
+          _required_role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Returns: boolean
       }
@@ -2143,6 +2220,17 @@ export type Database = {
       }
     }
     Enums: {
+      comprehensive_role:
+        | "member"
+        | "super_admin"
+        | "general_admin"
+        | "community_admin"
+        | "events_admin"
+        | "projects_admin"
+        | "finance_admin"
+        | "content_admin"
+        | "technical_admin"
+        | "marketing_admin"
       election_position:
         | "chairman"
         | "vice_chairman"
@@ -2273,6 +2361,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      comprehensive_role: [
+        "member",
+        "super_admin",
+        "general_admin",
+        "community_admin",
+        "events_admin",
+        "projects_admin",
+        "finance_admin",
+        "content_admin",
+        "technical_admin",
+        "marketing_admin",
+      ],
       election_position: [
         "chairman",
         "vice_chairman",

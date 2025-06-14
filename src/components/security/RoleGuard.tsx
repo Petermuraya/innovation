@@ -5,58 +5,72 @@ import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
 
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+
 interface RoleGuardProps {
   children: ReactNode;
-  requiredRole: 'admin' | 'member';
+  requiredRole: ComprehensiveRole;
   fallback?: ReactNode;
+  requirePermission?: string;
 }
 
-const RoleGuard = ({ children, requiredRole, fallback }: RoleGuardProps) => {
+const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: RoleGuardProps) => {
   const { user } = useAuth();
-  const [hasRole, setHasRole] = useState<boolean | null>(null);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkRole = async () => {
+    const checkAccess = async () => {
       if (!user) {
-        setHasRole(false);
+        setHasAccess(false);
         setLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error checking role:', error);
-          setHasRole(false);
+        if (requirePermission) {
+          // Check specific permission
+          const { data, error } = await supabase.rpc('has_permission', {
+            _user_id: user.id,
+            _permission_key: requirePermission
+          });
+          
+          if (error) {
+            console.error('Error checking permission:', error);
+            setHasAccess(false);
+          } else {
+            setHasAccess(data);
+          }
         } else {
-          // Admin can access everything, member can access member areas
-          setHasRole(
-            data.role === 'admin' || 
-            (requiredRole === 'member' && data.role === 'member')
-          );
+          // Check role hierarchy
+          const { data, error } = await supabase.rpc('has_role_or_higher', {
+            _user_id: user.id,
+            _required_role: requiredRole
+          });
+          
+          if (error) {
+            console.error('Error checking role:', error);
+            setHasAccess(false);
+          } else {
+            setHasAccess(data);
+          }
         }
       } catch (error) {
-        console.error('Role check failed:', error);
-        setHasRole(false);
+        console.error('Access check failed:', error);
+        setHasAccess(false);
       } finally {
         setLoading(false);
       }
     };
 
-    checkRole();
-  }, [user, requiredRole]);
+    checkAccess();
+  }, [user, requiredRole, requirePermission]);
 
   if (loading) {
     return <div className="text-center py-8">Verifying permissions...</div>;
   }
 
-  if (!hasRole) {
+  if (!hasAccess) {
     if (fallback) {
       return <>{fallback}</>;
     }

@@ -4,15 +4,19 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import RoleGuard from './RoleGuard';
 
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+
 interface SecureRouteProps {
   children: ReactNode;
-  requiredRole?: 'admin' | 'member';
+  requiredRole?: ComprehensiveRole;
+  requirePermission?: string;
   redirectTo?: string;
 }
 
 const SecureRoute = ({ 
   children, 
   requiredRole = 'member', 
+  requirePermission,
   redirectTo = '/login' 
 }: SecureRouteProps) => {
   const { user, loading } = useAuth();
@@ -26,7 +30,7 @@ const SecureRoute = ({
   }
 
   return (
-    <RoleGuard requiredRole={requiredRole}>
+    <RoleGuard requiredRole={requiredRole} requirePermission={requirePermission}>
       {children}
     </RoleGuard>
   );
