@@ -160,27 +160,56 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
 
       if (eventsError) throw eventsError;
 
-      // Fetch workshops
+      // Fetch workshops - using start_date instead of scheduled_date
       const { data: workshopsData, error: workshopsError } = await supabase
         .from('community_workshops')
-        .select('id, title, scheduled_date')
+        .select('id, title, start_date')
         .eq('community_id', communityId)
-        .order('scheduled_date', { ascending: false })
+        .order('start_date', { ascending: false })
         .limit(10);
 
       if (workshopsError) throw workshopsError;
 
       // Combine all activities
-      const allActivities: CommunityActivity[] = [
-        ...(activitiesData || []).map(a => ({ ...a, scheduled_date: a.scheduled_date, type: 'activity' as const })),
-        ...(eventsData || []).map(e => ({ 
-          id: e.events.id, 
-          title: e.events.title, 
-          scheduled_date: e.events.date, 
-          type: 'event' as const 
-        })),
-        ...(workshopsData || []).map(w => ({ ...w, scheduled_date: w.scheduled_date, type: 'workshop' as const })),
-      ];
+      const allActivities: CommunityActivity[] = [];
+
+      // Add activities
+      if (activitiesData) {
+        activitiesData.forEach(activity => {
+          allActivities.push({
+            id: activity.id,
+            title: activity.title,
+            scheduled_date: activity.scheduled_date,
+            type: 'activity'
+          });
+        });
+      }
+
+      // Add events
+      if (eventsData) {
+        eventsData.forEach(eventItem => {
+          if (eventItem.events) {
+            allActivities.push({
+              id: eventItem.events.id,
+              title: eventItem.events.title,
+              scheduled_date: eventItem.events.date,
+              type: 'event'
+            });
+          }
+        });
+      }
+
+      // Add workshops
+      if (workshopsData) {
+        workshopsData.forEach(workshop => {
+          allActivities.push({
+            id: workshop.id,
+            title: workshop.title,
+            scheduled_date: workshop.start_date,
+            type: 'workshop'
+          });
+        });
+      }
 
       setActivities(allActivities);
     } catch (error) {
