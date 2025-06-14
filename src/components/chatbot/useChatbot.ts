@@ -1,3 +1,4 @@
+
 // src/components/chatbot/useChatbot.ts
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,34 +28,50 @@ export const useChatbot = (user: AuthUser | null, config: ChatbotConfig) => {
     setIsLoading(true);
 
     try {
+      console.log('Sending message to chatbot:', { inputMessage, userId: user?.id, sessionId });
+      
       const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           message: inputMessage,
           userId: user?.id || null,
           sessionId: sessionId,
-          previousMessages: messages
-            .filter(m => m.id !== 'welcome')
-            .map(m => ({
-              role: m.isUser ? 'user' : 'assistant',
-              content: m.content
-            }))
+          userContext: user ? {
+            name: user.name,
+            email: user.email,
+            authenticated: true
+          } : {
+            authenticated: false
+          }
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Chatbot error:', error);
+        throw error;
+      }
 
+      console.log('Received chatbot response:', data);
+
+      // Update user message status to delivered
       setMessages(prev => prev.map(m => 
         m.id === userMessage.id ? { ...m, status: 'delivered' } : m
       ));
 
+      // Add bot response
       const botMessage = createBotMessage(data.response);
       setMessages(prev => [...prev, botMessage]);
+
     } catch (error) {
       console.error('Chat error:', error);
+      
+      // Update user message status to error
       setMessages(prev => prev.map(m => 
         m.id === userMessage.id ? { ...m, status: 'error' } : m
       ));
-      setMessages(prev => [...prev, createErrorMessage()]);
+      
+      // Add error message
+      const errorMessage = createErrorMessage();
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
