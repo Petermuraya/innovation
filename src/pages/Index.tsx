@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 
 // Components
 import HeroSection from "@/components/home/HeroSection";
@@ -27,9 +27,6 @@ const SEO_CONFIG = {
   ],
 };
 
-// Dynamic imports for better performance (optional)
-const LoadingSpinner = dynamic(() => import("@/components/common/LoadingSpinner"));
-
 const HomePage = () => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -47,7 +44,14 @@ const HomePage = () => {
   }, []);
 
   if (!isMounted) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kic-green-500 mx-auto"></div>
+          <p className="mt-4 text-kic-gray">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
