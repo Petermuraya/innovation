@@ -10,9 +10,25 @@ import CommunityAdminManagement from './CommunityAdminManagement';
 import CertificateManager from './CertificateManager';
 import MPesaConfigManager from './MPesaConfigManager';
 import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
-import NotificationSystemTest from './NotificationSystemTest';
+import WorldClassNotificationSystem from './WorldClassNotificationSystem';
 
-const AdminDashboardTabs = () => {
+interface AdminDashboardTabsProps {
+  stats?: any;
+  members?: any[];
+  projects?: any[];
+  payments?: any[];
+  updateMemberStatus?: (memberId: string, status: string) => Promise<void>;
+  updateProjectStatus?: (projectId: string, status: string) => Promise<void>;
+}
+
+const AdminDashboardTabs = ({ 
+  stats, 
+  members = [], 
+  projects = [], 
+  payments = [], 
+  updateMemberStatus, 
+  updateProjectStatus 
+}: AdminDashboardTabsProps) => {
   return (
     <Tabs defaultValue="members" className="w-full">
       <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 mb-6">
@@ -30,15 +46,15 @@ const AdminDashboardTabs = () => {
       </TabsList>
       
       <TabsContent value="members">
-        <MembersManagement />
+        <MembersManagement members={members} updateMemberStatus={updateMemberStatus} />
       </TabsContent>
       
       <TabsContent value="projects">
-        <ProjectsManagement />
+        <ProjectsManagement projects={projects} updateProjectStatus={updateProjectStatus} />
       </TabsContent>
       
       <TabsContent value="events">
-        <EventsManagement />
+        <EventsManagement events={[]} />
       </TabsContent>
       
       <TabsContent value="blogs">
@@ -46,7 +62,7 @@ const AdminDashboardTabs = () => {
       </TabsContent>
       
       <TabsContent value="payments">
-        <PaymentsManagement />
+        <PaymentsManagement payments={payments} />
       </TabsContent>
       
       <TabsContent value="careers">
@@ -70,7 +86,7 @@ const AdminDashboardTabs = () => {
       </TabsContent>
       
       <TabsContent value="notifications">
-        <NotificationSystemTest />
+        <WorldClassNotificationSystem />
       </TabsContent>
     </Tabs>
   );
