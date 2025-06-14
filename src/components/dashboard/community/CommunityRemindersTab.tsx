@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,9 +14,10 @@ import { Bell, Plus, Clock, Send } from 'lucide-react';
 
 interface CommunityRemindersTabProps {
   communityId: string;
+  isAdmin?: boolean;
 }
 
-const CommunityRemindersTab = ({ communityId }: CommunityRemindersTabProps) => {
+const CommunityRemindersTab = ({ communityId, isAdmin = false }: CommunityRemindersTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [reminders, setReminders] = useState<any[]>([]);
@@ -125,72 +125,74 @@ const CommunityRemindersTab = ({ communityId }: CommunityRemindersTabProps) => {
           <Bell className="w-5 h-5" />
           Community Reminders ({reminders.length})
         </CardTitle>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Reminder
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Community Reminder</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  value={reminderForm.title}
-                  onChange={(e) => setReminderForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Reminder title"
-                />
+        {isAdmin && (
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Reminder
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Community Reminder</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Title *</Label>
+                  <Input
+                    id="title"
+                    value={reminderForm.title}
+                    onChange={(e) => setReminderForm(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Reminder title"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="message">Message *</Label>
+                  <Textarea
+                    id="message"
+                    value={reminderForm.message}
+                    onChange={(e) => setReminderForm(prev => ({ ...prev, message: e.target.value }))}
+                    placeholder="Reminder message"
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="type">Type</Label>
+                  <Select value={reminderForm.reminder_type} onValueChange={(value) => 
+                    setReminderForm(prev => ({ ...prev, reminder_type: value }))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="scheduled_for">Schedule For *</Label>
+                  <Input
+                    id="scheduled_for"
+                    type="datetime-local"
+                    value={reminderForm.scheduled_for}
+                    onChange={(e) => setReminderForm(prev => ({ ...prev, scheduled_for: e.target.value }))}
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={createReminder}>
+                    Schedule Reminder
+                  </Button>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="message">Message *</Label>
-                <Textarea
-                  id="message"
-                  value={reminderForm.message}
-                  onChange={(e) => setReminderForm(prev => ({ ...prev, message: e.target.value }))}
-                  placeholder="Reminder message"
-                  rows={4}
-                />
-              </div>
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select value={reminderForm.reminder_type} onValueChange={(value) => 
-                  setReminderForm(prev => ({ ...prev, reminder_type: value }))
-                }>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="event">Event</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="scheduled_for">Schedule For *</Label>
-                <Input
-                  id="scheduled_for"
-                  type="datetime-local"
-                  value={reminderForm.scheduled_for}
-                  onChange={(e) => setReminderForm(prev => ({ ...prev, scheduled_for: e.target.value }))}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={createReminder}>
-                  Schedule Reminder
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

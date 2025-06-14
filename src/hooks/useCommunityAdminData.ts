@@ -20,12 +20,13 @@ interface CommunityStats {
   attended_last_meeting: number;
 }
 
-export const useCommunityAdminData = () => {
+export const useCommunityAdminData = (communityId?: string) => {
   const { user } = useAuth();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [stats, setStats] = useState<CommunityStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchCommunityAdminData = async () => {
@@ -105,6 +106,55 @@ export const useCommunityAdminData = () => {
     fetchCommunityAdminData();
   }, [user]);
 
+  // Check admin status for specific community
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user || !communityId) {
+        setIsAdmin(false);
+        return;
+      }
+
+      try {
+        // Check if user has general admin role
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+
+        if (rolesError) throw rolesError;
+
+        const isGeneralAdmin = userRoles?.some(r => 
+          r.role === 'general_admin' || r.role === 'super_admin'
+        );
+
+        if (isGeneralAdmin) {
+          setIsAdmin(true);
+          return;
+        }
+
+        // Check if user is admin of this specific community
+        const { data: communityAdmin, error: adminError } = await supabase
+          .from('community_admin_roles')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('community_id', communityId)
+          .eq('is_active', true)
+          .single();
+
+        if (adminError && adminError.code !== 'PGRST116') {
+          throw adminError;
+        }
+
+        setIsAdmin(!!communityAdmin);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, [user, communityId]);
+
   // Fetch stats when a community is selected
   useEffect(() => {
     const fetchCommunityStats = async () => {
@@ -174,6 +224,7 @@ export const useCommunityAdminData = () => {
     selectedCommunity,
     stats,
     loading,
-    selectCommunity
+    selectCommunity,
+    isAdmin
   };
 };

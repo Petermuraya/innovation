@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,9 +12,10 @@ import { Users, UserPlus, Mail, Phone, GraduationCap } from 'lucide-react';
 
 interface CommunityMembersTabProps {
   communityId: string;
+  isAdmin?: boolean;
 }
 
-const CommunityMembersTab = ({ communityId }: CommunityMembersTabProps) => {
+const CommunityMembersTab = ({ communityId, isAdmin = false }: CommunityMembersTabProps) => {
   const { toast } = useToast();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,44 +159,46 @@ const CommunityMembersTab = ({ communityId }: CommunityMembersTabProps) => {
           <Users className="w-5 h-5" />
           Community Members ({members.length})
         </CardTitle>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add Member
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Member to Community</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="user-select">Select User</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a user to add" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableUsers.map((user) => (
-                      <SelectItem key={user.user_id} value={user.user_id}>
-                        {user.name} ({user.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {isAdmin && (
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Member
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Member to Community</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="user-select">Select User</Label>
+                  <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a user to add" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableUsers.map((user) => (
+                        <SelectItem key={user.user_id} value={user.user_id}>
+                          {user.name} ({user.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={addMemberToCommunity} disabled={!selectedUserId}>
+                    Add Member
+                  </Button>
+                </div>
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={addMemberToCommunity} disabled={!selectedUserId}>
-                  Add Member
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -229,13 +231,15 @@ const CommunityMembersTab = ({ communityId }: CommunityMembersTabProps) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="default">Active</Badge>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => removeMemberFromCommunity(membership.id)}
-                  >
-                    Remove
-                  </Button>
+                  {isAdmin && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => removeMemberFromCommunity(membership.id)}
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

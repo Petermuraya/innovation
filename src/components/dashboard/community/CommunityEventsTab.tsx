@@ -8,9 +8,10 @@ import CommunityEventsEmptyState from './events/CommunityEventsEmptyState';
 
 interface CommunityEventsTabProps {
   communityId: string;
+  isAdmin?: boolean;
 }
 
-const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
+const CommunityEventsTab = ({ communityId, isAdmin = false }: CommunityEventsTabProps) => {
   const { events, loading, createEvent } = useCommunityEvents(communityId);
 
   if (loading) {
@@ -24,7 +25,7 @@ const CommunityEventsTab = ({ communityId }: CommunityEventsTabProps) => {
           <Calendar className="w-5 h-5" />
           Community Events ({events.length})
         </CardTitle>
-        <CommunityEventCreateDialog onCreateEvent={createEvent} />
+        {isAdmin && <CommunityEventCreateDialog onCreateEvent={createEvent} />}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,9 +7,10 @@ import { FolderOpen, Github, ExternalLink } from 'lucide-react';
 
 interface CommunityProjectsTabProps {
   communityId: string;
+  isAdmin?: boolean;
 }
 
-const CommunityProjectsTab = ({ communityId }: CommunityProjectsTabProps) => {
+const CommunityProjectsTab = ({ communityId, isAdmin = false }: CommunityProjectsTabProps) => {
   const { toast } = useToast();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
