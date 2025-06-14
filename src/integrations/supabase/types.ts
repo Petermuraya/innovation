@@ -476,6 +476,113 @@ export type Database = {
         }
         Relationships: []
       }
+      community_activities: {
+        Row: {
+          activity_type: string | null
+          community_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          location: string | null
+          max_participants: number | null
+          registration_required: boolean | null
+          scheduled_date: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          activity_type?: string | null
+          community_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          registration_required?: boolean | null
+          scheduled_date: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          activity_type?: string | null
+          community_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          registration_required?: boolean | null
+          scheduled_date?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_activities_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_activities_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_activity_attendance: {
+        Row: {
+          activity_id: string
+          attendance_time: string | null
+          attended: boolean | null
+          created_at: string | null
+          id: string
+          marked_by: string | null
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          attendance_time?: string | null
+          attended?: boolean | null
+          created_at?: string | null
+          id?: string
+          marked_by?: string | null
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          attendance_time?: string | null
+          attended?: boolean | null
+          created_at?: string | null
+          id?: string
+          marked_by?: string | null
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_activity_attendance_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "community_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_admin_roles: {
         Row: {
           assigned_at: string | null
@@ -701,6 +808,69 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      community_learning_resources: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          file_size: number | null
+          id: string
+          is_featured: boolean | null
+          resource_type: string
+          resource_url: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          file_size?: number | null
+          id?: string
+          is_featured?: boolean | null
+          resource_type: string
+          resource_url: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          file_size?: number | null
+          id?: string
+          is_featured?: boolean | null
+          resource_type?: string
+          resource_url?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_learning_resources_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_learning_resources_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_meeting_attendance: {
         Row: {
@@ -935,6 +1105,81 @@ export type Database = {
           visit_date?: string
         }
         Relationships: []
+      }
+      community_workshops: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string
+          id: string
+          instructor_bio: string | null
+          instructor_name: string | null
+          learning_outcomes: string[] | null
+          location: string | null
+          max_participants: number | null
+          registration_fee: number | null
+          requirements: string[] | null
+          start_date: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          instructor_bio?: string | null
+          instructor_name?: string | null
+          learning_outcomes?: string[] | null
+          location?: string | null
+          max_participants?: number | null
+          registration_fee?: number | null
+          requirements?: string[] | null
+          start_date: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          instructor_bio?: string | null
+          instructor_name?: string | null
+          learning_outcomes?: string[] | null
+          location?: string | null
+          max_participants?: number | null
+          registration_fee?: number | null
+          requirements?: string[] | null
+          start_date?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_workshops_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_workshops_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       constitution_documents: {
         Row: {
@@ -2233,6 +2478,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      workshop_registrations: {
+        Row: {
+          id: string
+          notes: string | null
+          payment_status: string | null
+          registration_date: string | null
+          status: string | null
+          user_id: string
+          workshop_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          registration_date?: string | null
+          status?: string | null
+          user_id: string
+          workshop_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          registration_date?: string | null
+          status?: string | null
+          user_id?: string
+          workshop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_registrations_workshop_id_fkey"
+            columns: ["workshop_id"]
+            isOneToOne: false
+            referencedRelation: "community_workshops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

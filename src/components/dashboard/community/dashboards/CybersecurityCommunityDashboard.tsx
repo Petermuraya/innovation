@@ -1,289 +1,107 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Calendar, Shield, Lock, AlertTriangle, Bug, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { CommunityGroup } from '../../user/communities/useCommunityData';
+import { Shield, Lock, AlertTriangle, Eye } from 'lucide-react';
+import CommunityDashboardTabs from '../CommunityDashboardTabs';
+
+interface Community {
+  id: string;
+  name: string;
+  description: string;
+  member_count?: number;
+  is_member: boolean;
+}
 
 interface CybersecurityCommunityDashboardProps {
-  community: CommunityGroup;
+  community: Community;
 }
 
 const CybersecurityCommunityDashboard = ({ community }: CybersecurityCommunityDashboardProps) => {
-  const navigate = useNavigate();
-
-  const securityProjects = [
-    {
-      id: 1,
-      title: "Vulnerability Scanner",
-      description: "Automated web application security scanning tool",
-      status: "Active",
-      severity: "High",
-      tech: ["Python", "Nmap", "SQLMap", "OWASP ZAP"]
-    },
-    {
-      id: 2,
-      title: "Phishing Detection System",
-      description: "Machine learning based phishing email detection",
-      status: "Completed",
-      severity: "Medium",
-      tech: ["Python", "Scikit-learn", "TensorFlow"]
-    }
-  ];
-
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Ethical Hacking Workshop",
-      date: "2024-06-21",
-      time: "2:00 PM",
-      description: "Learn penetration testing techniques ethically"
-    },
-    {
-      id: 2,
-      title: "Cryptography Fundamentals",
-      date: "2024-06-26",
-      time: "4:00 PM",
-      description: "Understanding encryption and digital signatures"
-    }
-  ];
-
-  const threatAlerts = [
-    {
-      id: 1,
-      title: "New Ransomware Variant Detected",
-      severity: "Critical",
-      date: "2024-06-15"
-    },
-    {
-      id: 2,
-      title: "Campus WiFi Security Update",
-      severity: "Medium",
-      date: "2024-06-14"
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-kic-lightGray">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100">
       <div className="container mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-kic-gray">{community.name}</h1>
-            <p className="text-kic-gray/70">Cybersecurity & Information Security</p>
-          </div>
+        {/* Community Header */}
+        <Card className="mb-6 border-red-200 bg-white/80 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-red-100">
+                  <Shield className="h-8 w-8 text-red-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl text-red-900">{community.name}</CardTitle>
+                  <CardDescription className="text-red-700">{community.description}</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="bg-red-100 text-red-800">
+                  Cybersecurity
+                </Badge>
+                <Badge variant="outline" className="border-red-200">
+                  {community.member_count || 0} Members
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Cybersecurity-specific Features */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card className="border-red-200 bg-white/60 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-red-600" />
+                <div>
+                  <p className="text-sm text-red-700">Security Projects</p>
+                  <p className="text-lg font-semibold text-red-900">12</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-200 bg-white/60 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-6 w-6 text-orange-600" />
+                <div>
+                  <p className="text-sm text-red-700">Vulnerabilities Found</p>
+                  <p className="text-lg font-semibold text-red-900">34</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-200 bg-white/60 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Lock className="h-6 w-6 text-green-600" />
+                <div>
+                  <p className="text-sm text-red-700">Patches Applied</p>
+                  <p className="text-lg font-semibold text-red-900">28</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-200 bg-white/60 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Eye className="h-6 w-6 text-blue-600" />
+                <div>
+                  <p className="text-sm text-red-700">Security Audits</p>
+                  <p className="text-lg font-semibold text-red-900">7</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Security Experts</p>
-                  <p className="text-2xl font-bold text-kic-gray">{community.member_count}</p>
-                </div>
-                <Users className="h-8 w-8 text-kic-blue" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Security Projects</p>
-                  <p className="text-2xl font-bold text-kic-gray">{securityProjects.length}</p>
-                </div>
-                <Shield className="h-8 w-8 text-kic-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Vulnerabilities Found</p>
-                  <p className="text-2xl font-bold text-kic-gray">23</p>
-                </div>
-                <Bug className="h-8 w-8 text-kic-orange" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Threats</p>
-                  <p className="text-2xl font-bold text-red-600">2</p>
-                </div>
-                <AlertTriangle className="h-8 w-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="projects" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="projects">Security Projects</TabsTrigger>
-            <TabsTrigger value="events">Training & CTF</TabsTrigger>
-            <TabsTrigger value="resources">Security Tools</TabsTrigger>
-            <TabsTrigger value="alerts">Threat Alerts</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="projects">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Active Security Projects
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {securityProjects.map((project) => (
-                    <div key={project.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-kic-gray">{project.title}</h4>
-                        <div className="flex gap-2">
-                          <Badge variant={
-                            project.severity === 'High' ? 'destructive' : 
-                            project.severity === 'Medium' ? 'default' : 'secondary'
-                          }>
-                            {project.severity}
-                          </Badge>
-                          <Badge variant={project.status === 'Active' ? 'default' : 'secondary'}>
-                            {project.status}
-                          </Badge>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-3">{project.description}</p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {project.tech.map((tech) => (
-                          <Badge key={tech} variant="outline" className="text-xs">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">View Report</Button>
-                        <Button size="sm">Run Scan</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="events">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Security Training & CTF Events
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {upcomingEvents.map((event) => (
-                    <div key={event.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-kic-gray">{event.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{event.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>{event.date}</span>
-                            <span>{event.time}</span>
-                          </div>
-                        </div>
-                        <Button size="sm">Participate</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="resources">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Tools & Resources</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4">
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Penetration Testing Tools</h4>
-                    <p className="text-sm text-gray-600">Kali Linux, Metasploit, Burp Suite, Nmap</p>
-                  </div>
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Vulnerability Assessment</h4>
-                    <p className="text-sm text-gray-600">OWASP ZAP, OpenVAS, Nikto, SQLMap</p>
-                  </div>
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Network Security</h4>
-                    <p className="text-sm text-gray-600">Wireshark, pfSense, Snort, tcpdump</p>
-                  </div>
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Digital Forensics</h4>
-                    <p className="text-sm text-gray-600">Autopsy, Volatility, FTK Imager, dd</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="alerts">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Security Threat Alerts
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {threatAlerts.map((alert) => (
-                    <div key={alert.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-medium text-kic-gray">{alert.title}</h4>
-                          <p className="text-xs text-gray-500 mt-1">{alert.date}</p>
-                        </div>
-                        <Badge variant={
-                          alert.severity === 'Critical' ? 'destructive' : 
-                          alert.severity === 'High' ? 'destructive' : 
-                          alert.severity === 'Medium' ? 'default' : 'secondary'
-                        }>
-                          {alert.severity}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="text-center pt-4">
-                    <Button variant="outline" size="sm">
-                      <Lock className="w-4 h-4 mr-2" />
-                      View All Security Bulletins
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Community Tabs */}
+        <Card className="border-red-200 bg-white/80 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <CommunityDashboardTabs communityId={community.id} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
