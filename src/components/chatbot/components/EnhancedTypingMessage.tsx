@@ -17,30 +17,29 @@ const EnhancedTypingMessage = ({ message, onComplete, speed = 25, isMobile }: En
   const [showCursor, setShowCursor] = useState(true);
 
   useEffect(() => {
-    if (currentIndex < message.length) {
+    if (currentIndex < message.length && !isComplete) {
       const timer = setTimeout(() => {
         setDisplayedText(prev => prev + message[currentIndex]);
         setCurrentIndex(prev => prev + 1);
       }, speed);
 
       return () => clearTimeout(timer);
-    } else if (!isComplete) {
+    } else if (currentIndex >= message.length && !isComplete) {
       setIsComplete(true);
-      // Hide cursor after completion
-      setTimeout(() => setShowCursor(false), 500);
+      setShowCursor(false); // Remove cursor immediately when complete
       onComplete?.();
     }
   }, [currentIndex, message, speed, onComplete, isComplete]);
 
-  // Cursor blinking effect
+  // Only blink cursor while typing
   useEffect(() => {
-    if (!isComplete) {
+    if (!isComplete && showCursor) {
       const cursorTimer = setInterval(() => {
         setShowCursor(prev => !prev);
       }, 500);
       return () => clearInterval(cursorTimer);
     }
-  }, [isComplete]);
+  }, [isComplete, showCursor]);
 
   return (
     <div className="flex items-start gap-3 animate-fade-in">
@@ -63,7 +62,7 @@ const EnhancedTypingMessage = ({ message, onComplete, speed = 25, isMobile }: En
         <div className="relative">
           <p className="whitespace-pre-wrap leading-relaxed text-gray-900 dark:text-gray-100">
             {displayedText}
-            {showCursor && (
+            {!isComplete && showCursor && (
               <span className="inline-block w-0.5 h-5 bg-kic-green-600 ml-1 animate-pulse" />
             )}
           </p>

@@ -13,6 +13,7 @@ const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTy
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
 
   useEffect(() => {
     if (currentIndex < message.length && !isComplete) {
@@ -24,11 +25,22 @@ const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTy
       return () => clearTimeout(timer);
     } else if (currentIndex >= message.length && !isComplete) {
       setIsComplete(true);
+      setShowCursor(false); // Remove cursor immediately when complete
       if (onComplete) {
         onComplete();
       }
     }
   }, [currentIndex, message, onComplete, isComplete]);
+
+  // Only blink cursor while typing
+  useEffect(() => {
+    if (!isComplete && showCursor) {
+      const cursorTimer = setInterval(() => {
+        setShowCursor(prev => !prev);
+      }, 500);
+      return () => clearInterval(cursorTimer);
+    }
+  }, [isComplete, showCursor]);
 
   return (
     <div className="flex items-start gap-3 animate-fade-in">
@@ -44,7 +56,7 @@ const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTy
       )}>
         <p className="whitespace-pre-wrap leading-relaxed text-sm text-gray-900 dark:text-gray-100">
           {displayedText}
-          {!isComplete && (
+          {!isComplete && showCursor && (
             <span className="inline-block w-0.5 h-4 bg-kic-green-600 ml-1 animate-pulse" />
           )}
         </p>
