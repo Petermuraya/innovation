@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Message, AuthUser, ChatbotConfig } from './types';
-import { createUserMessage, createBotMessage, createErrorMessage } from './utils';
+import { createUserMessage, createBotMessage, createErrorMessage, getUserName } from './utils';
 
 export const useChatbot = (user: AuthUser | null, config: ChatbotConfig) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -11,14 +11,15 @@ export const useChatbot = (user: AuthUser | null, config: ChatbotConfig) => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random()}`);
 
   const initializeChat = useCallback(() => {
+    const userName = getUserName(user);
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: config.welcomeMessage(user?.name),
+      content: config.welcomeMessage(userName),
       isUser: false,
       timestamp: new Date(),
     };
     setMessages([welcomeMessage]);
-  }, [user?.name, config]);
+  }, [user, config]);
 
   const sendMessage = async (inputMessage: string) => {
     if (!inputMessage.trim() || isLoading) return;
@@ -30,13 +31,14 @@ export const useChatbot = (user: AuthUser | null, config: ChatbotConfig) => {
     try {
       console.log('Sending message to chatbot:', { inputMessage, userId: user?.id, sessionId });
       
+      const userName = getUserName(user);
       const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           message: inputMessage,
           userId: user?.id || null,
           sessionId: sessionId,
           userContext: user ? {
-            name: user.name,
+            name: userName,
             email: user.email,
             authenticated: true
           } : {

@@ -16,11 +16,6 @@ export interface AuthUser {
     full_name?: string;
     [key: string]: any;
   };
-  raw_user_meta_data?: {
-    name?: string;
-    full_name?: string;
-    [key: string]: any;
-  };
 }
 
 export interface ChatbotConfig {
