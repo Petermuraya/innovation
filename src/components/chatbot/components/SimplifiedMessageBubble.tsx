@@ -1,8 +1,9 @@
 
 import { cn } from '@/lib/utils';
-import { Bot, User, Loader2, CheckCheck, AlertCircle } from 'lucide-react';
+import { Bot, User, Loader2, CheckCheck, AlertCircle, ExternalLink } from 'lucide-react';
 import { Message } from '../types';
-import CleanTypingMessage from './CleanTypingMessage';
+import EnhancedTypingEffect from './EnhancedTypingEffect';
+import { Link } from 'react-router-dom';
 
 interface SimplifiedMessageBubbleProps {
   message: Message;
@@ -10,6 +11,49 @@ interface SimplifiedMessageBubbleProps {
   showTypingEffect?: boolean;
   onTypingComplete?: () => void;
 }
+
+// Function to detect and convert navigation links in text
+const renderMessageWithLinks = (content: string) => {
+  const linkPattern = /(?:(?:check out|visit|go to|access|view|explore|see)\s+(?:our\s+)?(?:the\s+)?([^\/\s]+)\s+at\s+)?(\/[a-zA-Z0-9\-\/]+)|(?:register|login|sign up|dashboard|home|about|projects|events|blogs|careers|leaderboard|elections)/gi;
+  
+  const parts = content.split(linkPattern);
+  const elements = [];
+  
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    
+    if (part && part.startsWith('/')) {
+      // This is a URL path
+      elements.push(
+        <Link 
+          key={i} 
+          to={part} 
+          className="inline-flex items-center gap-1 text-kic-green-600 hover:text-kic-green-700 underline font-medium transition-colors"
+        >
+          {part}
+          <ExternalLink className="w-3 h-3" />
+        </Link>
+      );
+    } else if (part && ['register', 'login', 'sign up', 'dashboard', 'home', 'about', 'projects', 'events', 'blogs', 'careers', 'leaderboard', 'elections'].includes(part.toLowerCase())) {
+      // This is a page name
+      const pagePath = part.toLowerCase() === 'home' ? '/' : `/${part.toLowerCase().replace(' ', '-')}`;
+      elements.push(
+        <Link 
+          key={i} 
+          to={pagePath} 
+          className="inline-flex items-center gap-1 text-kic-green-600 hover:text-kic-green-700 underline font-medium transition-colors"
+        >
+          {part}
+          <ExternalLink className="w-3 h-3" />
+        </Link>
+      );
+    } else if (part) {
+      elements.push(part);
+    }
+  }
+  
+  return elements;
+};
 
 const SimplifiedMessageBubble = ({ 
   message, 
@@ -19,7 +63,7 @@ const SimplifiedMessageBubble = ({
 }: SimplifiedMessageBubbleProps) => {
   if (!message.isUser && showTypingEffect) {
     return (
-      <CleanTypingMessage
+      <EnhancedTypingEffect
         message={message.content}
         onComplete={onTypingComplete}
         isMobile={isMobile}
@@ -34,7 +78,7 @@ const SimplifiedMessageBubble = ({
     )}>
       {!message.isUser && (
         <div className={cn(
-          "rounded-full bg-kic-green-600 flex items-center justify-center flex-shrink-0",
+          "rounded-full bg-kic-green-600 flex items-center justify-center flex-shrink-0 shadow-md",
           isMobile ? "w-8 h-8" : "w-10 h-10"
         )}>
           <Bot className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
@@ -43,20 +87,20 @@ const SimplifiedMessageBubble = ({
       
       <div
         className={cn(
-          "rounded-2xl p-4 max-w-[80%] shadow-md",
+          "rounded-2xl p-4 max-w-[80%] shadow-md transition-all duration-200 hover:shadow-lg",
           message.isUser
             ? "bg-kic-green-600 text-white ml-auto"
             : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700",
           message.status === 'error' && "border-red-400 bg-red-50 dark:bg-red-900/20"
         )}
       >
-        <p className="whitespace-pre-wrap leading-relaxed text-sm">
-          {message.content}
-        </p>
+        <div className="whitespace-pre-wrap leading-relaxed text-sm">
+          {message.isUser ? message.content : renderMessageWithLinks(message.content)}
+        </div>
         
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-opacity-20 border-gray-300 dark:border-gray-600">
           {!message.isUser && (
-            <span className="text-xs opacity-70">KUIC Assistant</span>
+            <span className="text-xs opacity-70 text-kic-green-600 font-medium">kuic assistant</span>
           )}
           
           <div className="flex items-center gap-2">
@@ -79,7 +123,7 @@ const SimplifiedMessageBubble = ({
       
       {message.isUser && (
         <div className={cn(
-          "rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0",
+          "rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0 shadow-md",
           isMobile ? "w-8 h-8" : "w-10 h-10"
         )}>
           <User className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
