@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils';
 import { Bot, User, Loader2, CheckCheck, AlertCircle } from 'lucide-react';
 import { Message } from '../types';
-import SimplifiedTypingMessage from './SimplifiedTypingMessage';
+import CleanTypingMessage from './CleanTypingMessage';
 
 interface SimplifiedMessageBubbleProps {
   message: Message;
@@ -19,7 +19,7 @@ const SimplifiedMessageBubble = ({
 }: SimplifiedMessageBubbleProps) => {
   if (!message.isUser && showTypingEffect) {
     return (
-      <SimplifiedTypingMessage
+      <CleanTypingMessage
         message={message.content}
         onComplete={onTypingComplete}
         isMobile={isMobile}

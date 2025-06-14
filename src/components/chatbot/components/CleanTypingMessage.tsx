@@ -3,13 +3,13 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Bot } from 'lucide-react';
 
-interface SimplifiedTypingMessageProps {
+interface CleanTypingMessageProps {
   message: string;
   onComplete?: () => void;
   isMobile: boolean;
 }
 
-const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTypingMessageProps) => {
+const CleanTypingMessage = ({ message, onComplete, isMobile }: CleanTypingMessageProps) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
@@ -19,7 +19,7 @@ const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTy
       const timer = setTimeout(() => {
         setDisplayedText(message.slice(0, currentIndex + 1));
         setCurrentIndex(prev => prev + 1);
-      }, 40);
+      }, 50);
 
       return () => clearTimeout(timer);
     } else if (currentIndex >= message.length && !isComplete) {
@@ -65,4 +65,4 @@ const SimplifiedTypingMessage = ({ message, onComplete, isMobile }: SimplifiedTy
   );
 };
 
-export default SimplifiedTypingMessage;
+export default CleanTypingMessage;
