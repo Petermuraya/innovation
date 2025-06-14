@@ -1,14 +1,10 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Users, UserPlus } from 'lucide-react';
 import AddMemberDialog from './components/AddMemberDialog';
-import MemberStatsCards from './components/MemberStatsCards';
-import MemberFilters from './components/MemberFilters';
-import MembersTable from './components/MembersTable';
+import MembersEmptyState from './components/MembersEmptyState';
+import MembersMainContent from './components/MembersMainContent';
+import MemberDeleteDialog from './components/MemberDeleteDialog';
 import { EnhancedMembersManagementProps, Member } from './types/members';
 import { useMemberManagement } from './hooks/useMemberManagement';
 
@@ -83,46 +79,19 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
     }
   };
 
+  const handleAddMemberSuccess = () => {
+    setShowAddDialog(false);
+    // Refresh data would happen here
+  };
+
   if (members.length === 0) {
     return (
       <div className="space-y-6">
-        <Card className="border-kic-green-200">
-          <CardHeader className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border-b border-kic-green-200">
-            <CardTitle className="flex items-center gap-2 text-kic-green-800">
-              <Users className="h-5 w-5" />
-              Member Management
-            </CardTitle>
-            <CardDescription className="text-kic-green-600">
-              No members found in the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-8 text-center">
-            <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-4">
-              There are currently no members in the system. This could be because:
-            </p>
-            <ul className="text-left text-gray-500 mb-6 space-y-2">
-              <li>• No members have registered yet</li>
-              <li>• There's a database connection issue</li>
-              <li>• Member data is not being fetched properly</li>
-            </ul>
-            <Button
-              onClick={() => setShowAddDialog(true)}
-              className="bg-kic-green-600 hover:bg-kic-green-700 text-white"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add First Member
-            </Button>
-          </CardContent>
-        </Card>
-
+        <MembersEmptyState onAddMember={() => setShowAddDialog(true)} />
         <AddMemberDialog 
           open={showAddDialog} 
           onOpenChange={setShowAddDialog}
-          onSuccess={() => {
-            setShowAddDialog(false);
-            // Refresh data would happen here
-          }}
+          onSuccess={handleAddMemberSuccess}
         />
       </div>
     );
@@ -130,101 +99,37 @@ const EnhancedMembersManagement = ({ members, updateMemberStatus }: EnhancedMemb
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Statistics Cards */}
-      <MemberStatsCards stats={stats} />
-
-      {/* Main Content */}
-      <Card className="border-kic-green-200">
-        <CardHeader className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border-b border-kic-green-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-kic-green-800">
-                <Users className="h-5 w-5" />
-                Member Management
-              </CardTitle>
-              <CardDescription className="text-kic-green-600">
-                Manage all members, view registration details, and perform administrative actions
-              </CardDescription>
-            </div>
-            <Button
-              onClick={() => setShowAddDialog(true)}
-              className="bg-kic-green-600 hover:bg-kic-green-700 text-white"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add Member
-            </Button>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="p-6">
-          {/* Filters and Search */}
-          <MemberFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            courseFilter={courseFilter}
-            setCourseFilter={setCourseFilter}
-            courses={courses}
-          />
-
-          {/* Members Table */}
-          {filteredMembers.length > 0 ? (
-            <MembersTable
-              members={filteredMembers}
-              selectedMember={selectedMember}
-              setSelectedMember={setSelectedMember}
-              onStatusUpdate={handleStatusUpdate}
-              onDeleteMember={setMemberToDelete}
-              isLoading={isLoading}
-            />
-          ) : (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' || courseFilter !== 'all'
-                  ? 'No members match your search criteria'
-                  : 'No members found'
-                }
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <MembersMainContent
+        stats={stats}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        courseFilter={courseFilter}
+        setCourseFilter={setCourseFilter}
+        courses={courses}
+        filteredMembers={filteredMembers}
+        selectedMember={selectedMember}
+        setSelectedMember={setSelectedMember}
+        onStatusUpdate={handleStatusUpdate}
+        onDeleteMember={setMemberToDelete}
+        isLoading={isLoading}
+        onAddMember={() => setShowAddDialog(true)}
+      />
 
       {/* Add Member Dialog */}
       <AddMemberDialog 
         open={showAddDialog} 
         onOpenChange={setShowAddDialog}
-        onSuccess={() => {
-          setShowAddDialog(false);
-          // Refresh data would happen here
-        }}
+        onSuccess={handleAddMemberSuccess}
       />
 
       {/* Delete Confirmation Dialog */}
-      {memberToDelete && (
-        <AlertDialog open={!!memberToDelete} onOpenChange={() => setMemberToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Member</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete <strong>{memberToDelete.name}</strong>? 
-                This action cannot be undone and will permanently remove the member from the system.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleDeleteMember(memberToDelete)}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Delete Member
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+      <MemberDeleteDialog
+        member={memberToDelete}
+        onClose={() => setMemberToDelete(null)}
+        onConfirm={handleDeleteMember}
+      />
     </div>
   );
 };
