@@ -1,8 +1,8 @@
 
 -- Grant super admin role to the existing admin user
--- This assumes sammypeter1944@gmail.com is the admin that needs super admin access
+-- This assumes petermuraya@hotmail.com is the admin that needs super admin access
 
--- First, get the user ID for sammypeter1944@gmail.com from members table
+-- First, get the user ID for petermuraya@hotmail.com from members table
 -- and update their role to super_admin
 DO $$
 DECLARE
@@ -11,7 +11,7 @@ BEGIN
     -- Get the user_id for the admin email
     SELECT user_id INTO admin_user_id
     FROM public.members 
-    WHERE email = 'sammypeter1944@gmail.com'
+    WHERE email = 'petermuraya@hotmail.com'
     LIMIT 1;
     
     -- If user exists, grant super_admin role
@@ -29,7 +29,7 @@ BEGIN
         
         RAISE NOTICE 'Super admin role granted to user: %', admin_user_id;
     ELSE
-        RAISE NOTICE 'No user found with email: sammypeter1944@gmail.com';
+        RAISE NOTICE 'No user found with email: petermuraya@hotmail.com';
     END IF;
 END $$;
 
