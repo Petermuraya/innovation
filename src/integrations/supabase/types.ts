@@ -2231,6 +2231,8 @@ export type Database = {
         | "content_admin"
         | "technical_admin"
         | "marketing_admin"
+        | "chairman"
+        | "vice_chairman"
       election_position:
         | "chairman"
         | "vice_chairman"
@@ -2372,6 +2374,8 @@ export const Constants = {
         "content_admin",
         "technical_admin",
         "marketing_admin",
+        "chairman",
+        "vice_chairman",
       ],
       election_position: [
         "chairman",
