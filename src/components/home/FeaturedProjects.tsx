@@ -43,7 +43,7 @@ export default function FeaturedProjects() {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white -mt-20 relative z-10">
         <div className="container-custom">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-12">
             <div>
@@ -76,7 +76,7 @@ export default function FeaturedProjects() {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-white -mt-20 relative z-10">
       <div className="container-custom">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-12">
           <div>
@@ -98,7 +98,7 @@ export default function FeaturedProjects() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <Card key={project.id} className="card-hover overflow-hidden">
+              <Card key={project.id} className="card-hover overflow-hidden transform transition-all duration-300 hover:scale-105">
                 <div className="aspect-video w-full overflow-hidden">
                   <img 
                     src={project.thumbnail_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?fit=crop&w=600&h=350"} 

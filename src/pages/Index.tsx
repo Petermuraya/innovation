@@ -29,6 +29,7 @@ const SEO_CONFIG = {
 
 const HomePage = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     const initializePage = () => {
@@ -36,10 +37,14 @@ const HomePage = () => {
       setIsMounted(true);
     };
 
+    const handleScroll = () => setScrollY(window.scrollY);
+
     initializePage();
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
       console.log("Home page unmounted");
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -65,13 +70,35 @@ const HomePage = () => {
       <main className="flex flex-col w-full bg-kic-lightGray">
         <HeroSection />
         
-        <section id="stats-section" aria-label="Statistics">
+        <section 
+          id="stats-section" 
+          aria-label="Statistics"
+          className="transform transition-all duration-300 ease-out"
+          style={{ transform: `translateY(${scrollY * 0.02}px)` }}
+        >
           <StatsSection />
         </section>
         
-        <FeaturedProjects />
-        <UpcomingEvents />
-        <CommunitiesSection />
+        <section 
+          className="transform transition-all duration-300 ease-out"
+          style={{ transform: `translateY(${scrollY * 0.01}px)` }}
+        >
+          <FeaturedProjects />
+        </section>
+        
+        <section 
+          className="transform transition-all duration-300 ease-out"
+          style={{ transform: `translateY(${scrollY * 0.005}px)` }}
+        >
+          <UpcomingEvents />
+        </section>
+        
+        <section 
+          className="transform transition-all duration-300 ease-out"
+          style={{ transform: `translateY(${scrollY * 0.002}px)` }}
+        >
+          <CommunitiesSection />
+        </section>
       </main>
     </>
   );
