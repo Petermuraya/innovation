@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { useCommunityEvents } from './events/useCommunityEvents';
@@ -5,6 +6,7 @@ import CommunityEventCreateDialog from './events/CommunityEventCreateDialog';
 import CommunityEventCard from './events/CommunityEventCard';
 import CommunityEventsEmptyState from './events/CommunityEventsEmptyState';
 import BackToDashboard from './BackToDashboard';
+import { useCommunityPointTracking } from '@/hooks/useCommunityPointTracking';
 
 interface CommunityEventsTabProps {
   communityId: string;
@@ -13,6 +15,9 @@ interface CommunityEventsTabProps {
 
 const CommunityEventsTab = ({ communityId, isAdmin = false }: CommunityEventsTabProps) => {
   const { events, loading, createEvent } = useCommunityEvents(communityId);
+  
+  // Track dashboard visit when this tab is accessed
+  useCommunityPointTracking(communityId);
 
   if (loading) {
     return <div className="text-center py-8">Loading events...</div>;

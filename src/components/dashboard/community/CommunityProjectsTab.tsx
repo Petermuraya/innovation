@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -5,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { FolderOpen, Github, ExternalLink } from 'lucide-react';
 import BackToDashboard from './BackToDashboard';
+import { useCommunityPointTracking } from '@/hooks/useCommunityPointTracking';
 
 interface CommunityProjectsTabProps {
   communityId: string;
@@ -15,6 +17,9 @@ const CommunityProjectsTab = ({ communityId, isAdmin = false }: CommunityProject
   const { toast } = useToast();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Track dashboard visit when this tab is accessed
+  useCommunityPointTracking(communityId);
 
   const fetchCommunityProjects = async () => {
     try {

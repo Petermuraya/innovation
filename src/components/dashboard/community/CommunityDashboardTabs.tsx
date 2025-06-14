@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CommunityMembersTab from './CommunityMembersTab';
 import CommunityEventsTab from './CommunityEventsTab';
@@ -9,6 +10,7 @@ import CommunityResourcesTab from './resources/CommunityResourcesTab';
 import CommunityRemindersTab from './CommunityRemindersTab';
 import BackToDashboard from './BackToDashboard';
 import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
+import { useCommunityPointTracking } from '@/hooks/useCommunityPointTracking';
 
 interface CommunityDashboardTabsProps {
   communityId: string;
@@ -16,6 +18,9 @@ interface CommunityDashboardTabsProps {
 
 const CommunityDashboardTabs = ({ communityId }: CommunityDashboardTabsProps) => {
   const { isAdmin } = useCommunityAdminData(communityId);
+  
+  // Track community dashboard visit and get attendance marking function
+  useCommunityPointTracking(communityId);
 
   return (
     <div className="space-y-6">

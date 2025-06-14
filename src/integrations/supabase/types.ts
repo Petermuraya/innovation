@@ -670,6 +670,66 @@ export type Database = {
           },
         ]
       }
+      community_attendance_tracking: {
+        Row: {
+          activity_id: string | null
+          attendance_time: string | null
+          attendance_type: string
+          attended: boolean | null
+          community_id: string
+          created_at: string | null
+          event_id: string | null
+          id: string
+          marked_by: string | null
+          updated_at: string | null
+          user_id: string
+          workshop_id: string | null
+        }
+        Insert: {
+          activity_id?: string | null
+          attendance_time?: string | null
+          attendance_type: string
+          attended?: boolean | null
+          community_id: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          marked_by?: string | null
+          updated_at?: string | null
+          user_id: string
+          workshop_id?: string | null
+        }
+        Update: {
+          activity_id?: string | null
+          attendance_time?: string | null
+          attendance_type?: string
+          attended?: boolean | null
+          community_id?: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          marked_by?: string | null
+          updated_at?: string | null
+          user_id?: string
+          workshop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_attendance_tracking_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_attendance_tracking_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_dashboard_permissions: {
         Row: {
           admin_user_id: string
@@ -2677,6 +2737,34 @@ export type Database = {
         }
         Relationships: []
       }
+      user_community_attendance_stats: {
+        Row: {
+          activities_attended: number | null
+          attendance_percentage: number | null
+          community_id: string | null
+          community_name: string | null
+          events_attended: number | null
+          total_attended: number | null
+          user_id: string | null
+          workshops_attended: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_attendance_tracking_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_attendance_tracking_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles_with_hierarchy: {
         Row: {
           assigned_role:
@@ -2804,6 +2892,22 @@ export type Database = {
       manage_featured_project: {
         Args: { project_id: string; make_featured: boolean; admin_id: string }
         Returns: undefined
+      }
+      mark_community_attendance: {
+        Args: {
+          user_id_param: string
+          community_id_param: string
+          attendance_type_param: string
+          activity_id_param?: string
+          event_id_param?: string
+          workshop_id_param?: string
+          marked_by_param?: string
+        }
+        Returns: undefined
+      }
+      track_community_dashboard_visit: {
+        Args: { user_id_param: string; community_id_param: string }
+        Returns: boolean
       }
       track_community_visit: {
         Args: { user_id_param: string; community_id_param: string }

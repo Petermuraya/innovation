@@ -13,9 +13,13 @@ import CommunityAttendanceTab from './CommunityAttendanceTab';
 import CommunityRemindersTab from './CommunityRemindersTab';
 import BackToDashboard from './BackToDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCommunityPointTracking } from '@/hooks/useCommunityPointTracking';
 
 const CommunityDashboard = () => {
   const { communities, selectedCommunity, loading, stats, selectCommunity } = useCommunityAdminData();
+  
+  // Track community dashboard visit when a community is selected
+  useCommunityPointTracking(selectedCommunity?.id);
   
   if (loading) {
     return (

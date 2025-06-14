@@ -14,14 +14,16 @@ import { useToast } from '@/hooks/use-toast';
 
 interface AttendanceRecord {
   id: string;
-  activity_id: string;
+  activity_id?: string;
+  event_id?: string;
+  workshop_id?: string;
   user_id: string;
   attended: boolean;
   attendance_time: string;
-  notes: string;
-  activity_title: string;
-  activity_date: string;
+  attendance_type: string;
   member_name: string;
+  activity_title?: string;
+  notes?: string;
 }
 
 interface CommunityMember {
@@ -33,6 +35,7 @@ interface CommunityActivity {
   id: string;
   title: string;
   scheduled_date: string;
+  type: 'activity' | 'event' | 'workshop';
 }
 
 interface CommunityAttendanceEnhancedProps {
@@ -49,6 +52,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
   const [loading, setLoading] = useState(true);
   const [showMarkAttendance, setShowMarkAttendance] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState('');
+  const [selectedActivityType, setSelectedActivityType] = useState<'activity' | 'event' | 'workshop'>('activity');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMemberAttendance, setSelectedMemberAttendance] = useState<Record<string, boolean>>({});
 
@@ -74,13 +78,12 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
   const fetchAttendanceRecords = async () => {
     try {
       const { data, error } = await supabase
-        .from('community_activity_attendance')
+        .from('community_attendance_tracking')
         .select(`
           *,
-          community_activities!inner(title, scheduled_date, community_id),
           members!inner(name)
         `)
-        .eq('community_activities.community_id', communityId)
+        .eq('community_id', communityId)
         .order('attendance_time', { ascending: false });
 
       if (error) throw error;
@@ -88,13 +91,15 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
       const enrichedRecords = (data || []).map((record: any) => ({
         id: record.id,
         activity_id: record.activity_id,
+        event_id: record.event_id,
+        workshop_id: record.workshop_id,
         user_id: record.user_id,
         attended: record.attended,
         attendance_time: record.attendance_time,
-        notes: record.notes,
-        activity_title: record.community_activities.title,
-        activity_date: record.community_activities.scheduled_date,
+        attendance_type: record.attendance_type,
         member_name: record.members.name,
+        activity_title: `${record.attendance_type} - ${record.activity_id || record.event_id || record.workshop_id}`,
+        notes: record.notes,
       }));
 
       setAttendanceRecords(enrichedRecords);
@@ -134,15 +139,50 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
 
   const fetchActivities = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch activities
+      const { data: activitiesData, error: activitiesError } = await supabase
         .from('community_activities')
         .select('id, title, scheduled_date')
         .eq('community_id', communityId)
         .order('scheduled_date', { ascending: false })
-        .limit(20);
+        .limit(10);
 
-      if (error) throw error;
-      setActivities(data || []);
+      if (activitiesError) throw activitiesError;
+
+      // Fetch events
+      const { data: eventsData, error: eventsError } = await supabase
+        .from('community_events')
+        .select(`
+          event_id,
+          events!inner(id, title, date)
+        `)
+        .eq('community_id', communityId);
+
+      if (eventsError) throw eventsError;
+
+      // Fetch workshops
+      const { data: workshopsData, error: workshopsError } = await supabase
+        .from('community_workshops')
+        .select('id, title, scheduled_date')
+        .eq('community_id', communityId)
+        .order('scheduled_date', { ascending: false })
+        .limit(10);
+
+      if (workshopsError) throw workshopsError;
+
+      // Combine all activities
+      const allActivities: CommunityActivity[] = [
+        ...(activitiesData || []).map(a => ({ ...a, scheduled_date: a.scheduled_date, type: 'activity' as const })),
+        ...(eventsData || []).map(e => ({ 
+          id: e.events.id, 
+          title: e.events.title, 
+          scheduled_date: e.events.date, 
+          type: 'event' as const 
+        })),
+        ...(workshopsData || []).map(w => ({ ...w, scheduled_date: w.scheduled_date, type: 'workshop' as const })),
+      ];
+
+      setActivities(allActivities);
     } catch (error) {
       console.error('Error fetching activities:', error);
     }
@@ -159,34 +199,39 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
     }
 
     try {
-      const attendanceRecords = Object.entries(selectedMemberAttendance).map(([userId, attended]) => ({
-        activity_id: selectedActivity,
-        user_id: userId,
-        attended,
-        attendance_time: new Date().toISOString(),
-        marked_by: user?.id,
-      }));
+      // Mark attendance for each selected member
+      const attendancePromises = Object.entries(selectedMemberAttendance).map(([userId, attended]) => {
+        if (!attended) return Promise.resolve(); // Skip members not marked as present
 
-      // Delete existing attendance records for this activity first
-      await supabase
-        .from('community_activity_attendance')
-        .delete()
-        .eq('activity_id', selectedActivity);
+        const params = {
+          user_id_param: userId,
+          community_id_param: communityId,
+          attendance_type_param: selectedActivityType,
+          marked_by_param: user?.id,
+        };
 
-      // Insert new attendance records
-      const { error } = await supabase
-        .from('community_activity_attendance')
-        .insert(attendanceRecords);
+        // Add the appropriate source ID based on attendance type
+        if (selectedActivityType === 'activity') {
+          params['activity_id_param'] = selectedActivity;
+        } else if (selectedActivityType === 'event') {
+          params['event_id_param'] = selectedActivity;
+        } else if (selectedActivityType === 'workshop') {
+          params['workshop_id_param'] = selectedActivity;
+        }
 
-      if (error) throw error;
+        return supabase.rpc('mark_community_attendance', params);
+      });
+
+      await Promise.all(attendancePromises);
 
       toast({
         title: "Attendance marked",
-        description: "Attendance has been successfully recorded",
+        description: "Attendance has been successfully recorded and points awarded",
       });
 
       setShowMarkAttendance(false);
       setSelectedActivity('');
+      setSelectedActivityType('activity');
       setSelectedMemberAttendance({});
       await fetchAttendanceRecords();
     } catch (error) {
@@ -208,7 +253,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
 
   const filteredRecords = attendanceRecords.filter(record =>
     record.member_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.activity_title.toLowerCase().includes(searchTerm.toLowerCase())
+    record.activity_title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const attendanceStats = {
@@ -228,7 +273,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Attendance Tracking</h3>
-          <p className="text-sm text-gray-600">Track member attendance for activities and meetings</p>
+          <p className="text-sm text-gray-600">Track member attendance for activities and meetings with automatic point awards</p>
         </div>
         {isAdmin && (
           <Dialog open={showMarkAttendance} onOpenChange={setShowMarkAttendance}>
@@ -244,17 +289,36 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="activity">Select Activity</Label>
-                  <Select value={selectedActivity} onValueChange={setSelectedActivity}>
+                  <Label htmlFor="activityType">Activity Type</Label>
+                  <Select value={selectedActivityType} onValueChange={(value: 'activity' | 'event' | 'workshop') => {
+                    setSelectedActivityType(value);
+                    setSelectedActivity('');
+                  }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose an activity" />
+                      <SelectValue placeholder="Choose activity type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {activities.map((activity) => (
-                        <SelectItem key={activity.id} value={activity.id}>
-                          {activity.title} - {new Date(activity.scheduled_date).toLocaleDateString()}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="activity">Activity</SelectItem>
+                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="activity">Select {selectedActivityType}</Label>
+                  <Select value={selectedActivity} onValueChange={setSelectedActivity}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Choose a ${selectedActivityType}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activities
+                        .filter(activity => activity.type === selectedActivityType)
+                        .map((activity) => (
+                          <SelectItem key={activity.id} value={activity.id}>
+                            {activity.title} - {new Date(activity.scheduled_date).toLocaleDateString()}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -296,7 +360,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
                     disabled={!selectedActivity}
                     className="flex-1"
                   >
-                    Save Attendance
+                    Save Attendance & Award Points
                   </Button>
                   <Button
                     variant="outline"
@@ -379,6 +443,9 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
                   
                   <div className="text-sm text-gray-600">
                     <span className="font-medium">{record.activity_title}</span>
+                    <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
+                      {record.attendance_type}
+                    </span>
                   </div>
                 </div>
 
@@ -388,7 +455,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
                   </Badge>
                   
                   <div className="text-sm text-gray-500">
-                    {new Date(record.activity_date).toLocaleDateString()}
+                    {new Date(record.attendance_time).toLocaleDateString()}
                   </div>
                 </div>
               </div>
