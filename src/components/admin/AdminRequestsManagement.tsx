@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,13 +9,13 @@ import { Shield, Check, X, Clock, Loader2 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import * as Dialog from '@radix-ui/react-dialog';
 
-type AdminRequestWithRelations = Database['public']['Tables']['admin_requests']['Row'] & {
-  reviewed_by: { name: string } | null;
-  community: { name: string } | null;
+type AdminRequest = Database['public']['Tables']['admin_requests']['Row'] & {
+  reviewed_by_name?: string | null;
+  community_name?: string | null;
 };
 
 const AdminRequestsManagement = () => {
-  const [requests, setRequests] = useState<AdminRequestWithRelations[]>([]);
+  const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
@@ -37,8 +38,8 @@ const AdminRequestsManagement = () => {
         .from('admin_requests')
         .select(`
           *,
-          reviewed_by:members!admin_requests_reviewed_by_fkey(name),
-          community:community_groups(name)
+          reviewed_by_name:members!admin_requests_reviewed_by_fkey(name),
+          community_name:community_groups(name)
         `)
         .order('created_at', { ascending: false });
 
@@ -49,11 +50,11 @@ const AdminRequestsManagement = () => {
 
       console.log('Admin requests fetched:', data);
       
-      // Transform the data to match our expected type structure
-      const transformedData: AdminRequestWithRelations[] = (data || []).map(request => ({
+      // Transform the data to handle the nested objects
+      const transformedData: AdminRequest[] = (data || []).map(request => ({
         ...request,
-        reviewed_by: request.reviewed_by ? { name: request.reviewed_by.name } : null,
-        community: request.community ? { name: request.community.name } : null,
+        reviewed_by_name: request.reviewed_by_name ? (request.reviewed_by_name as any)?.name : null,
+        community_name: request.community_name ? (request.community_name as any)?.name : null,
       }));
       
       setRequests(transformedData);
@@ -302,8 +303,8 @@ const AdminRequestsManagement = () => {
                       {request.admin_code && (
                         <span>• Has Admin Code</span>
                       )}
-                      {request.community && (
-                        <span>• Community: {request.community.name}</span>
+                      {request.community_name && (
+                        <span>• Community: {request.community_name}</span>
                       )}
                     </div>
                   </div>
@@ -349,8 +350,8 @@ const AdminRequestsManagement = () => {
                 {request.status !== 'pending' && request.reviewed_at && (
                   <div className="text-sm text-gray-500 space-y-1">
                     <p>Reviewed: {new Date(request.reviewed_at).toLocaleString()}</p>
-                    {request.reviewed_by && (
-                      <p>Reviewed by: {request.reviewed_by.name}</p>
+                    {request.reviewed_by_name && (
+                      <p>Reviewed by: {request.reviewed_by_name}</p>
                     )}
                   </div>
                 )}
