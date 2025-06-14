@@ -786,6 +786,13 @@ export type Database = {
             foreignKeyName: "community_projects_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "featured_projects_home"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_leaderboard"
             referencedColumns: ["id"]
           },
@@ -1400,6 +1407,13 @@ export type Database = {
             foreignKeyName: "project_comments_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "featured_projects_home"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_leaderboard"
             referencedColumns: ["id"]
           },
@@ -1432,6 +1446,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "project_likes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "featured_projects_home"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "project_likes_project_id_fkey"
             columns: ["project_id"]
@@ -1499,8 +1520,13 @@ export type Database = {
           admin_notes: string | null
           created_at: string | null
           description: string
+          featured_at: string | null
+          featured_by: string | null
+          featured_order: number | null
           github_url: string
           id: string
+          is_featured: boolean | null
+          is_hidden: boolean | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string | null
@@ -1515,8 +1541,13 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string | null
           description: string
+          featured_at?: string | null
+          featured_by?: string | null
+          featured_order?: number | null
           github_url: string
           id?: string
+          is_featured?: boolean | null
+          is_hidden?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string | null
@@ -1531,8 +1562,13 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string | null
           description?: string
+          featured_at?: string | null
+          featured_by?: string | null
+          featured_order?: number | null
           github_url?: string
           id?: string
+          is_featured?: boolean | null
+          is_hidden?: boolean | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string | null
@@ -1680,6 +1716,31 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_projects_home: {
+        Row: {
+          admin_feedback: string | null
+          admin_notes: string | null
+          author_name: string | null
+          created_at: string | null
+          description: string | null
+          featured_at: string | null
+          featured_by: string | null
+          featured_order: number | null
+          github_url: string | null
+          id: string | null
+          is_featured: boolean | null
+          is_hidden: boolean | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          tech_tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       member_leaderboard: {
         Row: {
           avg_project_rating: number | null
@@ -1802,6 +1863,10 @@ export type Database = {
       is_patron: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      manage_featured_project: {
+        Args: { project_id: string; make_featured: boolean; admin_id: string }
+        Returns: undefined
       }
     }
     Enums: {
