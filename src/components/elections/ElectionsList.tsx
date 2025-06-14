@@ -1,133 +1,174 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Users, Vote } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar, Users, Clock, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import ElectionTestComponent from './ElectionTestComponent';
+
+interface Election {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  nomination_start_date: string;
+  nomination_end_date: string;
+  voting_start_date: string;
+  voting_end_date: string;
+  created_at: string;
+}
 
 const ElectionsList = () => {
-  const { data: elections, isLoading } = useQuery({
-    queryKey: ['elections'],
-    queryFn: async () => {
+  const { user } = useAuth();
+  const [elections, setElections] = useState<Election[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchElections();
+  }, []);
+
+  const fetchElections = async () => {
+    try {
       const { data, error } = await supabase
         .from('elections')
-        .select(`
-          *,
-          election_positions(*)
-        `)
-        .in('status', ['nomination_open', 'voting_open', 'completed'])
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
-    },
-  });
+      if (error) {
+        console.error('Error fetching elections:', error);
+        toast.error('Failed to load elections');
+        return;
+      }
 
-  if (isLoading) {
-    return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="h-6 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+      setElections(data || []);
+    } catch (error) {
+      console.error('Error fetching elections:', error);
+      toast.error('Failed to load elections');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!elections?.length) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return 'secondary';
+      case 'nomination_open': return 'default';
+      case 'voting_open': return 'destructive';
+      case 'completed': return 'outline';
+      default: return 'secondary';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'voting_open': return <Clock className="w-4 h-4" />;
+      case 'completed': return <CheckCircle className="w-4 h-4" />;
+      default: return <Calendar className="w-4 h-4" />;
+    }
+  };
+
+  if (loading) {
     return (
       <Card>
-        <CardContent className="text-center py-12">
-          <Vote className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">No Active Elections</h3>
-          <p className="text-gray-500">There are currently no elections available.</p>
+        <CardContent className="p-6">
+          <div className="text-center">Loading elections...</div>
         </CardContent>
       </Card>
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'nomination_open':
-        return 'bg-blue-100 text-blue-800';
-      case 'voting_open':
-        return 'bg-green-100 text-green-800';
-      case 'completed':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'nomination_open':
-        return 'Nominations Open';
-      case 'voting_open':
-        return 'Voting Open';
-      case 'completed':
-        return 'Completed';
-      default:
-        return status;
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {elections.map((election) => (
-          <Card key={election.id} className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-xl">{election.title}</CardTitle>
-                <Badge className={getStatusColor(election.status)}>
-                  {getStatusText(election.status)}
-                </Badge>
-              </div>
-              {election.description && (
-                <CardDescription>{election.description}</CardDescription>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4" />
-                <span>
-                  Nominations: {format(new Date(election.nomination_start_date), 'MMM d')} - {format(new Date(election.nomination_end_date), 'MMM d')}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Vote className="w-4 h-4" />
-                <span>
-                  Voting: {format(new Date(election.voting_start_date), 'MMM d')} - {format(new Date(election.voting_end_date), 'MMM d')}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Users className="w-4 h-4" />
-                <span>{election.election_positions?.length || 0} positions available</span>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {election.election_positions?.map((position: any) => (
-                  <Badge key={position.id} variant="outline" className="text-xs">
-                    {position.position_type.replace('_', ' ')}
+      {/* Test Component - Remove this in production */}
+      <ElectionTestComponent />
+      
+      {elections.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              No Active Elections
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              There are currently no elections scheduled. Check back later or contact an administrator.
+            </p>
+            <div className="bg-kic-green-50 border border-kic-green-200 rounded-lg p-4">
+              <h4 className="font-semibold text-kic-green-800 mb-2">What are elections?</h4>
+              <p className="text-sm text-kic-green-700">
+                Elections allow club members to democratically choose their leadership. 
+                When elections are active, you'll be able to view candidates, cast your vote, 
+                and even apply to become a candidate yourself.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {elections.map((election) => (
+            <Card key={election.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {getStatusIcon(election.status)}
+                      {election.title}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">{election.description}</p>
+                  </div>
+                  <Badge variant={getStatusColor(election.status) as any}>
+                    {election.status.replace('_', ' ').toUpperCase()}
                   </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="w-4 h-4 text-kic-blue-600" />
+                      <span className="font-medium">Nomination Period:</span>
+                    </div>
+                    <p className="text-sm text-gray-600 ml-6">
+                      {new Date(election.nomination_start_date).toLocaleDateString()} - {' '}
+                      {new Date(election.nomination_end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="w-4 h-4 text-kic-green-600" />
+                      <span className="font-medium">Voting Period:</span>
+                    </div>
+                    <p className="text-sm text-gray-600 ml-6">
+                      {new Date(election.voting_start_date).toLocaleDateString()} - {' '}
+                      {new Date(election.voting_end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  {election.status === 'voting_open' && (
+                    <Button size="sm" className="bg-kic-green-600 hover:bg-kic-green-700">
+                      Vote Now
+                    </Button>
+                  )}
+                  {election.status === 'nomination_open' && (
+                    <Button size="sm" variant="outline">
+                      Apply as Candidate
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline">
+                    View Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

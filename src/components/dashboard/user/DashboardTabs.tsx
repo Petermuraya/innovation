@@ -12,6 +12,8 @@ import DashboardCertificates from './DashboardCertificates';
 import DashboardBadges from './DashboardBadges';
 import DashboardElections from './DashboardElections';
 import { MemberData } from './types';
+import { Badge } from '@/components/ui/badge';
+import { Vote } from 'lucide-react';
 
 interface DashboardTabsProps {
   memberData: MemberData | null;
@@ -38,16 +40,43 @@ const DashboardTabs = ({
     <Tabs defaultValue="overview" className="space-y-4">
       <div className="overflow-x-auto">
         <TabsList className="grid w-full grid-cols-5 sm:grid-cols-6 md:grid-cols-11 gap-1 h-auto p-1">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-          <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
-          <TabsTrigger value="communities" className="text-xs sm:text-sm">Communities</TabsTrigger>
-          <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects</TabsTrigger>
-          <TabsTrigger value="events" className="text-xs sm:text-sm">Events</TabsTrigger>
-          <TabsTrigger value="elections" className="text-xs sm:text-sm bg-kic-green-100 text-kic-green-700 font-semibold">Elections</TabsTrigger>
-          <TabsTrigger value="careers" className="text-xs sm:text-sm">Careers</TabsTrigger>
-          <TabsTrigger value="blogging" className="text-xs sm:text-sm">Blogging</TabsTrigger>
-          <TabsTrigger value="payments" className="text-xs sm:text-sm">Payments</TabsTrigger>
-          <TabsTrigger value="certificates" className="text-xs sm:text-sm">Certificates</TabsTrigger>
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm">
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="communities" className="text-xs sm:text-sm">
+            Communities
+          </TabsTrigger>
+          <TabsTrigger value="projects" className="text-xs sm:text-sm">
+            Projects
+          </TabsTrigger>
+          <TabsTrigger value="events" className="text-xs sm:text-sm">
+            Events
+          </TabsTrigger>
+          <TabsTrigger 
+            value="elections" 
+            className="text-xs sm:text-sm bg-gradient-to-r from-kic-green-100 to-kic-green-200 text-kic-green-800 font-semibold border border-kic-green-300 hover:from-kic-green-200 hover:to-kic-green-300 transition-all duration-200"
+          >
+            <Vote className="w-3 h-3 mr-1" />
+            Elections
+            <Badge variant="secondary" className="ml-1 text-xs bg-kic-green-600 text-white">
+              NEW
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="careers" className="text-xs sm:text-sm">
+            Careers
+          </TabsTrigger>
+          <TabsTrigger value="blogging" className="text-xs sm:text-sm">
+            Blogging
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="text-xs sm:text-sm">
+            Payments
+          </TabsTrigger>
+          <TabsTrigger value="certificates" className="text-xs sm:text-sm">
+            Certificates
+          </TabsTrigger>
         </TabsList>
       </div>
 

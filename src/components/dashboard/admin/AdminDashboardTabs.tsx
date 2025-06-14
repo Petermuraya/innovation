@@ -16,6 +16,7 @@ import PointConfigurationManager from '@/components/admin/PointConfigurationMana
 import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
 import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
 import { Badge } from '@/components/ui/badge';
+import { Vote, Star } from 'lucide-react';
 
 interface AdminDashboardTabsProps {
   stats?: any;
@@ -53,7 +54,9 @@ const AdminDashboardTabs = ({
     { 
       value: 'elections', 
       label: 'Elections',
-      highlight: true // Special highlight for elections
+      highlight: true,
+      special: true,
+      icon: Vote
     },
     { value: 'blogs', label: 'Blogs' },
     { value: 'payments', label: 'Payments' },
@@ -88,10 +91,15 @@ const AdminDashboardTabs = ({
                   data-[state=active]:shadow-sm data-[state=active]:border
                   hover:bg-white/70 transition-all duration-200
                   whitespace-nowrap
-                  ${tab.highlight ? 'bg-kic-green-100 text-kic-green-700 font-semibold border border-kic-green-300' : ''}
+                  ${tab.highlight ? 'bg-gradient-to-r from-kic-green-100 to-kic-green-200 text-kic-green-800 font-bold border border-kic-green-400 shadow-md' : ''}
+                  ${tab.special ? 'hover:scale-105 transform transition-transform' : ''}
                 `}
               >
+                {tab.icon && <tab.icon className="w-4 h-4" />}
                 {tab.label}
+                {tab.special && (
+                  <Star className="w-3 h-3 text-kic-green-600 animate-pulse" />
+                )}
                 {tab.badge && (
                   <Badge 
                     variant={tab.badgeVariant} 
@@ -121,7 +129,18 @@ const AdminDashboardTabs = ({
         </TabsContent>
         
         <TabsContent value="elections" className="mt-0">
-          <AdminElectionManagement />
+          <div className="space-y-4">
+            <div className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 border border-kic-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Vote className="w-6 h-6 text-kic-green-600" />
+                <h2 className="text-xl font-bold text-kic-green-800">Elections Management Center</h2>
+              </div>
+              <p className="text-kic-green-700">
+                Manage club elections, review candidates, and oversee the democratic process.
+              </p>
+            </div>
+            <AdminElectionManagement />
+          </div>
         </TabsContent>
         
         <TabsContent value="blogs" className="mt-0">
