@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
