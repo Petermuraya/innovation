@@ -1,16 +1,14 @@
-
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { UserCheck, Users, Calendar, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { UserCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import AttendanceStats from './AttendanceStats';
+import AttendanceSearch from './AttendanceSearch';
+import AttendanceRecordsList from './AttendanceRecordsList';
+import MarkAttendanceDialog from './MarkAttendanceDialog';
 
 interface AttendanceRecord {
   id: string;
@@ -51,10 +49,7 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
   const [activities, setActivities] = useState<CommunityActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMarkAttendance, setShowMarkAttendance] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState('');
-  const [selectedActivityType, setSelectedActivityType] = useState<'activity' | 'event' | 'workshop'>('activity');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMemberAttendance, setSelectedMemberAttendance] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchData();
@@ -217,35 +212,28 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
     }
   };
 
-  const handleMarkAttendance = async () => {
-    if (!selectedActivity) {
-      toast({
-        title: "Select Activity",
-        description: "Please select an activity to mark attendance for",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleMarkAttendance = async (
+    activityType: 'activity' | 'event' | 'workshop',
+    activityId: string,
+    memberAttendance: Record<string, boolean>
+  ) => {
     try {
-      // Mark attendance for each selected member
-      const attendancePromises = Object.entries(selectedMemberAttendance).map(([userId, attended]) => {
-        if (!attended) return Promise.resolve(); // Skip members not marked as present
+      const attendancePromises = Object.entries(memberAttendance).map(([userId, attended]) => {
+        if (!attended) return Promise.resolve();
 
         const params = {
           user_id_param: userId,
           community_id_param: communityId,
-          attendance_type_param: selectedActivityType,
+          attendance_type_param: activityType,
           marked_by_param: user?.id,
         };
 
-        // Add the appropriate source ID based on attendance type
-        if (selectedActivityType === 'activity') {
-          params['activity_id_param'] = selectedActivity;
-        } else if (selectedActivityType === 'event') {
-          params['event_id_param'] = selectedActivity;
-        } else if (selectedActivityType === 'workshop') {
-          params['workshop_id_param'] = selectedActivity;
+        if (activityType === 'activity') {
+          params['activity_id_param'] = activityId;
+        } else if (activityType === 'event') {
+          params['event_id_param'] = activityId;
+        } else if (activityType === 'workshop') {
+          params['workshop_id_param'] = activityId;
         }
 
         return supabase.rpc('mark_community_attendance', params);
@@ -259,9 +247,6 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
       });
 
       setShowMarkAttendance(false);
-      setSelectedActivity('');
-      setSelectedActivityType('activity');
-      setSelectedMemberAttendance({});
       await fetchAttendanceRecords();
     } catch (error) {
       console.error('Error marking attendance:', error);
@@ -271,13 +256,6 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
         variant: "destructive",
       });
     }
-  };
-
-  const toggleMemberAttendance = (userId: string) => {
-    setSelectedMemberAttendance(prev => ({
-      ...prev,
-      [userId]: !prev[userId]
-    }));
   };
 
   const filteredRecords = attendanceRecords.filter(record =>
@@ -312,205 +290,33 @@ const CommunityAttendanceEnhanced = ({ communityId, isAdmin }: CommunityAttendan
                 Mark Attendance
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Mark Attendance</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="activityType">Activity Type</Label>
-                  <Select value={selectedActivityType} onValueChange={(value: 'activity' | 'event' | 'workshop') => {
-                    setSelectedActivityType(value);
-                    setSelectedActivity('');
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose activity type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="activity">Activity</SelectItem>
-                      <SelectItem value="event">Event</SelectItem>
-                      <SelectItem value="workshop">Workshop</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="activity">Select {selectedActivityType}</Label>
-                  <Select value={selectedActivity} onValueChange={setSelectedActivity}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={`Choose a ${selectedActivityType}`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activities
-                        .filter(activity => activity.type === selectedActivityType)
-                        .map((activity) => (
-                          <SelectItem key={activity.id} value={activity.id}>
-                            {activity.title} - {new Date(activity.scheduled_date).toLocaleDateString()}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedActivity && (
-                  <div>
-                    <Label>Members Attendance</Label>
-                    <div className="space-y-2 max-h-60 overflow-y-auto border rounded-md p-3">
-                      {members.map((member) => (
-                        <div key={member.user_id} className="flex items-center justify-between p-2 border rounded-md">
-                          <span>{member.name}</span>
-                          <Button
-                            variant={selectedMemberAttendance[member.user_id] ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => toggleMemberAttendance(member.user_id)}
-                            className="flex items-center gap-1"
-                          >
-                            {selectedMemberAttendance[member.user_id] ? (
-                              <>
-                                <CheckCircle className="h-3 w-3" />
-                                Present
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="h-3 w-3" />
-                                Absent
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    onClick={handleMarkAttendance}
-                    disabled={!selectedActivity}
-                    className="flex-1"
-                  >
-                    Save Attendance & Award Points
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMarkAttendance(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
+            <MarkAttendanceDialog
+              open={showMarkAttendance}
+              onOpenChange={setShowMarkAttendance}
+              members={members}
+              activities={activities}
+              onMarkAttendance={handleMarkAttendance}
+            />
           </Dialog>
         )}
       </div>
 
-      {/* Attendance Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-blue-600" />
-              <div>
-                <p className="text-sm text-gray-600">Total Records</p>
-                <p className="text-2xl font-bold">{attendanceStats.totalRecords}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <AttendanceStats 
+        totalRecords={attendanceStats.totalRecords}
+        totalAttended={attendanceStats.totalAttended}
+        attendanceRate={attendanceStats.attendanceRate}
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-              <div>
-                <p className="text-sm text-gray-600">Total Attended</p>
-                <p className="text-2xl font-bold">{attendanceStats.totalAttended}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <AttendanceSearch 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+      />
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <UserCheck className="h-8 w-8 text-purple-600" />
-              <div>
-                <p className="text-sm text-gray-600">Attendance Rate</p>
-                <p className="text-2xl font-bold">{attendanceStats.attendanceRate}%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search */}
-      <div className="flex items-center gap-2">
-        <Search className="h-4 w-4 text-gray-500" />
-        <Input
-          placeholder="Search by member name or activity..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-      </div>
-
-      {/* Attendance Records */}
-      <div className="space-y-3">
-        {filteredRecords.map((record) => (
-          <Card key={record.id} className="hover:shadow-sm transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    {record.attended ? (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-600" />
-                    )}
-                    <span className="font-medium">{record.member_name}</span>
-                  </div>
-                  
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">{record.activity_title}</span>
-                    <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">
-                      {record.attendance_type}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Badge variant={record.attended ? "default" : "destructive"}>
-                    {record.attended ? "Present" : "Absent"}
-                  </Badge>
-                  
-                  <div className="text-sm text-gray-500">
-                    {new Date(record.attendance_time).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-
-              {record.notes && (
-                <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                  <strong>Notes:</strong> {record.notes}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredRecords.length === 0 && (
-        <div className="text-center py-12">
-          <UserCheck className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No attendance records</h3>
-          <p className="text-gray-500">
-            {attendanceRecords.length === 0
-              ? (isAdmin ? 'Start marking attendance to see records here.' : 'Attendance records will appear here when they are marked.')
-              : 'No records match your search criteria.'
-            }
-          </p>
-        </div>
-      )}
+      <AttendanceRecordsList 
+        records={filteredRecords}
+        totalRecords={attendanceRecords.length}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 };
