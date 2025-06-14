@@ -1,3 +1,4 @@
+
 // src/components/chatbot/types.ts
 export interface Message {
   id: string;
@@ -10,8 +11,16 @@ export interface Message {
 export interface AuthUser {
   id: string;
   email?: string;
-  name?: string;
-  avatar_url?: string;
+  user_metadata?: {
+    name?: string;
+    full_name?: string;
+    [key: string]: any;
+  };
+  raw_user_meta_data?: {
+    name?: string;
+    full_name?: string;
+    [key: string]: any;
+  };
 }
 
 export interface ChatbotConfig {

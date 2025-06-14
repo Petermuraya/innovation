@@ -1,4 +1,3 @@
-
 // src/components/chatbot/Chatbot.tsx
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useChatbot } from './useChatbot';
-import { defaultConfig } from './utils';
+import { defaultConfig, getUserName } from './utils';
 import { Message } from './types';
 
 const Chatbot = () => {
@@ -22,13 +21,21 @@ const Chatbot = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
+  // Convert Supabase User to our AuthUser type
+  const authUser = user ? {
+    id: user.id,
+    email: user.email,
+    user_metadata: user.user_metadata,
+    raw_user_meta_data: user.raw_user_meta_data
+  } : null;
+
   const {
     messages,
     isLoading,
     initializeChat,
     sendMessage,
     quickReplies
-  } = useChatbot(user, defaultConfig);
+  } = useChatbot(authUser, defaultConfig);
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
@@ -94,6 +101,9 @@ const Chatbot = () => {
     setIsMinimized(prev => !prev);
   };
 
+  // Get user name safely
+  const userName = getUserName(authUser);
+
   // Floating action button when closed
   if (!isOpen) {
     return (
@@ -150,7 +160,7 @@ const Chatbot = () => {
               KUIC Assistant
             </CardTitle>
             <p className="text-xs text-green-100 opacity-90">
-              {user ? `Hello, ${user.name}!` : "Ready to help"}
+              {user ? `Hello, ${userName || 'there'}!` : "Ready to help"}
             </p>
           </div>
         </div>

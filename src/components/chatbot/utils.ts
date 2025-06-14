@@ -1,6 +1,6 @@
 
 // src/components/chatbot/utils.ts
-import { Message, ChatbotConfig } from './types';
+import { Message, ChatbotConfig, AuthUser } from './types';
 
 export const createUserMessage = (content: string): Message => ({
   id: `user_${Date.now()}_${Math.random()}`,
@@ -24,6 +24,16 @@ export const createErrorMessage = (): Message => ({
   timestamp: new Date(),
   status: 'error',
 });
+
+export const getUserName = (user: AuthUser | null): string | undefined => {
+  if (!user) return undefined;
+  
+  // Try to get name from user metadata
+  return user.user_metadata?.name || 
+         user.user_metadata?.full_name || 
+         user.raw_user_meta_data?.name || 
+         user.raw_user_meta_data?.full_name;
+};
 
 export const defaultConfig: ChatbotConfig = {
   quickReplies: [
