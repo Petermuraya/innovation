@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, XCircle, Clock, Eye, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, FileText, User, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Blog {
   id: string;
@@ -19,10 +20,15 @@ interface Blog {
   featured_image?: string;
   tags?: string[];
   view_count?: number;
+  verified_by?: string;
+  verified_at?: string;
+  author_name?: string;
+  verifier_name?: string;
 }
 
 const BlogManagement = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
@@ -35,13 +41,45 @@ const BlogManagement = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch blogs with author and verifier names
+      const { data: blogsData, error } = await supabase
         .from('blogs')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBlogs(data || []);
+
+      // Enrich blogs with author and verifier names
+      const enrichedBlogs = await Promise.all(
+        (blogsData || []).map(async (blog) => {
+          // Get author name
+          const { data: author } = await supabase
+            .from('members')
+            .select('name')
+            .eq('user_id', blog.user_id)
+            .single();
+
+          // Get verifier name if blog is verified
+          let verifierName = null;
+          if (blog.verified_by) {
+            const { data: verifier } = await supabase
+              .from('members')
+              .select('name')
+              .eq('user_id', blog.verified_by)
+              .single();
+            verifierName = verifier?.name;
+          }
+
+          return {
+            ...blog,
+            author_name: author?.name || 'Unknown Author',
+            verifier_name: verifierName,
+          };
+        })
+      );
+
+      setBlogs(enrichedBlogs);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       toast({
@@ -55,6 +93,8 @@ const BlogManagement = () => {
   };
 
   const handleReviewBlog = async (blogId: string, status: 'published' | 'rejected') => {
+    if (!user) return;
+    
     setReviewing(true);
     try {
       const { error } = await supabase
@@ -62,7 +102,8 @@ const BlogManagement = () => {
         .update({ 
           status,
           admin_verified: status === 'published',
-          verified_at: status === 'published' ? new Date().toISOString() : null
+          verified_by: user.id,
+          verified_at: new Date().toISOString()
         })
         .eq('id', blogId);
 
@@ -111,7 +152,7 @@ const BlogManagement = () => {
           <FileText className="w-5 h-5" />
           Blog Management
         </CardTitle>
-        <CardDescription>Review and manage blog posts</CardDescription>
+        <CardDescription>Review and manage blog posts submitted by members</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -122,6 +163,11 @@ const BlogManagement = () => {
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <h4 className="font-medium truncate">{blog.title}</h4>
                     {getStatusBadge(blog.status)}
+                  </div>
+                  
+                  <div className="flex items-center gap-1 mb-2 text-sm text-muted-foreground">
+                    <User className="h-3 w-3" />
+                    <span>By {blog.author_name}</span>
                   </div>
                   
                   {blog.excerpt && (
@@ -137,6 +183,18 @@ const BlogManagement = () => {
                       <span>Tags: {blog.tags.join(', ')}</span>
                     )}
                   </div>
+
+                  {/* Show verification info for published/rejected blogs */}
+                  {(blog.status === 'published' || blog.status === 'rejected') && blog.verifier_name && blog.verified_at && (
+                    <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground bg-muted p-2 rounded">
+                      <Calendar className="h-3 w-3" />
+                      <span>
+                        {blog.status === 'published' ? 'Approved' : 'Rejected'} by {blog.verifier_name} on{' '}
+                        {new Date(blog.verified_at).toLocaleDateString()} at{' '}
+                        {new Date(blog.verified_at).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -159,6 +217,9 @@ const BlogManagement = () => {
                         <div>
                           <strong>Title:</strong> {blog.title}
                         </div>
+                        <div>
+                          <strong>Author:</strong> {blog.author_name}
+                        </div>
                         {blog.excerpt && (
                           <div>
                             <strong>Excerpt:</strong>
@@ -174,6 +235,20 @@ const BlogManagement = () => {
                         {blog.tags && blog.tags.length > 0 && (
                           <div>
                             <strong>Tags:</strong> {blog.tags.join(', ')}
+                          </div>
+                        )}
+                        
+                        {/* Show verification details in dialog */}
+                        {(blog.status === 'published' || blog.status === 'rejected') && blog.verifier_name && blog.verified_at && (
+                          <div className="border-t pt-4">
+                            <strong>Verification Details:</strong>
+                            <div className="mt-1 text-sm text-muted-foreground">
+                              {blog.status === 'published' ? 'Approved' : 'Rejected'} by <span className="font-medium">{blog.verifier_name}</span>
+                              <br />
+                              Date: {new Date(blog.verified_at).toLocaleDateString()}
+                              <br />
+                              Time: {new Date(blog.verified_at).toLocaleTimeString()}
+                            </div>
                           </div>
                         )}
                         

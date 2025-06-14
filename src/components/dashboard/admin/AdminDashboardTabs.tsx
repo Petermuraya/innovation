@@ -1,12 +1,13 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Calendar, FolderOpen, DollarSign, Settings, UserCog, Star, User } from 'lucide-react';
+import { Users, Calendar, FolderOpen, DollarSign, Settings, UserCog, Star, User, FileText } from 'lucide-react';
 import EnhancedMembersManagement from './EnhancedMembersManagement';
 import EnhancedEventsManagement from './EnhancedEventsManagement';
 import ProjectsManagement from './ProjectsManagement';
 import PaymentsManagement from './PaymentsManagement';
 import RoleManagement from './RoleManagement';
 import FeaturedProjectsManagement from './FeaturedProjectsManagement';
+import BlogManagement from './BlogManagement';
 import DashboardProfile from '../user/DashboardProfile';
 import { useMemberData } from '../user/hooks/useMemberData';
 
@@ -59,6 +60,12 @@ const AdminDashboardTabs = ({
       component: <FeaturedProjectsManagement />
     },
     {
+      id: 'blogs',
+      label: 'Blogs',
+      icon: <FileText className="w-4 h-4" />,
+      component: <BlogManagement />
+    },
+    {
       id: 'events',
       label: 'Events',
       icon: <Calendar className="w-4 h-4" />,
@@ -94,7 +101,7 @@ const AdminDashboardTabs = ({
   return (
     <div className="w-full">
       <Tabs defaultValue="members" className="w-full">
-        <TabsList className="grid w-full grid-cols-7 h-auto p-1 bg-kic-lightGray/30">
+        <TabsList className="grid w-full grid-cols-8 h-auto p-1 bg-kic-lightGray/30">
           {tabs.map((tab) => (
             <TabsTrigger 
               key={tab.id}
