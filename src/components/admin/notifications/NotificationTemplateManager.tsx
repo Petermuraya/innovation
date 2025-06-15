@@ -15,7 +15,7 @@ import {
   Edit, 
   Trash2, 
   Save,
-  Template,
+  FileText,
   X
 } from 'lucide-react';
 import {
@@ -65,7 +65,14 @@ const NotificationTemplateManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTemplates(data || []);
+      
+      // Transform the data to ensure proper types
+      const transformedData = (data || []).map(template => ({
+        ...template,
+        priority: (template.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
+      }));
+      
+      setTemplates(transformedData);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({
@@ -214,7 +221,7 @@ const NotificationTemplateManager = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Template className="h-5 w-5 text-primary" />
+              <FileText className="h-5 w-5 text-primary" />
               Notification Templates
             </CardTitle>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

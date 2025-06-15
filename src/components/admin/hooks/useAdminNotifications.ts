@@ -14,6 +14,7 @@ interface AdminNotification {
   scheduled_for?: string;
   created_at: string;
   created_by: string;
+  metadata?: Record<string, any>;
 }
 
 interface NotificationStats {
@@ -45,7 +46,15 @@ export const useAdminNotifications = () => {
         .limit(50);
 
       if (error) throw error;
-      setNotifications(data || []);
+      
+      // Transform the data to ensure proper types
+      const transformedData = (data || []).map(notification => ({
+        ...notification,
+        priority: (notification.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        metadata: notification.metadata || {}
+      }));
+      
+      setNotifications(transformedData);
     } catch (error) {
       console.error('Error fetching admin notifications:', error);
       toast({
@@ -140,7 +149,7 @@ export const useAdminNotifications = () => {
         p_title: `[RESENT] ${notification.title}`,
         p_message: notification.message,
         p_type: notification.type,
-        p_priority: notification.priority,
+        p_priority: notification.priority || 'medium',
         p_target_type: notification.target_type,
         p_target_ids: null, // Will need to get from targets table if needed
         p_scheduled_for: null,

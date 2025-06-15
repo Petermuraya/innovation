@@ -88,7 +88,14 @@ const AdminNotificationManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTemplates(data || []);
+      
+      // Transform the data to ensure proper types
+      const transformedData = (data || []).map(template => ({
+        ...template,
+        priority: (template.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'
+      }));
+      
+      setTemplates(transformedData);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({
