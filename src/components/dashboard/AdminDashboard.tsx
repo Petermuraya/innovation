@@ -6,6 +6,7 @@ import { useRolePermissions } from '@/hooks/useRolePermissions';
 import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboardTabs from './admin/components/AdminDashboardTabs';
 import AdminDashboardContent from './admin/components/AdminDashboardContent';
+import DashboardAnimationWrapper from './DashboardAnimationWrapper';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -45,18 +46,20 @@ const AdminDashboard = () => {
   const roleDisplayName = roleInfo?.assignedRole ? getRoleDisplayName(roleInfo.assignedRole) : 'Administrator';
 
   return (
-    <div className="space-y-6">
-      <AdminDashboardHeader 
-        roleDisplayName={roleDisplayName}
-        isSuperAdmin={isSuperAdmin}
-      />
+    <DashboardAnimationWrapper>
+      <div className="space-y-6">
+        <AdminDashboardHeader 
+          roleDisplayName={roleDisplayName}
+          isSuperAdmin={isSuperAdmin}
+        />
 
-      {/* Admin Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <AdminDashboardTabs canManageUsers={canManageUsers} />
-        <AdminDashboardContent canManageUsers={canManageUsers} />
-      </Tabs>
-    </div>
+        {/* Admin Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <AdminDashboardTabs canManageUsers={canManageUsers} />
+          <AdminDashboardContent canManageUsers={canManageUsers} />
+        </Tabs>
+      </div>
+    </DashboardAnimationWrapper>
   );
 };
 

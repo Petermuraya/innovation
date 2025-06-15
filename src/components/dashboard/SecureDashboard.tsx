@@ -11,6 +11,7 @@ import DashboardSwitcher from '@/components/dashboard/DashboardSwitcher';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, UserX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SecureDashboard = () => {
   const { user, loading: authLoading, isAdmin } = useAuth();
@@ -23,6 +24,11 @@ const SecureDashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
         <Card>
           <CardContent className="p-6">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
+            />
             <p>Loading dashboard...</p>
           </CardContent>
         </Card>
@@ -79,22 +85,52 @@ const SecureDashboard = () => {
   // Determine if user can access admin features
   const canAccessAdmin = isAdmin || (adminCommunities && adminCommunities.length > 0);
 
+  // Dashboard transition variants
+  const dashboardVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.8
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.8
+    })
+  };
+
+  const [direction, setDirection] = useState(0);
+
+  const handleViewChange = (newView: 'admin' | 'user') => {
+    if (newView !== dashboardView) {
+      setDirection(newView === 'admin' ? 1 : -1);
+      setDashboardView(newView);
+    }
+  };
+
   // Handle dashboard view logic
   const renderDashboard = () => {
     // If user has admin privileges and chooses admin view
     if (canAccessAdmin && dashboardView === 'admin') {
       // Main admins get the full admin dashboard
       if (isAdmin) {
-        return <AdminDashboard />;
+        return <AdminDashboard key="admin" />;
       }
       // Community admins get the community dashboard
       if (adminCommunities && adminCommunities.length > 0) {
-        return <CommunityDashboard />;
+        return <CommunityDashboard key="community" />;
       }
     }
     
     // Default to user dashboard (member view)
-    return <UserDashboard />;
+    return <UserDashboard key="user" />;
   };
 
   return (
@@ -104,11 +140,30 @@ const SecureDashboard = () => {
         {canAccessAdmin && (
           <DashboardSwitcher 
             currentView={dashboardView}
-            onViewChange={setDashboardView}
+            onViewChange={handleViewChange}
           />
         )}
         
-        {renderDashboard()}
+        {/* Animated Dashboard Content */}
+        <div className="relative overflow-hidden">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={dashboardView}
+              custom={direction}
+              variants={dashboardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.3 },
+                scale: { duration: 0.4 }
+              }}
+            >
+              {renderDashboard()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
