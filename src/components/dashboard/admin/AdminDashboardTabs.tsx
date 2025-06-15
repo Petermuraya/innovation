@@ -18,7 +18,9 @@ import {
   BookOpen,
   Briefcase,
   MessageSquare,
-  BarChart3
+  BarChart3,
+  Vote,
+  ScrollText
 } from 'lucide-react';
 
 import MembersManagement from './MembersManagement';
@@ -36,6 +38,8 @@ import BlogManagement from './BlogManagement';
 import CareerManagement from './CareerManagement';
 import WorldClassNotificationSystem from './WorldClassNotificationSystem';
 import CommunityAdminManagement from './CommunityAdminManagement';
+import ConstitutionManagement from './ConstitutionManagement';
+import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 interface AdminDashboardTabsProps {
@@ -66,7 +70,7 @@ const AdminDashboardTabs = ({
     <div className="w-full">
       <Tabs defaultValue={canManageUsers ? "user-management" : "members"} className="w-full">
         <div className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 p-4 border-b border-kic-green-200">
-          <TabsList className={`grid w-full ${canManageUsers ? 'grid-cols-6 lg:grid-cols-13' : 'grid-cols-5 lg:grid-cols-11'} bg-white/80 backdrop-blur-sm border border-kic-green-200 p-1 gap-1 h-auto`}>
+          <TabsList className={`grid w-full ${canManageUsers ? 'grid-cols-6 lg:grid-cols-15' : 'grid-cols-5 lg:grid-cols-13'} bg-white/80 backdrop-blur-sm border border-kic-green-200 p-1 gap-1 h-auto`}>
             {canManageUsers && (
               <>
                 <TabsTrigger 
@@ -182,6 +186,22 @@ const AdminDashboardTabs = ({
               <Briefcase className="w-4 h-4" />
               <span className="text-xs sm:text-sm font-medium">Careers</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="constitution"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-blue-700 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '1.4s' : '1.2s'}}
+            >
+              <ScrollText className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Constitution</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="elections"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-700 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '1.5s' : '1.3s'}}
+            >
+              <Vote className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Elections</span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -250,6 +270,14 @@ const AdminDashboardTabs = ({
 
           <TabsContent value="careers" className="mt-0 animate-fade-in">
             <CareerManagement />
+          </TabsContent>
+
+          <TabsContent value="constitution" className="mt-0 animate-fade-in">
+            <ConstitutionManagement />
+          </TabsContent>
+
+          <TabsContent value="elections" className="mt-0 animate-fade-in">
+            <AdminElectionManagement />
           </TabsContent>
         </div>
       </Tabs>
