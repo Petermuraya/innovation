@@ -323,4 +323,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Made with ❤️ by the Karatina University Innovation Club**
+**Made by the Karatina University Innovation Club**
