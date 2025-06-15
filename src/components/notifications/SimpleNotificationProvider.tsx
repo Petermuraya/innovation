@@ -69,8 +69,15 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
       
       // Map the database data to match our interface, providing default priority
       const mappedNotifications: NotificationData[] = (data || []).map(notification => ({
-        ...notification,
-        priority: notification.priority || 'medium' as 'medium'
+        id: notification.id,
+        user_id: notification.user_id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        priority: (notification.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_read: notification.is_read,
+        metadata: notification.metadata,
+        created_at: notification.created_at
       }));
       
       setNotifications(mappedNotifications);
@@ -228,10 +235,17 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
         },
         (payload) => {
           console.log('🆕 New notification received:', payload.new);
-          const newNotification = {
-            ...payload.new,
-            priority: payload.new.priority || 'medium'
-          } as NotificationData;
+          const newNotification: NotificationData = {
+            id: payload.new.id,
+            user_id: payload.new.user_id,
+            type: payload.new.type,
+            title: payload.new.title,
+            message: payload.new.message,
+            priority: (payload.new.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+            is_read: payload.new.is_read,
+            metadata: payload.new.metadata,
+            created_at: payload.new.created_at
+          };
           
           setNotifications(prev => [newNotification, ...prev]);
           
@@ -255,10 +269,17 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
         },
         (payload) => {
           console.log('📝 Notification updated:', payload.new);
-          const updatedNotification = {
-            ...payload.new,
-            priority: payload.new.priority || 'medium'
-          } as NotificationData;
+          const updatedNotification: NotificationData = {
+            id: payload.new.id,
+            user_id: payload.new.user_id,
+            type: payload.new.type,
+            title: payload.new.title,
+            message: payload.new.message,
+            priority: (payload.new.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+            is_read: payload.new.is_read,
+            metadata: payload.new.metadata,
+            created_at: payload.new.created_at
+          };
           setNotifications(prev =>
             prev.map(notif =>
               notif.id === updatedNotification.id ? updatedNotification : notif
