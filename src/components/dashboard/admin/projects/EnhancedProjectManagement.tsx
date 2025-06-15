@@ -27,25 +27,7 @@ import {
   deleteProjectSubmission
 } from '../services/adminProjectService';
 import ProjectDetailsDialog from './ProjectDetailsDialog';
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  github_url: string;
-  thumbnail_url: string | null;
-  tech_tags: string[] | null;
-  status: string;
-  admin_feedback: string | null;
-  reviewed_at: string | null;
-  created_at: string;
-  user_id: string;
-  reviewed_by: string | null;
-  is_featured: boolean;
-  author_name: string;
-  author_email: string;
-  reviewer_name: string | null;
-}
+import { Project } from './types';
 
 const EnhancedProjectManagement = () => {
   const { user } = useAuth();
@@ -72,8 +54,31 @@ const EnhancedProjectManagement = () => {
       setLoading(true);
       console.log('Loading projects...');
       const projectsData = await fetchAllProjectSubmissions();
-      setProjects(projectsData);
-      console.log('Projects loaded successfully:', projectsData.length);
+      
+      // Map the data to match our Project interface
+      const mappedProjects: Project[] = projectsData.map(project => ({
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        github_url: project.github_url,
+        thumbnail_url: project.thumbnail_url,
+        tech_tags: project.tech_tags,
+        status: project.status,
+        admin_notes: project.admin_feedback, // Map admin_feedback to admin_notes
+        admin_feedback: project.admin_feedback,
+        reviewed_at: project.reviewed_at,
+        reviewed_by: project.reviewed_by,
+        created_at: project.created_at,
+        user_id: project.user_id,
+        is_featured: project.is_featured || false,
+        featured_by: project.featured_by || null,
+        featured_at: project.featured_at || null,
+        author_name: project.author_name || 'Unknown User',
+        reviewer_name: project.reviewer_name || null
+      }));
+      
+      setProjects(mappedProjects);
+      console.log('Projects loaded successfully:', mappedProjects.length);
     } catch (error) {
       console.error('Error loading projects:', error);
       toast({
@@ -109,7 +114,9 @@ const EnhancedProjectManagement = () => {
 
     try {
       setActionLoading(projectId);
-      await updateProjectSubmissionStatus(projectId, action, user.id, feedback);
+      // Convert action to proper status format
+      const status = action === 'approve' ? 'approved' : 'rejected';
+      await updateProjectSubmissionStatus(projectId, status, user.id, feedback);
       await loadProjects();
       
       toast({
