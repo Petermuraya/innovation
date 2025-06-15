@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,85 +19,60 @@ interface User {
 export const useOptimizedUserManagement = () => {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const fetchingRef = useRef(false);
+  const channelRef = useRef<any>(null);
 
   const fetchUsers = useCallback(async (force = false) => {
+    // Prevent concurrent fetches
+    if (fetchingRef.current && !force) {
+      console.log('Skipping fetch - already in progress');
+      return;
+    }
+
     // Debounce rapid fetches unless forced
     const now = Date.now();
-    if (!force && now - lastFetchTime < 1000) {
+    if (!force && now - lastFetchTime < 2000) {
       console.log('Skipping fetch due to debounce');
       return;
     }
 
     try {
+      fetchingRef.current = true;
       setLoading(true);
       console.log('Fetching users with optimized query...');
       
-      // Use a direct query instead of the view to avoid caching issues
-      const { data: memberData, error: memberError } = await supabase
-        .from('members')
-        .select(`
-          id,
-          user_id,
-          name,
-          email,
-          phone,
-          course,
-          registration_status,
-          created_at
-        `)
+      // Use a single optimized query with joins
+      const { data: userData, error } = await supabase
+        .from('member_management_view')
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (memberError) {
-        console.error('Error fetching members:', memberError);
-        throw memberError;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
       }
 
-      if (!memberData || memberData.length === 0) {
-        console.log('No members found');
+      if (!userData || userData.length === 0) {
+        console.log('No users found');
         setUsers([]);
         setLastFetchTime(now);
         return;
       }
 
-      // Get user IDs for role lookup
-      const userIds = memberData.map(m => m.user_id).filter(Boolean);
-      
-      // Fetch roles separately to avoid view caching
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role')
-        .in('user_id', userIds);
-
-      if (rolesError) {
-        console.error('Error fetching roles:', rolesError);
-        // Continue without roles rather than failing completely
-      }
-
-      // Create roles map
-      const rolesMap = new Map<string, ComprehensiveRole[]>();
-      if (rolesData) {
-        rolesData.forEach(roleRecord => {
-          if (!rolesMap.has(roleRecord.user_id)) {
-            rolesMap.set(roleRecord.user_id, []);
-          }
-          rolesMap.get(roleRecord.user_id)?.push(roleRecord.role as ComprehensiveRole);
-        });
-      }
-
       // Format the data
-      const formattedUsers: User[] = memberData
-        .filter(member => member.user_id) // Only include members with valid user_id
-        .map(member => ({
-          id: member.user_id!,
-          email: member.email,
-          name: member.name,
-          roles: rolesMap.get(member.user_id!) || ['member'],
-          registration_status: member.registration_status,
-          phone: member.phone,
-          course: member.course,
-          created_at: member.created_at,
+      const formattedUsers: User[] = userData
+        .filter(user => user.user_id) // Only include users with valid user_id
+        .map(user => ({
+          id: user.user_id!,
+          email: user.email,
+          name: user.name,
+          roles: user.roles || ['member'],
+          registration_status: user.registration_status,
+          phone: user.phone,
+          course: user.course,
+          created_at: user.created_at,
         }));
 
       console.log('Successfully fetched and formatted users:', formattedUsers.length);
@@ -113,6 +88,7 @@ export const useOptimizedUserManagement = () => {
       });
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   }, [toast, lastFetchTime]);
 
@@ -146,60 +122,35 @@ export const useOptimizedUserManagement = () => {
     );
   }, []);
 
-  // Set up real-time subscriptions with better conflict resolution
+  // Set up real-time subscriptions with better optimization
   useEffect(() => {
     fetchUsers(true);
 
-    // Subscribe to members table changes
-    const membersChannel = supabase
-      .channel('optimized-members-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          console.log('Member deleted via real-time:', payload.old);
-          if (payload.old?.user_id) {
-            removeUserFromState(payload.old.user_id);
-          }
-          // Force refresh after a short delay to ensure consistency
-          setTimeout(() => fetchUsers(true), 500);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          console.log('Member added via real-time:', payload.new);
-          setTimeout(() => fetchUsers(true), 500);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          console.log('Member updated via real-time:', payload.new);
-          setTimeout(() => fetchUsers(true), 500);
-        }
-      )
-      .subscribe((status) => {
-        console.log('Optimized members subscription status:', status);
-      });
+    // Clean up any existing channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
 
-    // Subscribe to user roles changes
-    const rolesChannel = supabase
-      .channel('optimized-roles-changes')
+    // Create a single channel for all changes
+    const channel = supabase
+      .channel('user-management-optimized')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          console.log('Members table changed:', payload.eventType);
+          // Delay refresh to allow database to settle
+          setTimeout(() => {
+            if (!fetchingRef.current) {
+              fetchUsers(true);
+            }
+          }, 1000);
+        }
+      )
       .on(
         'postgres_changes',
         {
@@ -208,25 +159,34 @@ export const useOptimizedUserManagement = () => {
           table: 'user_roles'
         },
         (payload) => {
-          console.log('User roles changed via real-time:', payload);
-          setTimeout(() => fetchUsers(true), 500);
+          console.log('User roles changed:', payload.eventType);
+          // Delay refresh to allow database to settle
+          setTimeout(() => {
+            if (!fetchingRef.current) {
+              fetchUsers(true);
+            }
+          }, 1000);
         }
       )
       .subscribe((status) => {
-        console.log('Optimized roles subscription status:', status);
+        console.log('User management subscription status:', status);
       });
 
+    channelRef.current = channel;
+
     return () => {
-      console.log('Cleaning up optimized subscriptions');
-      supabase.removeChannel(membersChannel);
-      supabase.removeChannel(rolesChannel);
+      console.log('Cleaning up user management subscriptions');
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [fetchUsers, removeUserFromState]);
+  }, []);
 
   return {
     users,
     loading,
-    fetchUsers,
+    fetchUsers: () => fetchUsers(true),
     removeUserFromState,
     addUserToState,
     updateUserInState
