@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HelmetProvider } from 'react-helmet-async';
 import Layout from '@/components/layout/Layout';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
@@ -22,29 +23,31 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<Blogs />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/careers" element={<Careers />} />
-              <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
-              <Route path="/elections" element={<Elections />} />
-              <Route path="/test-notifications" element={<NotificationTesterPage />} />
-            </Routes>
-          </Layout>
-          <Toaster />
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/blogs" element={<Blogs />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
+                <Route path="/elections" element={<Elections />} />
+                <Route path="/test-notifications" element={<NotificationTesterPage />} />
+              </Routes>
+            </Layout>
+            <Toaster />
+          </Router>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
