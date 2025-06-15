@@ -16,9 +16,9 @@ export default function Layout({ children }: LayoutProps) {
   usePointTracking();
   
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background w-full">
       <Navbar />
-      <main className="flex-grow">
+      <main className="flex-grow w-full">
         {children}
       </main>
       <Footer />

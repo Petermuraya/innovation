@@ -39,6 +39,7 @@ function App() {
                 <Route path="/events" element={<Events />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
+                <Route path="/community-dashboard/:communityId" element={<CommunityDashboardRouter />} />
                 <Route path="/elections" element={<Elections />} />
                 <Route path="/test-notifications" element={<NotificationTesterPage />} />
               </Routes>
