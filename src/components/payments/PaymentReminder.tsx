@@ -44,6 +44,12 @@ const PaymentReminder = () => {
     });
   };
 
+  // Map reminder types to payment types that PaymentForm expects
+  const getPaymentType = (reminderType: 'registration' | 'subscription'): 'membership' | 'event' | 'other' => {
+    // Both registration and subscription payments are membership-related
+    return 'membership';
+  };
+
   if (showPaymentForm) {
     return (
       <div className="space-y-4">
@@ -56,7 +62,7 @@ const PaymentReminder = () => {
         </Button>
         <PaymentForm
           amount={100}
-          paymentType={selectedReminderType === 'registration' ? 'membership' : 'subscription'}
+          paymentType={getPaymentType(selectedReminderType)}
           onSuccess={handlePaymentSuccess}
           onError={(error) => toast({
             title: "Payment Error",

@@ -33,7 +33,14 @@ export const usePaymentReminders = () => {
         .eq('is_dismissed', false);
 
       if (error) throw error;
-      setReminders(data || []);
+      
+      // Type assertion to ensure reminder_type matches our interface
+      const typedReminders = (data || []).map(reminder => ({
+        ...reminder,
+        reminder_type: reminder.reminder_type as 'registration' | 'subscription'
+      }));
+      
+      setReminders(typedReminders);
     } catch (error) {
       console.error('Error fetching payment reminders:', error);
     } finally {
