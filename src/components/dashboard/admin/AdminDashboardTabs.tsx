@@ -2,22 +2,23 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, 
+  Code2, 
   Calendar, 
-  FolderOpen, 
-  Award, 
   CreditCard, 
-  UserCheck,
+  Settings, 
+  UserCheck, 
+  Trophy,
   FileText,
-  MessageSquare
+  Target
 } from 'lucide-react';
+
 import MembersManagement from './MembersManagement';
-import EnhancedEventsManagement from './EnhancedEventsManagement';
 import ProjectsManagement from './ProjectsManagement';
-import CertificateManager from './CertificateManager';
+import EventsManagement from './EventsManagement';
 import PaymentsManagement from './PaymentsManagement';
-import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
-import RoleManagement from './RoleManagement';
-import SubmissionsManagement from './SubmissionsManagement';
+import AdminRequestsManagement from './components/AdminRequestsManagement';
+import EnhancedLeaderboardManager from '../admin/EnhancedLeaderboardManager';
+import LeaderboardResetManager from '../../admin/LeaderboardResetManager';
 
 interface AdminDashboardTabsProps {
   stats: any;
@@ -38,77 +39,90 @@ const AdminDashboardTabs = ({
 }: AdminDashboardTabsProps) => {
   return (
     <Tabs defaultValue="members" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
-        <TabsTrigger value="members" className="flex items-center gap-2">
-          <Users className="w-4 h-4" />
-          <span className="hidden sm:inline">Members</span>
+      <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+        <TabsTrigger 
+          value="members" 
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <Users className="w-4 h-4 mr-2" />
+          Members
         </TabsTrigger>
-        <TabsTrigger value="events" className="flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
-          <span className="hidden sm:inline">Events</span>
+        <TabsTrigger 
+          value="projects"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <Code2 className="w-4 h-4 mr-2" />
+          Projects
         </TabsTrigger>
-        <TabsTrigger value="projects" className="flex items-center gap-2">
-          <FolderOpen className="w-4 h-4" />
-          <span className="hidden sm:inline">Projects</span>
+        <TabsTrigger 
+          value="events"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <Calendar className="w-4 h-4 mr-2" />
+          Events
         </TabsTrigger>
-        <TabsTrigger value="certificates" className="flex items-center gap-2">
-          <Award className="w-4 h-4" />
-          <span className="hidden sm:inline">Certificates</span>
+        <TabsTrigger 
+          value="payments"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <CreditCard className="w-4 h-4 mr-2" />
+          Payments
         </TabsTrigger>
-        <TabsTrigger value="payments" className="flex items-center gap-2">
-          <CreditCard className="w-4 h-4" />
-          <span className="hidden sm:inline">Payments</span>
+        <TabsTrigger 
+          value="admin-requests"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <UserCheck className="w-4 h-4 mr-2" />
+          Requests
         </TabsTrigger>
-        <TabsTrigger value="submissions" className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" />
-          <span className="hidden sm:inline">Submissions</span>
+        <TabsTrigger 
+          value="leaderboard"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <Trophy className="w-4 h-4 mr-2" />
+          Leaderboard
         </TabsTrigger>
-        <TabsTrigger value="admin-requests" className="flex items-center gap-2">
-          <UserCheck className="w-4 h-4" />
-          <span className="hidden sm:inline">Admin Requests</span>
-        </TabsTrigger>
-        <TabsTrigger value="roles" className="flex items-center gap-2">
-          <FileText className="w-4 h-4" />
-          <span className="hidden sm:inline">Roles</span>
+        <TabsTrigger 
+          value="reset-leaderboard"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+        >
+          <Target className="w-4 h-4 mr-2" />
+          Reset
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="members">
+      <TabsContent value="members" className="mt-6">
         <MembersManagement 
           members={members}
           updateMemberStatus={updateMemberStatus}
         />
       </TabsContent>
 
-      <TabsContent value="events">
-        <EnhancedEventsManagement />
-      </TabsContent>
-
-      <TabsContent value="projects">
+      <TabsContent value="projects" className="mt-6">
         <ProjectsManagement 
           projects={projects}
           updateProjectStatus={updateProjectStatus}
         />
       </TabsContent>
 
-      <TabsContent value="certificates">
-        <CertificateManager />
+      <TabsContent value="events" className="mt-6">
+        <EventsManagement />
       </TabsContent>
 
-      <TabsContent value="payments">
+      <TabsContent value="payments" className="mt-6">
         <PaymentsManagement payments={payments} />
       </TabsContent>
 
-      <TabsContent value="submissions">
-        <SubmissionsManagement />
+      <TabsContent value="admin-requests" className="mt-6">
+        <AdminRequestsManagement />
       </TabsContent>
 
-      <TabsContent value="admin-requests">
-        <EnhancedAdminRequestsManagement />
+      <TabsContent value="leaderboard" className="mt-6">
+        <EnhancedLeaderboardManager />
       </TabsContent>
 
-      <TabsContent value="roles">
-        <RoleManagement />
+      <TabsContent value="reset-leaderboard" className="mt-6">
+        <LeaderboardResetManager />
       </TabsContent>
     </Tabs>
   );
