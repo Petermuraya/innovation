@@ -81,10 +81,10 @@ export const fetchAllPayments = async () => {
       return {
         ...payment,
         members: hasValidMember ? {
-          name: memberData.name || 'N/A',
-          email: memberData.email || 'N/A',
-          phone: memberData.phone || null,
-          avatar_url: memberData.avatar_url || null
+          name: (memberData as any).name || 'N/A',
+          email: (memberData as any).email || 'N/A',
+          phone: (memberData as any).phone || null,
+          avatar_url: (memberData as any).avatar_url || null
         } : null
       };
     });
