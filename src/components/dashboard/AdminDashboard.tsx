@@ -19,11 +19,11 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import RoleGuard from '@/components/security/RoleGuard';
-import MemberManagement from './admin/MemberManagement';
-import EventManagement from './admin/EventManagement';
+import EnhancedMembersManagement from './admin/EnhancedMembersManagement';
+import EnhancedEventsManagement from './admin/EnhancedEventsManagement';
 import ProjectsManagement from './admin/ProjectsManagement';
-import CertificateManagement from './admin/CertificateManagement';
-import PaymentManagement from './admin/PaymentManagement';
+import CertificateManager from './admin/CertificateManager';
+import PaymentsManagement from './admin/PaymentsManagement';
 import RoleManagement from './admin/RoleManagement';
 import AdminAnalytics from './admin/AdminAnalytics';
 import AdminBlogManagement from './admin/AdminBlogManagement';
@@ -136,13 +136,13 @@ const AdminDashboard = () => {
 
         <TabsContent value="members">
           <RoleGuard requiredRole="general_admin">
-            <MemberManagement />
+            <EnhancedMembersManagement members={[]} updateMemberStatus={async () => {}} />
           </RoleGuard>
         </TabsContent>
 
         <TabsContent value="events">
           <RoleGuard requirePermission="event_manage">
-            <EventManagement />
+            <EnhancedEventsManagement />
           </RoleGuard>
         </TabsContent>
 
@@ -154,13 +154,13 @@ const AdminDashboard = () => {
 
         <TabsContent value="certificates">
           <RoleGuard requirePermission="certificate_upload">
-            <CertificateManagement />
+            <CertificateManager />
           </RoleGuard>
         </TabsContent>
 
         <TabsContent value="payments">
           <RoleGuard requirePermission="payment_processing">
-            <PaymentManagement />
+            <PaymentsManagement payments={[]} />
           </RoleGuard>
         </TabsContent>
 
