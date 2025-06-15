@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,10 @@ import {
   FaWhatsapp,
   FaYoutube,
   FaDiscord,
-  FaArrowRight
+  FaArrowRight,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Logo from "@/assets/logo.png";
@@ -18,162 +22,263 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: <FaTwitter className="h-5 w-5" />, url: "https://twitter.com/" },
-    { icon: <FaGithub className="h-5 w-5" />, url: "https://github.com/" },
-    { icon: <FaLinkedin className="h-5 w-5" />, url: "https://linkedin.com/" },
-    { icon: <FaInstagram className="h-5 w-5" />, url: "https://instagram.com/" },
-    { icon: <FaWhatsapp className="h-5 w-5" />, url: "https://wa.me/254700000000" },
-    { icon: <FaYoutube className="h-5 w-5" />, url: "https://youtube.com/" },
-    { icon: <FaDiscord className="h-5 w-5" />, url: "https://discord.gg/" }
+    { icon: <FaTwitter className="h-5 w-5" />, url: "https://twitter.com/", label: "Twitter" },
+    { icon: <FaGithub className="h-5 w-5" />, url: "https://github.com/", label: "GitHub" },
+    { icon: <FaLinkedin className="h-5 w-5" />, url: "https://linkedin.com/", label: "LinkedIn" },
+    { icon: <FaInstagram className="h-5 w-5" />, url: "https://instagram.com/", label: "Instagram" },
+    { icon: <FaWhatsapp className="h-5 w-5" />, url: "https://wa.me/254700000000", label: "WhatsApp" },
+    { icon: <FaYoutube className="h-5 w-5" />, url: "https://youtube.com/", label: "YouTube" },
+    { icon: <FaDiscord className="h-5 w-5" />, url: "https://discord.gg/", label: "Discord" }
   ];
 
-  const navLinks = [
+  const quickLinks = [
     { label: "Home", path: "/" },
     { label: "About Us", path: "/about" },
     { label: "Projects", path: "/projects" },
     { label: "Events", path: "/events" },
-    { label: "Communities", path: "/communities" },
-    { label: "Blog", path: "/blog" }
+    { label: "Blog", path: "/blogs" },
+    { label: "Careers", path: "/careers" }
   ];
 
-  const resourceLinks = [
-    { label: "Member Login", path: "/login" },
+  const memberLinks = [
     { label: "Join Us", path: "/register" },
-    { label: "Code of Conduct", path: "#" },
-    { label: "Privacy Policy", path: "#" }
+    { label: "Member Login", path: "/login" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Communities", path: "/communities" },
+    { label: "Leaderboard", path: "/leaderboard" }
   ];
 
-  const footerBottomLinks = [
+  const legalLinks = [
     { label: "Privacy Policy", path: "/privacy" },
     { label: "Terms of Service", path: "/terms" },
+    { label: "Code of Conduct", path: "/conduct" },
     { label: "Contact Us", path: "/contact" }
   ];
 
+  const contactInfo = [
+    { icon: <FaEnvelope className="h-4 w-4" />, text: "info@karatinaclub.ac.ke" },
+    { icon: <FaPhone className="h-4 w-4" />, text: "+254 700 000 000" },
+    { icon: <FaMapMarkerAlt className="h-4 w-4" />, text: "Karatina University, Kenya" }
+  ];
+
   return (
-    <footer className="bg-background border-t">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
-          {/* Brand & Social */}
-          <div className="lg:col-span-2 space-y-6">
-            <Link to="/" className="flex items-center gap-3 group">
-              <motion.img
-                src={Logo}
-                alt="Karatina Innovation Club Logo"
-                className="h-12 w-auto rounded-md shadow-sm group-hover:shadow-md transition-shadow"
-                whileHover={{ scale: 1.05 }}
-              />
-              <span className="font-bold text-2xl bg-gradient-to-r from-primary to-foreground bg-clip-text text-transparent">
-                Innovation Club
-              </span>
-            </Link>
-            <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-              Building tomorrow's technology leaders through innovation, collaboration, and mentorship.
-            </p>
+    <footer className="bg-gradient-to-br from-background via-background to-muted/20 border-t-2 border-primary/20 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-grid-pattern"></div>
+      </div>
+      
+      {/* Main Footer Content */}
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-5 lg:gap-8">
+          
+          {/* Brand Section */}
+          <div className="lg:col-span-2 space-y-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Link to="/" className="inline-flex items-center gap-4 group">
+                <motion.div
+                  whileHover={{ scale: 1.05, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="relative"
+                >
+                  <img
+                    src={Logo}
+                    alt="Karatina Innovation Club"
+                    className="h-16 w-16 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </motion.div>
+                <div>
+                  <h3 className="font-bold text-2xl bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                    Karatina Innovation Club
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">Building Tomorrow's Leaders</p>
+                </div>
+              </Link>
+            </motion.div>
 
-            {/* Social Icons */}
-            <div className="flex flex-wrap gap-3">
-              {socialLinks.map((social, index) => (
-                <motion.a
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="text-muted-foreground leading-relaxed text-base max-w-md"
+            >
+              Empowering the next generation of innovators through cutting-edge technology, 
+              collaborative learning, and transformative projects that shape the future.
+            </motion.p>
+
+            {/* Contact Information */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="space-y-3"
+            >
+              {contactInfo.map((contact, index) => (
+                <div key={index} className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <span className="text-primary">{contact.icon}</span>
+                  <span>{contact.text}</span>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Social Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <h4 className="font-semibold text-foreground mb-4">Connect With Us</h4>
+              <div className="flex flex-wrap gap-3">
+                {socialLinks.map((social, index) => (
+                  <motion.a
+                    key={index}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative p-3 rounded-full bg-muted/50 hover:bg-primary text-muted-foreground hover:text-white transition-all duration-300 overflow-hidden"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label={social.label}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10">{social.icon}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Quick Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <h4 className="text-lg font-semibold text-foreground relative">
+              Quick Links
+              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+            </h4>
+            <ul className="space-y-3">
+              {quickLinks.map((link, index) => (
+                <motion.li
                   key={index}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors p-2 rounded-full hover:bg-muted/50"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {social.icon}
-                </motion.a>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="space-y-4">
-            <h3 className="text-base font-semibold text-foreground">Navigation</h3>
-            <ul className="space-y-3">
-              {navLinks.map((link, index) => (
-                <motion.li 
-                  key={index} 
-                  whileHover={{ x: 4 }}
+                  whileHover={{ x: 6 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Link
                     to={link.path}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
+                    className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
                   >
-                    <motion.span 
-                      className="inline-block"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity mr-1" />
-                      {link.label}
-                    </motion.span>
+                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span>{link.label}</span>
                   </Link>
                 </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Resources */}
-          <div className="space-y-4">
-            <h3 className="text-base font-semibold text-foreground">Resources</h3>
+          {/* Member Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <h4 className="text-lg font-semibold text-foreground relative">
+              For Members
+              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+            </h4>
             <ul className="space-y-3">
-              {resourceLinks.map((link, index) => (
-                <motion.li 
-                  key={index} 
-                  whileHover={{ x: 4 }}
+              {memberLinks.map((link, index) => (
+                <motion.li
+                  key={index}
+                  whileHover={{ x: 6 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Link
                     to={link.path}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
+                    className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
                   >
-                    <motion.span 
-                      className="inline-block"
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity mr-1" />
-                      {link.label}
-                    </motion.span>
+                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span>{link.label}</span>
                   </Link>
                 </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Newsletter */}
-          <div className="md:col-span-2 lg:col-span-1 space-y-4">
-            <h3 className="text-base font-semibold text-foreground">Stay updated</h3>
+          {/* Newsletter Signup */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <h4 className="text-lg font-semibold text-foreground relative">
+              Stay Updated
+              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+            </h4>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Get the latest updates and news from Karatina Innovation Club.
+              Get the latest updates on events, projects, and opportunities delivered to your inbox.
             </p>
-            <form className="space-y-3">
+            <form className="space-y-4">
               <Input
                 type="email"
-                placeholder="Your email address"
-                className="w-full bg-muted/50 border-border focus:ring-2 focus:ring-primary/50 hover:border-primary/50 transition-all"
+                placeholder="Enter your email"
+                className="bg-background/50 border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
                 required
               />
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/60 transition-all shadow hover:shadow-md"
+                className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Subscribe
+                Subscribe Now
+                <FaArrowRight className="ml-2 h-3 w-3" />
               </Button>
             </form>
-          </div>
+            <p className="text-xs text-muted-foreground">
+              We respect your privacy. Unsubscribe at any time.
+            </p>
+          </motion.div>
         </div>
 
-        {/* Footer Bottom */}
-        <div className="mt-12 border-t border-border pt-8 pb-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left">
-              &copy; {currentYear} Karatina Innovation Club. All rights reserved.
-            </p>
+        {/* Divider */}
+        <div className="mt-16 pt-8 border-t border-border/50">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            
+            {/* Copyright */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-sm text-muted-foreground text-center md:text-left"
+            >
+              © {currentYear} Karatina Innovation Club. Crafted with ❤️ for innovation.
+            </motion.p>
 
-            <div className="flex flex-wrap gap-3 sm:gap-4 justify-center md:justify-end">
-              {footerBottomLinks.map((link, index) => (
+            {/* Legal Links */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="flex flex-wrap gap-6 justify-center md:justify-end"
+            >
+              {legalLinks.map((link, index) => (
                 <Link
                   key={index}
                   to={link.path}
@@ -182,10 +287,14 @@ export default function Footer() {
                   {link.label}
                 </Link>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
+
+      {/* Floating Elements */}
+      <div className="absolute top-10 right-10 w-20 h-20 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-xl"></div>
+      <div className="absolute bottom-10 left-10 w-32 h-32 bg-gradient-to-br from-secondary/10 to-primary/10 rounded-full blur-xl"></div>
     </footer>
   );
 }
