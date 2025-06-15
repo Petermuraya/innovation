@@ -1,12 +1,13 @@
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Shield, User, Settings, Crown, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { motion, AnimatePresence } from 'framer-motion';
+import DashboardSwitcherIcon from './switcher/DashboardSwitcherIcon';
+import DashboardSwitcherInfo from './switcher/DashboardSwitcherInfo';
+import DashboardSwitcherToggle from './switcher/DashboardSwitcherToggle';
+import DashboardSwitcherProgressBar from './switcher/DashboardSwitcherProgressBar';
 
 interface DashboardSwitcherProps {
   currentView: 'admin' | 'user';
@@ -67,6 +68,7 @@ const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps
   };
 
   const isHighRole = ['super_admin', 'chairman', 'vice_chairman'].includes(roleInfo.assignedRole);
+  const roleDisplayName = getRoleDisplayName(roleInfo.assignedRole);
 
   return (
     <motion.div
@@ -88,166 +90,25 @@ const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps
         <CardContent className="p-6 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative"
-              >
-                <AnimatePresence mode="wait">
-                  {currentView === 'admin' ? (
-                    <motion.div
-                      key="admin-icon"
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: 180 }}
-                      transition={{ duration: 0.4, ease: "backInOut" }}
-                      className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg"
-                    >
-                      {isHighRole ? (
-                        <Crown className="w-6 h-6 text-white" />
-                      ) : (
-                        <Shield className="w-6 h-6 text-white" />
-                      )}
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="user-icon"
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: 180 }}
-                      transition={{ duration: 0.4, ease: "backInOut" }}
-                      className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg"
-                    >
-                      <User className="w-6 h-6 text-white" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Sparkles className="w-2 h-2 text-yellow-800" />
-                </motion.div>
-              </motion.div>
+              <DashboardSwitcherIcon 
+                currentView={currentView}
+                isHighRole={isHighRole}
+              />
               
-              <div className="space-y-1">
-                <motion.h3 
-                  className="font-bold text-xl"
-                  animate={{ 
-                    color: currentView === 'admin' ? '#3b82f6' : '#10b981' 
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={currentView}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {currentView === 'admin' ? 'Admin Dashboard' : 'Member Dashboard'}
-                    </motion.span>
-                  </AnimatePresence>
-                </motion.h3>
-                
-                <motion.p 
-                  className="text-sm font-medium"
-                  animate={{ 
-                    color: currentView === 'admin' ? '#6366f1' : '#059669' 
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={`${currentView}-${roleInfo.assignedRole}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {currentView === 'admin' 
-                        ? `${getRoleDisplayName(roleInfo.assignedRole)} • Administrative Access`
-                        : 'Standard Member • Club Participation'
-                      }
-                    </motion.span>
-                  </AnimatePresence>
-                </motion.p>
-              </div>
+              <DashboardSwitcherInfo 
+                currentView={currentView}
+                roleDisplayName={roleDisplayName}
+              />
             </div>
             
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <motion.span 
-                  className="text-sm font-semibold"
-                  animate={{ 
-                    color: currentView === 'user' ? '#10b981' : '#6b7280',
-                    scale: currentView === 'user' ? 1.05 : 1
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Member
-                </motion.span>
-                
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Switch
-                    checked={currentView === 'admin'}
-                    onCheckedChange={handleToggle}
-                    disabled={isAnimating}
-                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600 data-[state=unchecked]:bg-gradient-to-r data-[state=unchecked]:from-green-500 data-[state=unchecked]:to-emerald-600"
-                  />
-                </motion.div>
-                
-                <motion.span 
-                  className="text-sm font-semibold"
-                  animate={{ 
-                    color: currentView === 'admin' ? '#3b82f6' : '#6b7280',
-                    scale: currentView === 'admin' ? 1.05 : 1
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  Admin
-                </motion.span>
-              </div>
-              
-              <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Settings className="w-5 h-5 text-gray-400" />
-              </motion.div>
-            </div>
+            <DashboardSwitcherToggle 
+              currentView={currentView}
+              isAnimating={isAnimating}
+              onToggle={handleToggle}
+            />
           </div>
           
-          <motion.div 
-            className="mt-4 flex items-center space-x-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <motion.div
-              className="h-1 rounded-full flex-1"
-              animate={{
-                background: currentView === 'admin'
-                  ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)'
-                  : 'linear-gradient(90deg, #10b981, #059669)'
-              }}
-              transition={{ duration: 0.5 }}
-            />
-            <motion.span 
-              className="text-xs font-medium"
-              animate={{ 
-                color: currentView === 'admin' ? '#6366f1' : '#059669' 
-              }}
-            >
-              {currentView === 'admin' ? 'Administrative Mode' : 'Member Experience'}
-            </motion.span>
-          </motion.div>
+          <DashboardSwitcherProgressBar currentView={currentView} />
         </CardContent>
         
         {/* Loading overlay */}
