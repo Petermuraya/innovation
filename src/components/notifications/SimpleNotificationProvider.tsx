@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,7 +39,7 @@ interface SimpleNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProps> = ({ children }) => {
+export const SimpleNotificationProvider = ({ children }: SimpleNotificationProviderProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -66,16 +67,15 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
 
       console.log('✅ Fetched notifications:', data?.length || 0);
       
-      // Map the database data to match our interface, providing default values
       const mappedNotifications: NotificationData[] = (data || []).map(notification => ({
         id: notification.id,
         user_id: notification.user_id,
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        priority: 'medium', // Default value since DB might not have this field
+        priority: 'medium',
         is_read: notification.is_read,
-        metadata: {}, // Default empty object since DB might not have this field
+        metadata: {},
         created_at: notification.created_at
       }));
       
@@ -180,7 +180,6 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
 
       if (error) throw error;
 
-      // Show toast for high priority notifications
       if (priority === 'high' || priority === 'urgent') {
         toast({
           title: title,
@@ -190,7 +189,6 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
       }
 
       console.log('✅ Notification created successfully');
-      // Refresh notifications to show the new one
       await refreshNotifications();
     } catch (error) {
       console.error('❌ Error creating notification:', error);
@@ -236,15 +234,14 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
             type: payload.new.type,
             title: payload.new.title,
             message: payload.new.message,
-            priority: 'medium', // Default value
+            priority: 'medium',
             is_read: payload.new.is_read,
-            metadata: {}, // Default empty object
+            metadata: {},
             created_at: payload.new.created_at
           };
           
           setNotifications(prev => [newNotification, ...prev]);
           
-          // Show toast for new notifications
           toast({
             title: newNotification.title,
             description: newNotification.message,
@@ -267,9 +264,9 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
             type: payload.new.type,
             title: payload.new.title,
             message: payload.new.message,
-            priority: 'medium', // Default value
+            priority: 'medium',
             is_read: payload.new.is_read,
-            metadata: {}, // Default empty object
+            metadata: {},
             created_at: payload.new.created_at
           };
           setNotifications(prev =>
