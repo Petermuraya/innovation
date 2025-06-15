@@ -71,17 +71,23 @@ export const fetchAllPayments = async () => {
     }
 
     // Transform the data to ensure proper typing and handle potential join failures
-    const transformedPayments = (paymentsData || []).map(payment => ({
-      ...payment,
-      members: payment.members && typeof payment.members === 'object' && 'name' in payment.members 
-        ? {
-            name: payment.members.name || 'N/A',
-            email: payment.members.email || 'N/A',
-            phone: payment.members.phone || null,
-            avatar_url: payment.members.avatar_url || null
-          }
-        : null
-    }));
+    const transformedPayments = (paymentsData || []).map(payment => {
+      // Check if members exists and has the expected structure
+      const memberData = payment.members;
+      const hasValidMember = memberData && 
+                            typeof memberData === 'object' && 
+                            'name' in memberData;
+      
+      return {
+        ...payment,
+        members: hasValidMember ? {
+          name: memberData.name || 'N/A',
+          email: memberData.email || 'N/A',
+          phone: memberData.phone || null,
+          avatar_url: memberData.avatar_url || null
+        } : null
+      };
+    });
 
     console.log('Payments fetched:', transformedPayments?.length || 0, 'payments');
     return transformedPayments;

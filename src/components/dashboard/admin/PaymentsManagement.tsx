@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -65,12 +64,21 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
       if (error) throw error;
       
       // Transform the data to ensure proper typing
-      const transformedData: Payment[] = (data || []).map(payment => ({
-        ...payment,
-        members: payment.members && typeof payment.members === 'object' && 'name' in payment.members 
-          ? { name: payment.members.name || 'N/A', email: payment.members.email || 'N/A' }
-          : null
-      }));
+      const transformedData: Payment[] = (data || []).map(payment => {
+        // Check if members exists and has the expected structure
+        const memberData = payment.members;
+        const hasValidMember = memberData && 
+                              typeof memberData === 'object' && 
+                              'name' in memberData;
+        
+        return {
+          ...payment,
+          members: hasValidMember ? {
+            name: memberData.name || 'N/A', 
+            email: memberData.email || 'N/A'
+          } : null
+        };
+      });
       
       setPayments(transformedData);
     } catch (error) {
