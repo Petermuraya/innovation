@@ -67,15 +67,20 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
       const transformedData: Payment[] = (data || []).map(payment => {
         // Check if members exists and has the expected structure
         const memberData = payment.members;
-        const hasValidMember = memberData && 
-                              typeof memberData === 'object' && 
-                              'name' in memberData;
+        
+        // Create a more explicit type guard
+        const isValidMemberData = (data: any): data is { name: string; email: string } => {
+          return data !== null && 
+                 typeof data === 'object' && 
+                 typeof data.name === 'string' && 
+                 typeof data.email === 'string';
+        };
         
         return {
           ...payment,
-          members: hasValidMember && memberData && typeof memberData === 'object' ? {
-            name: (memberData as { name: string; email: string }).name || 'N/A', 
-            email: (memberData as { name: string; email: string }).email || 'N/A'
+          members: isValidMemberData(memberData) ? {
+            name: memberData.name || 'N/A', 
+            email: memberData.email || 'N/A'
           } : null
         };
       });

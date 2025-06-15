@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export const fetchAllMembers = async () => {
@@ -73,17 +74,22 @@ export const fetchAllPayments = async () => {
     const transformedPayments = (paymentsData || []).map(payment => {
       // Check if members exists and has the expected structure
       const memberData = payment.members;
-      const hasValidMember = memberData && 
-                            typeof memberData === 'object' && 
-                            'name' in memberData;
+      
+      // Create a more explicit type guard
+      const isValidMemberData = (data: any): data is { name: string; email: string; phone: string | null; avatar_url: string | null } => {
+        return data !== null && 
+               typeof data === 'object' && 
+               typeof data.name === 'string' && 
+               typeof data.email === 'string';
+      };
       
       return {
         ...payment,
-        members: hasValidMember && memberData && typeof memberData === 'object' ? {
-          name: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).name || 'N/A',
-          email: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).email || 'N/A',
-          phone: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).phone || null,
-          avatar_url: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).avatar_url || null
+        members: isValidMemberData(memberData) ? {
+          name: memberData.name || 'N/A',
+          email: memberData.email || 'N/A',
+          phone: memberData.phone || null,
+          avatar_url: memberData.avatar_url || null
         } : null
       };
     });
