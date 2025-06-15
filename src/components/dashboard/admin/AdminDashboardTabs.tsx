@@ -9,7 +9,9 @@ import {
   UserCheck, 
   Trophy,
   FileText,
-  Target
+  Target,
+  Shield,
+  UserCog
 } from 'lucide-react';
 
 import MembersManagement from './MembersManagement';
@@ -19,6 +21,9 @@ import PaymentsManagement from './PaymentsManagement';
 import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
 import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
 import LeaderboardResetManager from '@/components/admin/LeaderboardResetManager';
+import UserManagement from './UserManagement';
+import RoleManagement from './RoleManagement';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 interface AdminDashboardTabsProps {
   stats: any;
@@ -37,12 +42,35 @@ const AdminDashboardTabs = ({
   updateMemberStatus, 
   updateProjectStatus 
 }: AdminDashboardTabsProps) => {
+  const { isSuperAdmin, isChairman } = useRolePermissions();
+  
   // Mock events data - replace with actual events from your data source
   const events = [];
 
+  // Show user management tabs for super admins and chairman
+  const canManageUsers = isSuperAdmin || isChairman;
+
   return (
-    <Tabs defaultValue="members" className="w-full">
-      <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-green-50 to-yellow-50 border-green-200">
+    <Tabs defaultValue={canManageUsers ? "user-management" : "members"} className="w-full">
+      <TabsList className={`grid w-full ${canManageUsers ? 'grid-cols-9' : 'grid-cols-7'} bg-gradient-to-r from-green-50 to-yellow-50 border-green-200`}>
+        {canManageUsers && (
+          <>
+            <TabsTrigger 
+              value="user-management" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white"
+            >
+              <UserCog className="w-4 h-4 mr-2" />
+              User Mgmt
+            </TabsTrigger>
+            <TabsTrigger 
+              value="role-management" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Roles
+            </TabsTrigger>
+          </>
+        )}
         <TabsTrigger 
           value="members" 
           className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
@@ -93,6 +121,18 @@ const AdminDashboardTabs = ({
           Reset
         </TabsTrigger>
       </TabsList>
+
+      {canManageUsers && (
+        <>
+          <TabsContent value="user-management" className="mt-6">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="role-management" className="mt-6">
+            <RoleManagement />
+          </TabsContent>
+        </>
+      )}
 
       <TabsContent value="members" className="mt-6">
         <MembersManagement 
