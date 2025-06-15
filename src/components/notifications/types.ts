@@ -28,3 +28,24 @@ export interface NotificationContextType {
     metadata?: Record<string, any>
   ) => Promise<void>;
 }
+
+export interface WorldClassNotification {
+  type: string;
+  title: string;
+  message: string;
+  priority: PriorityLevel;
+  icon: React.ReactElement;
+  metadata: {
+    isWorldClass: boolean;
+    animation: string;
+    category: string;
+  };
+}
+
+export interface StandardNotification {
+  type: string;
+  title: string;
+  message: string;
+  priority: PriorityLevel;
+  icon: React.ReactElement;
+}
