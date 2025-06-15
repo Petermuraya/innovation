@@ -194,13 +194,16 @@ const UserManagement = () => {
     try {
       setLoading(true);
 
-      // Delete user roles first
+      // Delete all user roles first (without specifying role type to avoid enum conflicts)
       const { error: rolesError } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', user.id);
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        console.error('Error deleting user roles:', rolesError);
+        throw rolesError;
+      }
 
       // Delete member record
       const { error: memberError } = await supabase
@@ -208,7 +211,10 @@ const UserManagement = () => {
         .delete()
         .eq('user_id', user.id);
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error('Error deleting member record:', memberError);
+        throw memberError;
+      }
 
       toast({
         title: "Success",
@@ -290,11 +296,11 @@ const UserManagement = () => {
             <AlertDialogDescription>
               Are you sure you want to permanently delete <strong>{userToDelete?.name}</strong>? 
               This action cannot be undone and will remove all user data including:
-              <ul className="mt-2 list-disc list-inside text-sm">
-                <li>All assigned roles</li>
-                <li>Member registration data</li>
-                <li>User profile information</li>
-              </ul>
+              <div className="mt-2 space-y-1 text-sm">
+                <div>• All assigned roles</div>
+                <div>• Member registration data</div>
+                <div>• User profile information</div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
