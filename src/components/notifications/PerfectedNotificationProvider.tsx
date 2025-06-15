@@ -14,7 +14,7 @@ export const useNotifications = () => {
   return context;
 };
 
-interface PerfectedNotificationProviderProps {
+export interface PerfectedNotificationProviderProps {
   children: React.ReactNode;
 }
 
