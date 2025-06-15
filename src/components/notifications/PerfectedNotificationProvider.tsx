@@ -10,7 +10,7 @@ interface PerfectedNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export function PerfectedNotificationProvider({ children }: PerfectedNotificationProviderProps) {
+export const PerfectedNotificationProvider = ({ children }: PerfectedNotificationProviderProps) => {
   const { user } = useAuth();
   const {
     notifications,
@@ -54,7 +54,7 @@ export function PerfectedNotificationProvider({ children }: PerfectedNotificatio
       {children}
     </NotificationContext.Provider>
   );
-}
+};
 
 // Re-export the hook for convenience
 export { useNotifications } from './NotificationContext';
