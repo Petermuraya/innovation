@@ -14,11 +14,14 @@ import { AlertTriangle, UserX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SecureDashboard = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { loading: statusLoading, isApproved, memberData } = useMemberStatus();
   const { communities: adminCommunities, loading: communityLoading } = useCommunityAdminData();
   const [dashboardView, setDashboardView] = useState<'admin' | 'user'>('admin');
+  const [direction, setDirection] = useState(0);
 
+  // NOW WE CAN DO CONDITIONAL LOGIC AFTER ALL HOOKS ARE CALLED
   if (authLoading || statusLoading || communityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
@@ -105,8 +108,6 @@ const SecureDashboard = () => {
       scale: 0.8
     })
   };
-
-  const [direction, setDirection] = useState(0);
 
   const handleViewChange = (newView: 'admin' | 'user') => {
     if (newView !== dashboardView) {
