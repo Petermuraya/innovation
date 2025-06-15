@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
-import { Shield, Users, Settings } from 'lucide-react';
+import { Shield, Users, Settings, UserX } from 'lucide-react';
 
 type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
@@ -121,6 +122,35 @@ const RoleManagement = () => {
     }
   };
 
+  const removeRole = async (userId: string, role: ComprehensiveRole) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', role);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Role removed successfully",
+      });
+
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error removing role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove role",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!canManageRoles) {
     return (
       <Card>
@@ -207,20 +237,50 @@ const RoleManagement = () => {
             <div className="space-y-4">
               {users.map((user) => (
                 <div key={user.user_id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
                       <h4 className="font-medium">{user.name}</h4>
                       <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {user.roles && user.roles.length > 0 ? (
                         user.roles.map((role) => (
-                          <Badge 
-                            key={role} 
-                            variant={ROLE_COLORS[role] as any}
-                          >
-                            {ROLE_LABELS[role]}
-                          </Badge>
+                          <div key={role} className="flex items-center gap-1">
+                            <Badge variant={ROLE_COLORS[role] as any}>
+                              {ROLE_LABELS[role]}
+                            </Badge>
+                            {role !== 'member' && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                    disabled={loading}
+                                  >
+                                    <UserX className="h-3 w-3" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Remove Role</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to remove the {ROLE_LABELS[role]} role from {user.name}? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => removeRole(user.user_id, role)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Remove Role
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
                         ))
                       ) : (
                         <Badge variant="default">Member</Badge>
