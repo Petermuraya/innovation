@@ -51,25 +51,43 @@ export const fetchAllEvents = async () => {
 
 export const fetchAllPayments = async () => {
   console.log('Fetching payments with member information...');
-  const { data: paymentsData, error: paymentsError } = await supabase
-    .from('mpesa_payments')
-    .select(`
-      *,
-      members (
-        name,
-        email,
-        phone,
-        avatar_url
-      )
-    `)
-    .order('created_at', { ascending: false });
+  try {
+    const { data: paymentsData, error: paymentsError } = await supabase
+      .from('mpesa_payments')
+      .select(`
+        *,
+        members!left (
+          name,
+          email,
+          phone,
+          avatar_url
+        )
+      `)
+      .order('created_at', { ascending: false });
 
-  if (paymentsError) {
-    console.error('Error fetching payments:', paymentsError);
+    if (paymentsError) {
+      console.error('Error fetching payments:', paymentsError);
+      return [];
+    }
+
+    // Transform the data to ensure proper typing and handle potential join failures
+    const transformedPayments = (paymentsData || []).map(payment => ({
+      ...payment,
+      members: payment.members && typeof payment.members === 'object' && 'name' in payment.members 
+        ? {
+            name: payment.members.name || 'N/A',
+            email: payment.members.email || 'N/A',
+            phone: payment.members.phone || null,
+            avatar_url: payment.members.avatar_url || null
+          }
+        : null
+    }));
+
+    console.log('Payments fetched:', transformedPayments?.length || 0, 'payments');
+    return transformedPayments;
+  } catch (error) {
+    console.error('Error in fetchAllPayments:', error);
     return [];
-  } else {
-    console.log('Payments fetched:', paymentsData?.length || 0, 'payments');
-    return paymentsData || [];
   }
 };
 

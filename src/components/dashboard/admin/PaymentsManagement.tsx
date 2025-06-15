@@ -24,7 +24,7 @@ interface Payment {
   checkout_request_id: string;
   merchant_request_id: string;
   result_desc?: string;
-  members?: { name: string; email: string };
+  members?: { name: string; email: string } | null;
 }
 
 interface PaymentsManagementProps {
@@ -55,7 +55,7 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
         .from('mpesa_payments')
         .select(`
           *,
-          members (
+          members!left (
             name,
             email
           )
@@ -63,7 +63,16 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPayments(data || []);
+      
+      // Transform the data to ensure proper typing
+      const transformedData: Payment[] = (data || []).map(payment => ({
+        ...payment,
+        members: payment.members && typeof payment.members === 'object' && 'name' in payment.members 
+          ? { name: payment.members.name || 'N/A', email: payment.members.email || 'N/A' }
+          : null
+      }));
+      
+      setPayments(transformedData);
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast({
