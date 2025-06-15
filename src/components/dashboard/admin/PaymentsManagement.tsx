@@ -74,7 +74,7 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
         
         return {
           ...payment,
-          members: hasValidMember ? {
+          members: hasValidMember && memberData ? {
             name: (memberData as any).name || 'N/A', 
             email: (memberData as any).email || 'N/A'
           } : null

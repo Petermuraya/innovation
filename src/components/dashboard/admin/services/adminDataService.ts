@@ -80,7 +80,7 @@ export const fetchAllPayments = async () => {
       
       return {
         ...payment,
-        members: hasValidMember ? {
+        members: hasValidMember && memberData ? {
           name: (memberData as any).name || 'N/A',
           email: (memberData as any).email || 'N/A',
           phone: (memberData as any).phone || null,
