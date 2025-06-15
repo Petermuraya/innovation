@@ -6,6 +6,7 @@ import { useRolePermissions } from '@/hooks/useRolePermissions';
 import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboardTabs from './admin/components/AdminDashboardTabs';
 import AdminDashboardContent from './admin/components/AdminDashboardContent';
+import SuperAdminGraphStats from './admin/SuperAdminGraphStats';
 import DashboardAnimationWrapper from './DashboardAnimationWrapper';
 
 const AdminDashboard = () => {
@@ -45,6 +46,17 @@ const AdminDashboard = () => {
   const canManageUsers = isSuperAdmin || isChairman;
   const roleDisplayName = roleInfo?.assignedRole ? getRoleDisplayName(roleInfo.assignedRole) : 'Administrator';
 
+  // Sample stats for the graph component - in real implementation, this would come from your data hooks
+  const sampleStats = {
+    totalMembers: 156,
+    pendingMembers: 12,
+    totalEvents: 28,
+    pendingProjects: 8,
+    totalPayments: 45000,
+    totalCertificates: 89,
+    pendingAdminRequests: 3,
+  };
+
   return (
     <DashboardAnimationWrapper>
       <div className="space-y-6">
@@ -58,6 +70,13 @@ const AdminDashboard = () => {
           <AdminDashboardTabs canManageUsers={canManageUsers} />
           <AdminDashboardContent canManageUsers={canManageUsers} />
         </Tabs>
+
+        {/* Super Admin Graph Statistics */}
+        {isSuperAdmin && (
+          <div className="mt-8">
+            <SuperAdminGraphStats stats={sampleStats} />
+          </div>
+        )}
       </div>
     </DashboardAnimationWrapper>
   );
