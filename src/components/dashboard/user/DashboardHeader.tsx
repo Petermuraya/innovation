@@ -2,7 +2,6 @@
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNotifications } from '@/components/notifications/SimpleNotificationProvider';
 import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,8 +15,14 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ memberData, user }: DashboardHeaderProps) => {
   const { signOut } = useAuth();
-  const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const [avatarKey, setAvatarKey] = useState(Date.now());
+  
+  // Simple notification state - replace with actual implementation later
+  const notifications: any[] = [];
+  const unreadCount = 0;
+  const markAllAsRead = () => {
+    console.log('Mark all as read');
+  };
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
