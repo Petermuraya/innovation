@@ -1,52 +1,38 @@
 
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, Calendar } from 'lucide-react';
-import { useNotifications } from '@/components/notifications/PerfectedNotificationProvider';
-import EnhancedNotificationsList from '../EnhancedNotificationsList';
+import DashboardStats from './DashboardStats';
+import DashboardBadges from './DashboardBadges';
+import { useMemberData } from './hooks/useMemberData';
+import { useUserStats } from './hooks/useUserStats';
 
-interface DashboardOverviewProps {
-  upcomingEvents: any[];
-}
+const DashboardOverview = () => {
+  const { memberData, isLoading: memberLoading } = useMemberData();
+  const { stats, isLoading: statsLoading } = useUserStats();
 
-const DashboardOverview = ({ upcomingEvents }: DashboardOverviewProps) => {
-  const { notifications } = useNotifications();
+  if (memberLoading || statsLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="space-y-0 pb-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
-            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span>Recent Notifications</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EnhancedNotificationsList notifications={notifications.slice(0, 5)} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
-            <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span>Upcoming Events</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {upcomingEvents.map((event) => (
-              <div key={event.id} className="border-l-4 border-kic-green-500 pl-4">
-                <h4 className="font-medium text-kic-gray text-sm sm:text-base">{event.title}</h4>
-                <p className="text-xs sm:text-sm text-kic-gray/70">{new Date(event.date).toLocaleDateString()}</p>
-                <p className="text-xs sm:text-sm text-kic-gray/70">{event.location}</p>
-              </div>
-            ))}
-            {upcomingEvents.length === 0 && (
-              <p className="text-kic-gray/70 text-sm">No upcoming events</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <DashboardStats stats={stats} />
+      <DashboardBadges />
     </div>
   );
 };

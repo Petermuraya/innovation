@@ -67,16 +67,16 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
 
       console.log('✅ Fetched notifications:', data?.length || 0);
       
-      // Map the database data to match our interface, providing default priority
+      // Map the database data to match our interface, providing default values
       const mappedNotifications: NotificationData[] = (data || []).map(notification => ({
         id: notification.id,
         user_id: notification.user_id,
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        priority: (notification.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        priority: 'medium', // Default value since DB might not have this field
         is_read: notification.is_read,
-        metadata: notification.metadata,
+        metadata: {}, // Default empty object since DB might not have this field
         created_at: notification.created_at
       }));
       
@@ -176,8 +176,6 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
           type: type,
           title: title,
           message: message,
-          priority: priority,
-          metadata: metadata || {},
           is_read: false
         });
 
@@ -241,22 +239,19 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
             type: payload.new.type,
             title: payload.new.title,
             message: payload.new.message,
-            priority: (payload.new.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+            priority: 'medium', // Default value
             is_read: payload.new.is_read,
-            metadata: payload.new.metadata,
+            metadata: {}, // Default empty object
             created_at: payload.new.created_at
           };
           
           setNotifications(prev => [newNotification, ...prev]);
           
           // Show toast for new notifications
-          if (newNotification.priority === 'high' || newNotification.priority === 'urgent') {
-            toast({
-              title: newNotification.title,
-              description: newNotification.message,
-              variant: newNotification.priority === 'urgent' ? 'destructive' : 'default',
-            });
-          }
+          toast({
+            title: newNotification.title,
+            description: newNotification.message,
+          });
         }
       )
       .on(
@@ -275,9 +270,9 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
             type: payload.new.type,
             title: payload.new.title,
             message: payload.new.message,
-            priority: (payload.new.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+            priority: 'medium', // Default value
             is_read: payload.new.is_read,
-            metadata: payload.new.metadata,
+            metadata: {}, // Default empty object
             created_at: payload.new.created_at
           };
           setNotifications(prev =>
