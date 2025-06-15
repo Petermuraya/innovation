@@ -42,16 +42,16 @@ export default function HeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-900 via-green-800 to-yellow-900">
       <HeroBackground scrollY={scrollY} />
 
-      {/* Main Content */}
-      <div className="relative z-10 container-custom px-6 py-20">
-        <HeroContent isVisible={isVisible} typingWords={typingWords} />
+      {/* Main Content Container - Enhanced Responsive */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <HeroContent isVisible={isVisible} typingWords={typingWords} isMobile={isMobile} />
         <HeroScrollIndicator scrollToNextSection={scrollToNextSection} />
       </div>
 
-      {/* Enhanced bottom wave separator with brand colors */}
+      {/* Enhanced bottom wave separator with better responsiveness */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
         <svg 
-          className="relative block w-full h-32" 
+          className="relative block w-full h-16 sm:h-24 lg:h-32" 
           data-name="Layer 1" 
           xmlns="http://www.w3.org/2000/svg" 
           viewBox="0 0 1200 120" 
