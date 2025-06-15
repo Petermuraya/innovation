@@ -39,6 +39,7 @@ const SimplifiedChatbotContent = ({
   onTypingComplete
 }: SimplifiedChatbotContentProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -57,6 +58,7 @@ const SimplifiedChatbotContent = ({
             <SimplifiedMessageBubble 
               key={message.id} 
               message={message} 
+              isRecording={isRecording}
               isMobile={isMobile}
               showTypingEffect={
                 !message.isUser && 
@@ -81,6 +83,7 @@ const SimplifiedChatbotContent = ({
       )}
       
       <SimplifiedMessageInput
+        inputRef={inputRef}
         value={inputMessage}
         onChange={onInputChange}
         onKeyPress={onKeyPress}
