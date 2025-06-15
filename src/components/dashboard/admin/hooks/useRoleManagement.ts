@@ -43,12 +43,11 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     try {
       setLoading(true);
       
-      // Use the raw string value to avoid enum type conflicts
       const { error } = await supabase
         .from('user_roles')
         .upsert({
           user_id: userId,
-          role: role as any // Cast to any to bypass TypeScript enum checking
+          role: role
         });
 
       if (error) throw error;
@@ -75,12 +74,11 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     try {
       setLoading(true);
       
-      // Use the raw string value to avoid enum type conflicts
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role as any); // Cast to any to bypass TypeScript enum checking
+        .eq('role', role);
 
       if (error) {
         console.error('Error removing role:', error);

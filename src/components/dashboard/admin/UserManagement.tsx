@@ -194,7 +194,7 @@ const UserManagement = () => {
     try {
       setLoading(true);
 
-      // Delete all user roles first (without specifying role type to avoid enum conflicts)
+      // Delete all user roles first
       const { error: rolesError } = await supabase
         .from('user_roles')
         .delete()

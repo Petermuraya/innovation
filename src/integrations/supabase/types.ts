@@ -2985,15 +2985,10 @@ export type Database = {
         Returns: boolean
       }
       has_role: {
-        Args:
-          | {
-              _user_id: string
-              _role: Database["public"]["Enums"]["comprehensive_role"]
-            }
-          | {
-              _user_id: string
-              _role: Database["public"]["Enums"]["user_role"]
-            }
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["comprehensive_role"]
+        }
         Returns: boolean
       }
       has_role_or_higher: {
@@ -3089,7 +3084,6 @@ export type Database = {
         | "cancelled"
       submission_status: "pending" | "in_progress" | "resolved" | "closed"
       submission_type: "complaint" | "recommendation" | "thought"
-      user_role: "admin" | "member" | "patron"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3245,7 +3239,6 @@ export const Constants = {
       ],
       submission_status: ["pending", "in_progress", "resolved", "closed"],
       submission_type: ["complaint", "recommendation", "thought"],
-      user_role: ["admin", "member", "patron"],
     },
   },
 } as const
