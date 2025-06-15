@@ -9,6 +9,7 @@ import About from '@/pages/About';
 import Projects from '@/pages/Projects';
 import Leaderboard from '@/pages/Leaderboard';
 import Login from '@/pages/Login';
+import Register from '@/pages/Register';
 import Blogs from '@/pages/Blogs';
 import Events from '@/pages/Events';
 import Careers from '@/pages/Careers';
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/blogs" element={<Blogs />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/careers" element={<Careers />} />
