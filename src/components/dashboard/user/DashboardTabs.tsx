@@ -100,7 +100,6 @@ const DashboardTabs = ({
 
       <TabsContent value="overview">
         <DashboardOverview 
-          notifications={notifications}
           upcomingEvents={upcomingEvents}
         />
       </TabsContent>
