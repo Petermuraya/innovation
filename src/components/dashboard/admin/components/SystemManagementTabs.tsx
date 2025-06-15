@@ -2,6 +2,7 @@
 import { TabsContent } from '@/components/ui/tabs';
 import RoleGuard from '@/components/security/RoleGuard';
 import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
+import PointConfigurationManager from '@/components/admin/PointConfigurationManager';
 import WorldClassNotificationSystem from '../WorldClassNotificationSystem';
 import ConstitutionManagement from '../ConstitutionManagement';
 import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
@@ -12,7 +13,10 @@ const SystemManagementTabs = () => {
     <>
       <TabsContent value="leaderboard" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <EnhancedLeaderboardManager />
+          <div className="space-y-6">
+            <PointConfigurationManager />
+            <EnhancedLeaderboardManager />
+          </div>
         </RoleGuard>
       </TabsContent>
 
