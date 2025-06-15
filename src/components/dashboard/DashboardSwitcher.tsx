@@ -15,12 +15,30 @@ interface DashboardSwitcherProps {
 
 const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps) => {
   const { isAdmin } = useAuth();
-  const { roleInfo, loading } = useRolePermissions();
+  const { roleInfo, loading, isAdmin: roleBasedAdmin } = useRolePermissions();
   const [isAnimating, setIsAnimating] = useState(false);
 
-  if (loading || !isAdmin || !roleInfo) {
+  // Combined admin check - either from AuthContext or role permissions
+  const hasAdminAccess = isAdmin || roleBasedAdmin;
+
+  console.log('DashboardSwitcher - hasAdminAccess:', hasAdminAccess, 'isAdmin:', isAdmin, 'roleBasedAdmin:', roleBasedAdmin, 'loading:', loading);
+
+  if (loading) {
+    console.log('DashboardSwitcher - still loading role permissions');
     return null;
   }
+
+  if (!hasAdminAccess) {
+    console.log('DashboardSwitcher - no admin access detected');
+    return null;
+  }
+
+  if (!roleInfo) {
+    console.log('DashboardSwitcher - no role info available');
+    return null;
+  }
+
+  console.log('DashboardSwitcher - rendering with roleInfo:', roleInfo);
 
   const handleToggle = async (checked: boolean) => {
     if (isAnimating) return;
