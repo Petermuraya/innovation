@@ -57,7 +57,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role assigned successfully",
       });
 
-      await fetchUsers();
+      // Don't manually refresh - real-time subscription will handle it
     } catch (error) {
       console.error('Error assigning role:', error);
       toast({
@@ -90,7 +90,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role removed successfully",
       });
 
-      await fetchUsers();
+      // Don't manually refresh - real-time subscription will handle it
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -106,6 +106,44 @@ export const useRoleManagement = (canManageRoles: boolean) => {
   useEffect(() => {
     if (canManageRoles) {
       fetchUsers();
+
+      // Set up real-time subscriptions for automatic updates
+      const membersChannel = supabase
+        .channel('role-mgmt-members-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'members'
+          },
+          (payload) => {
+            console.log('Members table changed (role management):', payload);
+            fetchUsers();
+          }
+        )
+        .subscribe();
+
+      const userRolesChannel = supabase
+        .channel('role-mgmt-user-roles-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_roles'
+          },
+          (payload) => {
+            console.log('User roles changed (role management):', payload);
+            fetchUsers();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(membersChannel);
+        supabase.removeChannel(userRolesChannel);
+      };
     }
   }, [canManageRoles]);
 

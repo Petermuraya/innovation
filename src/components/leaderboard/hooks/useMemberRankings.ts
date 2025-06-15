@@ -9,6 +9,44 @@ export const useMemberRankings = (timeFilter: string) => {
 
   useEffect(() => {
     fetchRankings();
+
+    // Set up real-time subscriptions for automatic updates
+    const memberPointsChannel = supabase
+      .channel('rankings-member-points-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'member_points'
+        },
+        (payload) => {
+          console.log('Member points changed (rankings):', payload);
+          fetchRankings();
+        }
+      )
+      .subscribe();
+
+    const membersChannel = supabase
+      .channel('rankings-members-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          console.log('Members table changed (rankings):', payload);
+          fetchRankings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(memberPointsChannel);
+      supabase.removeChannel(membersChannel);
+    };
   }, [timeFilter]);
 
   const fetchRankings = async () => {

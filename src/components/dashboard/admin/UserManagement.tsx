@@ -68,6 +68,44 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
+    
+    // Set up real-time subscriptions for automatic updates
+    const membersChannel = supabase
+      .channel('members-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          console.log('Members table changed:', payload);
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    const userRolesChannel = supabase
+      .channel('user-roles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        (payload) => {
+          console.log('User roles changed:', payload);
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(membersChannel);
+      supabase.removeChannel(userRolesChannel);
+    };
   }, []);
 
   const fetchUsers = async () => {
@@ -147,7 +185,7 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[role]} role granted to ${email}`,
       });
 
-      fetchUsers();
+      // Don't manually refresh - real-time subscription will handle it
     } catch (error) {
       console.error('Error granting role:', error);
       toast({
@@ -177,7 +215,7 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[roleToRemove]} role removed successfully`,
       });
 
-      fetchUsers();
+      // Don't manually refresh - real-time subscription will handle it
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -194,18 +232,7 @@ const UserManagement = () => {
     try {
       setLoading(true);
 
-      // Delete all user roles first
-      const { error: rolesError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (rolesError) {
-        console.error('Error deleting user roles:', rolesError);
-        throw rolesError;
-      }
-
-      // Delete member record
+      // Delete member record - the trigger will handle cleanup of related data
       const { error: memberError } = await supabase
         .from('members')
         .delete()
@@ -221,7 +248,7 @@ const UserManagement = () => {
         description: `User ${user.name} has been removed from the system`,
       });
 
-      fetchUsers();
+      // Don't manually refresh - real-time subscription will handle it
       setUserToDelete(null);
     } catch (error) {
       console.error('Error deleting user:', error);

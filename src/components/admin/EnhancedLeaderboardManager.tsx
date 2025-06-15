@@ -43,6 +43,44 @@ const EnhancedLeaderboardManager = () => {
 
   useEffect(() => {
     fetchEnhancedLeaderboard();
+
+    // Set up real-time subscriptions for automatic updates
+    const memberPointsChannel = supabase
+      .channel('leaderboard-member-points-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'member_points'
+        },
+        (payload) => {
+          console.log('Member points changed:', payload);
+          fetchEnhancedLeaderboard();
+        }
+      )
+      .subscribe();
+
+    const membersChannel = supabase
+      .channel('leaderboard-members-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          console.log('Members table changed (leaderboard):', payload);
+          fetchEnhancedLeaderboard();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(memberPointsChannel);
+      supabase.removeChannel(membersChannel);
+    };
   }, []);
 
   const fetchEnhancedLeaderboard = async () => {
@@ -77,7 +115,7 @@ const EnhancedLeaderboardManager = () => {
 
       if (error) throw error;
       
-      await fetchEnhancedLeaderboard();
+      // Don't manually refresh - real-time subscription will handle it
       toast({
         title: "Success",
         description: `Awarded ${points} bonus points successfully`,
