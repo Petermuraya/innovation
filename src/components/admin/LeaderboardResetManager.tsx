@@ -19,6 +19,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+interface ResetResponse {
+  success: boolean;
+  message: string;
+  points_reset?: number;
+  visits_reset?: number;
+  reset_by?: string;
+  reset_reason?: string;
+}
+
 const LeaderboardResetManager = () => {
   const [loading, setLoading] = useState(false);
   const [resetReason, setResetReason] = useState('Academic year end reset');
@@ -28,25 +37,68 @@ const LeaderboardResetManager = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.rpc('reset_leaderboard_for_academic_year', {
-        reset_reason: resetReason
-      });
+      // First, check if user is super admin by checking their role
+      const { data: userRoles, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
 
-      if (error) throw error;
+      if (roleError) throw roleError;
 
-      if (data.success) {
+      const isSuperAdmin = userRoles?.some(role => role.role === 'super_admin');
+      if (!isSuperAdmin) {
         toast({
-          title: "Leaderboard Reset Successful",
-          description: `${data.points_reset} member points and ${data.visits_reset} visit records have been reset.`,
-        });
-        setResetReason('Academic year end reset');
-      } else {
-        toast({
-          title: "Reset Failed",
-          description: data.message,
+          title: "Access Denied",
+          description: "Only super admins can reset the leaderboard",
           variant: "destructive"
         });
+        return;
       }
+
+      // Delete member points
+      const { error: pointsError, count: pointsCount } = await supabase
+        .from('member_points')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (pointsError) throw pointsError;
+
+      // Delete website visits
+      const { error: visitsError, count: visitsCount } = await supabase
+        .from('user_website_visits')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (visitsError) throw visitsError;
+
+      // Delete community visits
+      const { error: communityVisitsError } = await supabase
+        .from('community_visits')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (communityVisitsError) throw communityVisitsError;
+
+      // Log the reset action
+      const { error: logError } = await supabase
+        .from('member_points')
+        .insert({
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          points: 0,
+          source: 'admin_action',
+          description: 'Leaderboard reset: ' + resetReason,
+          activity_type: 'admin_reset',
+          activity_date: new Date().toISOString().split('T')[0]
+        });
+
+      if (logError) throw logError;
+
+      toast({
+        title: "Leaderboard Reset Successful",
+        description: `Member points and visit records have been reset.`,
+      });
+      setResetReason('Academic year end reset');
+
     } catch (error) {
       console.error('Error resetting leaderboard:', error);
       toast({
@@ -63,32 +115,32 @@ const LeaderboardResetManager = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
+      <Card className="border-green-200 bg-gradient-to-br from-green-50 to-yellow-50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-700">
+          <CardTitle className="flex items-center gap-2 text-green-700">
             <Trophy className="h-5 w-5" />
             Leaderboard Management
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Current Academic Year Info */}
-          <div className="bg-white/80 rounded-lg p-4 border border-blue-200">
+          <div className="bg-white/80 rounded-lg p-4 border border-green-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-700">Current Academic Year</span>
+                <Calendar className="h-5 w-5 text-green-600" />
+                <span className="font-medium text-green-700">Current Academic Year</span>
               </div>
-              <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+              <Badge className="bg-green-100 text-green-800 border-green-300">
                 {currentAcademicYear}/{currentAcademicYear + 1}
               </Badge>
             </div>
             
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2 text-blue-600">
+              <div className="flex items-center gap-2 text-green-600">
                 <Users className="h-4 w-4" />
                 <span>Active Members Competing</span>
               </div>
-              <div className="flex items-center gap-2 text-blue-600">
+              <div className="flex items-center gap-2 text-green-600">
                 <Trophy className="h-4 w-4" />
                 <span>Points System Active</span>
               </div>
@@ -98,16 +150,16 @@ const LeaderboardResetManager = () => {
           {/* Reset Controls */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-blue-700 mb-2">
+              <label className="block text-sm font-medium text-green-700 mb-2">
                 Reset Reason
               </label>
               <Input
                 value={resetReason}
                 onChange={(e) => setResetReason(e.target.value)}
                 placeholder="Enter reason for leaderboard reset..."
-                className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+                className="border-green-300 focus:border-green-500 focus:ring-green-500"
               />
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-green-600 mt-1">
                 This reason will be logged for audit purposes
               </p>
             </div>
@@ -116,31 +168,31 @@ const LeaderboardResetManager = () => {
               <AlertDialogTrigger asChild>
                 <Button 
                   variant="destructive" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                  className="w-full bg-gradient-to-r from-green-600 to-yellow-600 hover:from-green-700 hover:to-yellow-700"
                   disabled={loading || !resetReason.trim()}
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
                   {loading ? 'Resetting...' : 'Reset Leaderboard'}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="border-blue-200">
+              <AlertDialogContent className="border-green-200">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2 text-blue-700">
+                  <AlertDialogTitle className="flex items-center gap-2 text-green-700">
                     <AlertTriangle className="h-5 w-5" />
                     Confirm Leaderboard Reset
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-blue-600">
+                  <AlertDialogDescription className="text-green-600">
                     This action will permanently delete all member points, visit records, and reset the entire leaderboard. 
                     This action cannot be undone. Are you sure you want to proceed?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                  <AlertDialogCancel className="border-green-300 text-green-700 hover:bg-green-50">
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={handleResetLeaderboard}
-                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                    className="bg-gradient-to-r from-green-600 to-yellow-600 hover:from-green-700 hover:to-yellow-700"
                   >
                     Yes, Reset Leaderboard
                   </AlertDialogAction>
@@ -150,10 +202,10 @@ const LeaderboardResetManager = () => {
           </div>
 
           {/* Warning Notice */}
-          <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
+          <div className="bg-green-100 border border-green-300 rounded-lg p-4">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-700">
+              <AlertTriangle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-green-700">
                 <p className="font-medium mb-1">Important Notice:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
                   <li>This will reset ALL member points across the system</li>

@@ -16,9 +16,9 @@ import MembersManagement from './MembersManagement';
 import ProjectsManagement from './ProjectsManagement';
 import EventsManagement from './EventsManagement';
 import PaymentsManagement from './PaymentsManagement';
-import AdminRequestsManagement from './components/AdminRequestsManagement';
-import EnhancedLeaderboardManager from '../admin/EnhancedLeaderboardManager';
-import LeaderboardResetManager from '../../admin/LeaderboardResetManager';
+import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
+import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
+import LeaderboardResetManager from '@/components/admin/LeaderboardResetManager';
 
 interface AdminDashboardTabsProps {
   stats: any;
@@ -37,54 +37,57 @@ const AdminDashboardTabs = ({
   updateMemberStatus, 
   updateProjectStatus 
 }: AdminDashboardTabsProps) => {
+  // Mock events data - replace with actual events from your data source
+  const events = [];
+
   return (
     <Tabs defaultValue="members" className="w-full">
-      <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+      <TabsList className="grid w-full grid-cols-7 bg-gradient-to-r from-green-50 to-yellow-50 border-green-200">
         <TabsTrigger 
           value="members" 
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <Users className="w-4 h-4 mr-2" />
           Members
         </TabsTrigger>
         <TabsTrigger 
           value="projects"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <Code2 className="w-4 h-4 mr-2" />
           Projects
         </TabsTrigger>
         <TabsTrigger 
           value="events"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <Calendar className="w-4 h-4 mr-2" />
           Events
         </TabsTrigger>
         <TabsTrigger 
           value="payments"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <CreditCard className="w-4 h-4 mr-2" />
           Payments
         </TabsTrigger>
         <TabsTrigger 
           value="admin-requests"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <UserCheck className="w-4 h-4 mr-2" />
           Requests
         </TabsTrigger>
         <TabsTrigger 
           value="leaderboard"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <Trophy className="w-4 h-4 mr-2" />
           Leaderboard
         </TabsTrigger>
         <TabsTrigger 
           value="reset-leaderboard"
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white"
         >
           <Target className="w-4 h-4 mr-2" />
           Reset
@@ -106,7 +109,7 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="events" className="mt-6">
-        <EventsManagement />
+        <EventsManagement events={events} />
       </TabsContent>
 
       <TabsContent value="payments" className="mt-6">
@@ -114,7 +117,7 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="admin-requests" className="mt-6">
-        <AdminRequestsManagement />
+        <EnhancedAdminRequestsManagement />
       </TabsContent>
 
       <TabsContent value="leaderboard" className="mt-6">
