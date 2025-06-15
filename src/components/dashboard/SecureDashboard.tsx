@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import UserDashboard from '@/components/dashboard/UserDashboard';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
 import CommunityDashboard from '@/components/dashboard/community/CommunityDashboard';
@@ -18,24 +19,30 @@ const SecureDashboard = () => {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { loading: statusLoading, isApproved, memberData } = useMemberStatus();
   const { communities: adminCommunities, loading: communityLoading } = useCommunityAdminData();
+  const { roleInfo, loading: roleLoading, isAdmin: roleBasedAdmin } = useRolePermissions();
   
   // Set default dashboard view based on admin status
-  const [dashboardView, setDashboardView] = useState<'admin' | 'user'>('admin');
+  const [dashboardView, setDashboardView] = useState<'admin' | 'user'>('user');
   const [direction, setDirection] = useState(0);
+
+  // Combined admin check - either from AuthContext or role permissions
+  const hasAdminAccess = isAdmin || roleBasedAdmin;
 
   // Effect to set default view based on admin status
   useEffect(() => {
-    if (!authLoading && isAdmin) {
-      // Default to admin view for any admin user
-      setDashboardView('admin');
-    } else if (!authLoading && !isAdmin) {
-      // Default to user view for non-admin users
-      setDashboardView('user');
+    if (!authLoading && !roleLoading) {
+      if (hasAdminAccess) {
+        console.log('User has admin access, setting admin view');
+        setDashboardView('admin');
+      } else {
+        console.log('User does not have admin access, setting user view');
+        setDashboardView('user');
+      }
     }
-  }, [isAdmin, authLoading]);
+  }, [hasAdminAccess, authLoading, roleLoading]);
 
   // NOW WE CAN DO CONDITIONAL LOGIC AFTER ALL HOOKS ARE CALLED
-  if (authLoading || statusLoading || communityLoading) {
+  if (authLoading || statusLoading || communityLoading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
         <Card>
@@ -93,13 +100,10 @@ const SecureDashboard = () => {
     );
   }
 
-  // Regular users need approval
-  if (!isApproved && !isAdmin) {
+  // Regular users need approval, but admins can always access
+  if (!isApproved && !hasAdminAccess) {
     return <RegistrationPending />;
   }
-
-  // Any admin can access admin features - simplified logic
-  const canAccessAdmin = isAdmin;
 
   // Dashboard transition variants
   const dashboardVariants = {
@@ -126,36 +130,49 @@ const SecureDashboard = () => {
     if (newView !== dashboardView) {
       setDirection(newView === 'admin' ? 1 : -1);
       setDashboardView(newView);
+      console.log('Dashboard view changed to:', newView);
     }
   };
 
   // Handle dashboard view logic
   const renderDashboard = () => {
     // If user has admin privileges and chooses admin view
-    if (canAccessAdmin && dashboardView === 'admin') {
+    if (hasAdminAccess && dashboardView === 'admin') {
       // Main admins get the full admin dashboard
-      if (isAdmin) {
+      if (roleInfo?.assignedRole && roleInfo.assignedRole !== 'member') {
         return <AdminDashboard key="admin" />;
       }
       // Community admins get the community dashboard
       if (adminCommunities && adminCommunities.length > 0) {
         return <CommunityDashboard key="community" />;
       }
+      // Fallback to admin dashboard for any admin access
+      return <AdminDashboard key="admin" />;
     }
     
     // Default to user dashboard (member view)
     return <UserDashboard key="user" />;
   };
 
+  console.log('Dashboard render - hasAdminAccess:', hasAdminAccess, 'dashboardView:', dashboardView, 'roleInfo:', roleInfo);
+
   return (
     <div className="min-h-screen bg-kic-lightGray">
       <div className="container mx-auto p-4 sm:p-6">
         {/* Show dashboard switcher for all admin users */}
-        {canAccessAdmin && (
-          <DashboardSwitcher 
-            currentView={dashboardView}
-            onViewChange={handleViewChange}
-          />
+        {hasAdminAccess && (
+          <>
+            <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
+              <p className="text-sm text-blue-800">
+                Debug: Admin access detected. Role: {roleInfo?.assignedRole || 'unknown'}, 
+                isAdmin: {isAdmin.toString()}, roleBasedAdmin: {roleBasedAdmin.toString()}
+              </p>
+            </div>
+            <DashboardSwitcher 
+              currentView={dashboardView}
+              onViewChange={handleViewChange}
+            />
+          </>
         )}
         
         {/* Animated Dashboard Content */}
