@@ -1,18 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
-import { Shield, UserPlus, Search, Crown, Trash2, UserX, Edit, MoreVertical } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Shield, Crown } from 'lucide-react';
+import QuickRoleAssignment from './components/QuickRoleAssignment';
+import UserSearchAndFilters from './components/UserSearchAndFilters';
+import UserList from './components/UserList';
 
 type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
@@ -211,9 +210,6 @@ const UserManagement = () => {
 
       if (memberError) throw memberError;
 
-      // Note: We can't delete from auth.users table directly via client
-      // This would need to be done via Admin API or RPC function
-
       toast({
         title: "Success",
         description: `User ${user.name} has been removed from the system`,
@@ -232,11 +228,6 @@ const UserManagement = () => {
       setLoading(false);
     }
   };
-
-  const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(searchEmail.toLowerCase()) ||
-    user.name.toLowerCase().includes(searchEmail.toLowerCase())
-  );
 
   const canManageUsers = isSuperAdmin || roleInfo?.assignedRole === 'chairman';
 
@@ -264,184 +255,32 @@ const UserManagement = () => {
               </div>
             )}
 
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Label htmlFor="search">Search Users</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="search"
-                    placeholder="Search by email or name..."
-                    value={searchEmail}
-                    onChange={(e) => setSearchEmail(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-            </div>
+            <UserSearchAndFilters
+              searchEmail={searchEmail}
+              onSearchChange={setSearchEmail}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Quick Role Assignment */}
       {canManageUsers && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5" />
-              Quick Role Assignment
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>Select Role</Label>
-                <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as ComprehensiveRole)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(ROLE_LABELS).filter(([key]) => key !== 'member').map(([key, label]) => (
-                      <SelectItem key={key} value={key}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2">
-                <Label>Grant Role to Users</Label>
-                <p className="text-sm text-gray-500 mt-1">
-                  Select a role above, then click "Grant" on any user below to assign it instantly.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <QuickRoleAssignment
+          selectedRole={selectedRole}
+          onRoleChange={setSelectedRole}
+        />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Users ({filteredUsers.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <span className="ml-2">Loading users...</span>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredUsers.map((user) => (
-                <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-medium text-lg">{user.name}</h4>
-                        <Badge variant={user.registration_status === 'approved' ? 'default' : 'secondary'}>
-                          {user.registration_status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{user.email}</p>
-                      {user.phone && (
-                        <p className="text-sm text-gray-500">Phone: {user.phone}</p>
-                      )}
-                      {user.course && (
-                        <p className="text-sm text-gray-500">Course: {user.course}</p>
-                      )}
-                      <p className="text-xs text-gray-400 mt-1">
-                        Joined: {new Date(user.created_at).toLocaleDateString()}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {user.roles && user.roles.length > 0 ? (
-                          user.roles.map((role) => (
-                            <div key={role} className="flex items-center gap-1">
-                              <Badge variant={ROLE_COLORS[role]}>
-                                {ROLE_LABELS[role]}
-                              </Badge>
-                              {canManageUsers && role !== 'member' && (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-red-500 hover:text-red-700">
-                                      <UserX className="h-3 w-3" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Remove Role</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to remove the {ROLE_LABELS[role]} role from {user.name}?
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => removeRole(user.id, role)}
-                                        className="bg-red-600 hover:bg-red-700"
-                                      >
-                                        Remove Role
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <Badge variant="outline">Member</Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {canManageUsers && (
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          onClick={() => grantRole(user.email, selectedRole)}
-                          disabled={loading}
-                        >
-                          Grant {ROLE_LABELS[selectedRole]}
-                        </Button>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setUserToEdit(user)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit User
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setUserToDelete(user)}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {filteredUsers.length === 0 && (
-                <div className="text-center py-8">
-                  <UserX className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {searchEmail ? 'Try adjusting your search criteria' : 'No users registered yet'}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <UserList
+        users={users}
+        loading={loading}
+        canManageUsers={canManageUsers}
+        selectedRole={selectedRole}
+        searchEmail={searchEmail}
+        onGrantRole={grantRole}
+        onRemoveRole={removeRole}
+        onEditUser={setUserToEdit}
+        onDeleteUser={setUserToDelete}
+      />
 
       {/* Delete User Dialog */}
       <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
