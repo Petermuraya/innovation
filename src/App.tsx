@@ -16,7 +16,6 @@ import Elections from '@/pages/Elections';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
-import { SimpleNotificationProvider } from '@/components/notifications/SimpleNotificationProvider';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -25,27 +24,25 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SimpleNotificationProvider>
-          <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/blogs" element={<Blogs />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
-                <Route path="/elections" element={<Elections />} />
-                <Route path="/test-notifications" element={<NotificationTesterPage />} />
-              </Routes>
-            </Layout>
-            <Toaster />
-          </Router>
-        </SimpleNotificationProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
+              <Route path="/elections" element={<Elections />} />
+              <Route path="/test-notifications" element={<NotificationTesterPage />} />
+            </Routes>
+          </Layout>
+          <Toaster />
+        </Router>
       </AuthProvider>
     </QueryClientProvider>
   );
