@@ -1,7 +1,8 @@
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNotifications } from '@/components/notifications/NotificationContext';
+import { useNotifications } from '@/components/notifications/SimpleNotificationProvider';
 import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

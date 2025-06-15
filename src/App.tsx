@@ -16,7 +16,7 @@ import Elections from '@/pages/Elections';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
-import { PerfectedNotificationProvider } from '@/components/notifications/PerfectedNotificationProvider';
+import { SimpleNotificationProvider } from '@/components/notifications/SimpleNotificationProvider';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -25,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <PerfectedNotificationProvider>
+        <SimpleNotificationProvider>
           <Router>
             <Layout>
               <Routes>
@@ -45,7 +45,7 @@ function App() {
             </Layout>
             <Toaster />
           </Router>
-        </PerfectedNotificationProvider>
+        </SimpleNotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
