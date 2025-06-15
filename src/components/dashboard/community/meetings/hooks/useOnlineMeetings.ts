@@ -1,30 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { OnlineMeeting, MeetingStats } from '../types';
-
-// Define the database response type to handle the status field properly
-interface DatabaseMeeting {
-  id: string;
-  community_id: string;
-  title: string;
-  description?: string;
-  meeting_link: string;
-  scheduled_date: string;
-  duration_minutes: number;
-  max_participants?: number;
-  created_by?: string;
-  created_at: string;
-  updated_at: string;
-  status: string; // This comes as a generic string from the database
-}
-
-// Define the RPC response type
-interface AttendanceResponse {
-  success: boolean;
-  message: string;
-}
+import { meetingsService } from '../services/meetingsService';
+import { transformDatabaseMeetings, transformDatabaseMeeting } from '../utils/meetingUtils';
 
 export const useOnlineMeetings = (communityId: string) => {
   const [meetings, setMeetings] = useState<OnlineMeeting[]>([]);
@@ -36,29 +15,12 @@ export const useOnlineMeetings = (communityId: string) => {
     try {
       setLoading(true);
       
-      // Fetch meetings
-      const { data: meetingsData, error: meetingsError } = await supabase
-        .from('community_online_meetings')
-        .select('*')
-        .eq('community_id', communityId)
-        .order('scheduled_date', { ascending: true });
+      const [meetingsData, statsData] = await Promise.all([
+        meetingsService.fetchMeetings(communityId),
+        meetingsService.fetchMeetingStats(communityId)
+      ]);
 
-      if (meetingsError) throw meetingsError;
-
-      // Fetch meeting statistics
-      const { data: statsData, error: statsError } = await supabase
-        .from('community_meeting_stats')
-        .select('*')
-        .eq('community_id', communityId);
-
-      if (statsError) throw statsError;
-
-      // Transform the database response to match our OnlineMeeting type
-      const transformedMeetings: OnlineMeeting[] = (meetingsData || []).map((meeting: DatabaseMeeting) => ({
-        ...meeting,
-        status: meeting.status as OnlineMeeting['status'] // Type assertion to match our union type
-      }));
-
+      const transformedMeetings = transformDatabaseMeetings(meetingsData || []);
       setMeetings(transformedMeetings);
       setMeetingStats(statsData || []);
     } catch (error) {
@@ -75,19 +37,8 @@ export const useOnlineMeetings = (communityId: string) => {
 
   const createMeeting = async (meetingData: Omit<OnlineMeeting, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const { data, error } = await supabase
-        .from('community_online_meetings')
-        .insert([meetingData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Transform the response to match our OnlineMeeting type
-      const transformedMeeting: OnlineMeeting = {
-        ...data,
-        status: data.status as OnlineMeeting['status']
-      };
+      const data = await meetingsService.createMeeting(meetingData);
+      const transformedMeeting = transformDatabaseMeeting(data);
 
       setMeetings(prev => [...prev, transformedMeeting]);
       toast({
@@ -109,20 +60,8 @@ export const useOnlineMeetings = (communityId: string) => {
 
   const updateMeeting = async (meetingId: string, updates: Partial<OnlineMeeting>) => {
     try {
-      const { data, error } = await supabase
-        .from('community_online_meetings')
-        .update(updates)
-        .eq('id', meetingId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Transform the response to match our OnlineMeeting type
-      const transformedMeeting: OnlineMeeting = {
-        ...data,
-        status: data.status as OnlineMeeting['status']
-      };
+      const data = await meetingsService.updateMeeting(meetingId, updates);
+      const transformedMeeting = transformDatabaseMeeting(data);
 
       setMeetings(prev => prev.map(m => m.id === meetingId ? transformedMeeting : m));
       toast({
@@ -144,13 +83,7 @@ export const useOnlineMeetings = (communityId: string) => {
 
   const deleteMeeting = async (meetingId: string) => {
     try {
-      const { error } = await supabase
-        .from('community_online_meetings')
-        .delete()
-        .eq('id', meetingId);
-
-      if (error) throw error;
-
+      await meetingsService.deleteMeeting(meetingId);
       setMeetings(prev => prev.filter(m => m.id !== meetingId));
       toast({
         title: "Success",
@@ -169,14 +102,7 @@ export const useOnlineMeetings = (communityId: string) => {
 
   const recordAttendance = async (meetingId: string) => {
     try {
-      const { data, error } = await supabase.rpc('record_meeting_attendance', {
-        meeting_id_param: meetingId
-      });
-
-      if (error) throw error;
-
-      // Type assertion with proper casting through unknown
-      const response = data as unknown as AttendanceResponse;
+      const response = await meetingsService.recordAttendance(meetingId);
 
       if (response.success) {
         toast({
