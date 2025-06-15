@@ -11,7 +11,14 @@ import {
   FileText,
   Target,
   Shield,
-  UserCog
+  UserCog,
+  Award,
+  Bell,
+  DollarSign,
+  BookOpen,
+  Briefcase,
+  MessageSquare,
+  BarChart3
 } from 'lucide-react';
 
 import MembersManagement from './MembersManagement';
@@ -23,6 +30,11 @@ import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardMa
 import LeaderboardResetManager from '@/components/admin/LeaderboardResetManager';
 import UserManagement from './UserManagement';
 import RoleManagement from './RoleManagement';
+import CertificateManager from './CertificateManager';
+import MPesaConfigManager from './MPesaConfigManager';
+import BlogManagement from './BlogManagement';
+import CareerManagement from './CareerManagement';
+import WorldClassNotificationSystem from './WorldClassNotificationSystem';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 interface AdminDashboardTabsProps {
@@ -56,7 +68,7 @@ const AdminDashboardTabs = ({
     <div className="w-full">
       <Tabs defaultValue={canManageUsers ? "user-management" : "members"} className="w-full">
         <div className="bg-gradient-to-r from-kic-green-50 to-kic-green-100 p-4 border-b border-kic-green-200">
-          <TabsList className={`grid w-full ${canManageUsers ? 'grid-cols-9' : 'grid-cols-7'} bg-white/80 backdrop-blur-sm border border-kic-green-200 p-1 gap-1 h-auto`}>
+          <TabsList className={`grid w-full ${canManageUsers ? 'grid-cols-6 lg:grid-cols-12' : 'grid-cols-5 lg:grid-cols-10'} bg-white/80 backdrop-blur-sm border border-kic-green-200 p-1 gap-1 h-auto`}>
             {canManageUsers && (
               <>
                 <TabsTrigger 
@@ -64,7 +76,7 @@ const AdminDashboardTabs = ({
                   className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
                 >
                   <UserCog className="w-4 h-4" />
-                  <span className="text-xs sm:text-sm font-medium">User Mgmt</span>
+                  <span className="text-xs sm:text-sm font-medium">Users</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="role-management" 
@@ -117,20 +129,52 @@ const AdminDashboardTabs = ({
               <span className="text-xs sm:text-sm font-medium">Requests</span>
             </TabsTrigger>
             <TabsTrigger 
+              value="certificates"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '0.7s' : '0.5s'}}
+            >
+              <Award className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Certificates</span>
+            </TabsTrigger>
+            <TabsTrigger 
               value="leaderboard"
               className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-500 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
-              style={{animationDelay: canManageUsers ? '0.7s' : '0.5s'}}
+              style={{animationDelay: canManageUsers ? '0.8s' : '0.6s'}}
             >
               <Trophy className="w-4 h-4" />
               <span className="text-xs sm:text-sm font-medium">Leaderboard</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="reset-leaderboard"
+              value="notifications"
               className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-rose-500 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
-              style={{animationDelay: canManageUsers ? '0.8s' : '0.6s'}}
+              style={{animationDelay: canManageUsers ? '0.9s' : '0.7s'}}
             >
-              <Target className="w-4 h-4" />
-              <span className="text-xs sm:text-sm font-medium">Reset</span>
+              <Bell className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Notifications</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="mpesa-config"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '1.0s' : '0.8s'}}
+            >
+              <DollarSign className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">M-Pesa</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="blogs"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-slate-500 data-[state=active]:to-gray-600 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '1.1s' : '0.9s'}}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Blogs</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="careers"
+              className={`${tabTriggerClass} data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white flex flex-col sm:flex-row items-center gap-1 p-3 animate-fade-in`}
+              style={{animationDelay: canManageUsers ? '1.2s' : '1.0s'}}
+            >
+              <Briefcase className="w-4 h-4" />
+              <span className="text-xs sm:text-sm font-medium">Careers</span>
             </TabsTrigger>
           </TabsList>
         </div>
@@ -174,12 +218,28 @@ const AdminDashboardTabs = ({
             <EnhancedAdminRequestsManagement />
           </TabsContent>
 
+          <TabsContent value="certificates" className="mt-0 animate-fade-in">
+            <CertificateManager />
+          </TabsContent>
+
           <TabsContent value="leaderboard" className="mt-0 animate-fade-in">
             <EnhancedLeaderboardManager />
           </TabsContent>
 
-          <TabsContent value="reset-leaderboard" className="mt-0 animate-fade-in">
-            <LeaderboardResetManager />
+          <TabsContent value="notifications" className="mt-0 animate-fade-in">
+            <WorldClassNotificationSystem />
+          </TabsContent>
+
+          <TabsContent value="mpesa-config" className="mt-0 animate-fade-in">
+            <MPesaConfigManager />
+          </TabsContent>
+
+          <TabsContent value="blogs" className="mt-0 animate-fade-in">
+            <BlogManagement />
+          </TabsContent>
+
+          <TabsContent value="careers" className="mt-0 animate-fade-in">
+            <CareerManagement />
           </TabsContent>
         </div>
       </Tabs>
