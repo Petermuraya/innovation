@@ -1956,37 +1956,90 @@ export type Database = {
         }
         Relationships: []
       }
+      mpesa_configuration_audit: {
+        Row: {
+          action: string
+          change_description: string | null
+          changed_at: string
+          changed_by: string
+          configuration_id: string | null
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+        }
+        Insert: {
+          action: string
+          change_description?: string | null
+          changed_at?: string
+          changed_by: string
+          configuration_id?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+        }
+        Update: {
+          action?: string
+          change_description?: string | null
+          changed_at?: string
+          changed_by?: string
+          configuration_id?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mpesa_configuration_audit_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "mpesa_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mpesa_configurations: {
         Row: {
           business_short_code: string
           callback_url: string
+          configuration_name: string
           consumer_key: string
           consumer_secret: string
           created_at: string | null
+          created_by: string | null
+          environment: string
           id: string
           is_active: boolean | null
+          is_sandbox: boolean
           passkey: string
           updated_at: string | null
         }
         Insert: {
           business_short_code: string
           callback_url: string
+          configuration_name?: string
           consumer_key: string
           consumer_secret: string
           created_at?: string | null
+          created_by?: string | null
+          environment?: string
           id?: string
           is_active?: boolean | null
+          is_sandbox?: boolean
           passkey: string
           updated_at?: string | null
         }
         Update: {
           business_short_code?: string
           callback_url?: string
+          configuration_name?: string
           consumer_key?: string
           consumer_secret?: string
           created_at?: string | null
+          created_by?: string | null
+          environment?: string
           id?: string
           is_active?: boolean | null
+          is_sandbox?: boolean
           passkey?: string
           updated_at?: string | null
         }

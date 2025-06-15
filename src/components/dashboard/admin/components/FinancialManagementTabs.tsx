@@ -14,7 +14,7 @@ const FinancialManagementTabs = () => {
       </TabsContent>
 
       <TabsContent value="mpesa-config" className="mt-0 animate-fade-in">
-        <RoleGuard requiredRole="super_admin">
+        <RoleGuard requiredRole="finance_admin">
           <MPesaConfigManager />
         </RoleGuard>
       </TabsContent>
