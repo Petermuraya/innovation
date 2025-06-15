@@ -66,58 +66,22 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
-  useEffect(() => {
-    fetchUsers();
-    
-    // Set up real-time subscriptions for automatic updates
-    const membersChannel = supabase
-      .channel('members-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          console.log('Members table changed:', payload);
-          fetchUsers();
-        }
-      )
-      .subscribe();
-
-    const userRolesChannel = supabase
-      .channel('user-roles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_roles'
-        },
-        (payload) => {
-          console.log('User roles changed:', payload);
-          fetchUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(membersChannel);
-      supabase.removeChannel(userRolesChannel);
-    };
-  }, []);
-
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching users...');
       
       const { data: members, error } = await supabase
         .from('member_management_view')
         .select('user_id, email, name, registration_status, roles, phone, course, created_at')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
+
+      console.log('Fetched users:', members?.length || 0);
 
       const formattedUsers = (members || []).map(member => ({
         id: member.user_id || '',
@@ -142,6 +106,51 @@ const UserManagement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUsers();
+    
+    // Set up real-time subscriptions for automatic updates
+    const membersChannel = supabase
+      .channel('user-mgmt-members-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'members'
+        },
+        (payload) => {
+          console.log('Members table changed (user management):', payload);
+          // Force refresh data on any change to members table
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    const userRolesChannel = supabase
+      .channel('user-mgmt-roles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        (payload) => {
+          console.log('User roles changed (user management):', payload);
+          // Force refresh data on any change to user_roles table
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up user management subscriptions');
+      supabase.removeChannel(membersChannel);
+      supabase.removeChannel(userRolesChannel);
+    };
+  }, []);
 
   const grantRole = async (email: string, role: ComprehensiveRole) => {
     try {
@@ -185,7 +194,7 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[role]} role granted to ${email}`,
       });
 
-      // Don't manually refresh - real-time subscription will handle it
+      // Real-time subscription will handle the refresh
     } catch (error) {
       console.error('Error granting role:', error);
       toast({
@@ -215,7 +224,7 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[roleToRemove]} role removed successfully`,
       });
 
-      // Don't manually refresh - real-time subscription will handle it
+      // Real-time subscription will handle the refresh
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -231,6 +240,7 @@ const UserManagement = () => {
   const deleteUser = async (user: User) => {
     try {
       setLoading(true);
+      console.log('Deleting user:', user.name, user.id);
 
       // Delete member record - the trigger will handle cleanup of related data
       const { error: memberError } = await supabase
@@ -243,13 +253,21 @@ const UserManagement = () => {
         throw memberError;
       }
 
+      console.log('User deleted successfully from database');
+
       toast({
         title: "Success",
         description: `User ${user.name} has been removed from the system`,
       });
 
-      // Don't manually refresh - real-time subscription will handle it
+      // Close the dialog
       setUserToDelete(null);
+      
+      // Force refresh the users list to ensure UI is updated
+      setTimeout(() => {
+        fetchUsers();
+      }, 500);
+
     } catch (error) {
       console.error('Error deleting user:', error);
       toast({

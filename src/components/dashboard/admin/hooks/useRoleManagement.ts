@@ -20,12 +20,19 @@ export const useRoleManagement = (canManageRoles: boolean) => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching users for role management...');
+      
       const { data, error } = await supabase
         .from('member_management_view')
         .select('user_id, name, email, roles')
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching users for role management:', error);
+        throw error;
+      }
+      
+      console.log('Fetched users for role management:', data?.length || 0);
       setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -57,7 +64,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role assigned successfully",
       });
 
-      // Don't manually refresh - real-time subscription will handle it
+      // Real-time subscription will handle the refresh
     } catch (error) {
       console.error('Error assigning role:', error);
       toast({
@@ -90,7 +97,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role removed successfully",
       });
 
-      // Don't manually refresh - real-time subscription will handle it
+      // Real-time subscription will handle the refresh
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -141,6 +148,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         .subscribe();
 
       return () => {
+        console.log('Cleaning up role management subscriptions');
         supabase.removeChannel(membersChannel);
         supabase.removeChannel(userRolesChannel);
       };
