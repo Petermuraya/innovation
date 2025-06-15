@@ -66,7 +66,14 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
       }
 
       console.log('✅ Fetched notifications:', data?.length || 0);
-      setNotifications(data || []);
+      
+      // Map the database data to match our interface, providing default priority
+      const mappedNotifications: NotificationData[] = (data || []).map(notification => ({
+        ...notification,
+        priority: notification.priority || 'medium' as 'medium'
+      }));
+      
+      setNotifications(mappedNotifications);
     } catch (error) {
       console.error('❌ Error in refreshNotifications:', error);
       toast({
@@ -221,7 +228,10 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
         },
         (payload) => {
           console.log('🆕 New notification received:', payload.new);
-          const newNotification = payload.new as NotificationData;
+          const newNotification = {
+            ...payload.new,
+            priority: payload.new.priority || 'medium'
+          } as NotificationData;
           
           setNotifications(prev => [newNotification, ...prev]);
           
@@ -245,7 +255,10 @@ export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProp
         },
         (payload) => {
           console.log('📝 Notification updated:', payload.new);
-          const updatedNotification = payload.new as NotificationData;
+          const updatedNotification = {
+            ...payload.new,
+            priority: payload.new.priority || 'medium'
+          } as NotificationData;
           setNotifications(prev =>
             prev.map(notif =>
               notif.id === updatedNotification.id ? updatedNotification : notif
