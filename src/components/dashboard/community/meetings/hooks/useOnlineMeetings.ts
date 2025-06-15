@@ -175,8 +175,8 @@ export const useOnlineMeetings = (communityId: string) => {
 
       if (error) throw error;
 
-      // Type assertion for the RPC response
-      const response = data as AttendanceResponse;
+      // Type assertion with proper casting through unknown
+      const response = data as unknown as AttendanceResponse;
 
       if (response.success) {
         toast({
