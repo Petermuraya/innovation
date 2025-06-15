@@ -16,7 +16,10 @@ import Careers from '@/pages/Careers';
 import CommunityDashboardRouter from '@/components/dashboard/community/CommunityDashboardRouter';
 import Elections from '@/pages/Elections';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
+import Payments from '@/pages/Payments';
+import ProtectedRoute from '@/components/security/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/components/notifications/NotificationProvider';
 import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
@@ -27,27 +30,110 @@ function App() {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/blogs" element={<Blogs />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
-                <Route path="/community-dashboard/:communityId" element={<CommunityDashboardRouter />} />
-                <Route path="/elections" element={<Elections />} />
-                <Route path="/test-notifications" element={<NotificationTesterPage />} />
-              </Routes>
-            </Layout>
-            <Toaster />
-          </Router>
+          <NotificationProvider>
+            <Router>
+              <Layout>
+                <Routes>
+                  {/* Public routes - accessible without authentication */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  {/* Protected routes - require authentication */}
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <ProtectedRoute requireApproval={false}>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/projects" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Projects />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/leaderboard" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Leaderboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/blogs" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Blogs />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/events" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Events />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/careers" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Careers />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/elections" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <Elections />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/payments" 
+                    element={
+                      <ProtectedRoute requireApproval={false}>
+                        <Payments />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/community/:communityId" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <CommunityDashboardRouter />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/community-dashboard/:communityId" 
+                    element={
+                      <ProtectedRoute requireApproval={true}>
+                        <CommunityDashboardRouter />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/test-notifications" 
+                    element={
+                      <ProtectedRoute requireApproval={false} requiredRole="super_admin">
+                        <NotificationTesterPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                </Routes>
+              </Layout>
+              <Toaster />
+            </Router>
+          </NotificationProvider>
         </AuthProvider>
       </QueryClientProvider>
     </HelmetProvider>

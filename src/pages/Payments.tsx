@@ -7,6 +7,7 @@ import PaymentStatus from '@/components/payments/PaymentStatus';
 import DashboardPayments from '@/components/dashboard/user/DashboardPayments';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 const Payments = () => {
   const { user, loading } = useAuth();
@@ -15,8 +16,9 @@ const Payments = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
         <Card>
-          <CardContent className="p-6">
-            <p>Loading...</p>
+          <CardContent className="p-6 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-kic-green-500" />
+            <p className="text-gray-600">Loading...</p>
           </CardContent>
         </Card>
       </div>
