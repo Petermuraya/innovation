@@ -2,7 +2,7 @@
 import { GROQ_API_URL, GROQ_MODEL } from './config.ts';
 import { ChatbotError } from './errors.ts';
 
-export async function callGroqAPI(systemPrompt: string, userMessage: string) {
+export async function callGroqAPI(systemPrompt: string, userMessage: string, conversationHistory?: string) {
   const groqApiKey = Deno.env.get('GROQ_API_KEY') ?? '';
   
   if (!groqApiKey) {
@@ -14,8 +14,28 @@ export async function callGroqAPI(systemPrompt: string, userMessage: string) {
     );
   }
 
-  console.log('🤖 Sending request to Groq API...');
+  console.log('🤖 Sending enhanced request to Groq API with improved model...');
   
+  // Build conversation context for better intelligence
+  const messages = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  // Add conversation history for better context understanding
+  if (conversationHistory) {
+    const historyLines = conversationHistory.split('\n').filter(line => line.trim());
+    for (const line of historyLines) {
+      if (line.startsWith('User: ')) {
+        messages.push({ role: 'user', content: line.substring(6) });
+      } else if (line.startsWith('Assistant: ')) {
+        messages.push({ role: 'assistant', content: line.substring(11) });
+      }
+    }
+  }
+
+  // Add current user message
+  messages.push({ role: 'user', content: userMessage });
+
   const aiResponse = await fetch(GROQ_API_URL, {
     method: 'POST',
     headers: {
@@ -25,15 +45,12 @@ export async function callGroqAPI(systemPrompt: string, userMessage: string) {
     },
     body: JSON.stringify({
       model: GROQ_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage }
-      ],
-      temperature: 0.7,
-      max_tokens: 1024,
+      messages: messages,
+      temperature: 0.8, // Increased for more creative and engaging responses
+      max_tokens: 2048, // Increased for more comprehensive responses
       top_p: 0.9,
-      frequency_penalty: 0.2,
-      presence_penalty: 0.2,
+      frequency_penalty: 0.3, // Increased to reduce repetition
+      presence_penalty: 0.4, // Increased for more diverse responses
       stream: false
     }),
   });
@@ -60,6 +77,6 @@ export async function callGroqAPI(systemPrompt: string, userMessage: string) {
     );
   }
 
-  console.log('✅ Successfully generated AI response');
+  console.log('✅ Successfully generated enhanced AI response');
   return { botReply, usage: responseData.usage };
 }

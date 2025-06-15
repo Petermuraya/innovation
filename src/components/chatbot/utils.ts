@@ -35,17 +35,17 @@ export const getUserName = (user: AuthUser | null): string | undefined => {
 
 export const defaultConfig: ChatbotConfig = {
   quickReplies: [
-    "how do i join?",
-    "upcoming events?",
-    "view projects", 
-    "dashboard access",
-    "help navigate",
-    "tell me more"
+    "how do i join kuic?",
+    "what events are coming up?",
+    "show me cool projects", 
+    "help me get started",
+    "career opportunities",
+    "tell me about communities"
   ],
   welcomeMessage: (userName?: string) => {
     if (userName) {
-      return `hi ${userName}! 👋 need help with kuic or navigating the site? i'm here to assist!`;
+      return `hey ${userName}! 👋 great to see you here! i'm your enhanced kuic ai assistant. whether you need help navigating the site, want to learn about our latest opportunities, or need technical guidance - i'm here to help you succeed! what can i assist you with today?`;
     }
-    return `welcome to kuic! 🚀 i can help you navigate, join the club, or answer questions. what do you need?`;
+    return `welcome to kuic! 🚀 i'm your intelligent ai assistant, here to help you discover amazing opportunities, connect with fellow innovators, and advance your tech journey. ready to explore what we have to offer? what interests you most?`;
   }
 };
