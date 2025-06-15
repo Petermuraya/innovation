@@ -23,7 +23,7 @@ import {
 
 import MembersManagement from './MembersManagement';
 import ProjectsManagement from './ProjectsManagement';
-import EventsManagement from './EventsManagement';
+import EnhancedEventsManagement from './EnhancedEventsManagement';
 import PaymentsManagement from './PaymentsManagement';
 import EnhancedAdminRequestsManagement from './EnhancedAdminRequestsManagement';
 import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
@@ -57,9 +57,6 @@ const AdminDashboardTabs = ({
 }: AdminDashboardTabsProps) => {
   const { isSuperAdmin, isChairman } = useRolePermissions();
   
-  // Mock events data - replace with actual events from your data source
-  const events = [];
-
   // Show user management tabs for super admins and chairman
   const canManageUsers = isSuperAdmin || isChairman;
 
@@ -220,7 +217,7 @@ const AdminDashboardTabs = ({
           </TabsContent>
 
           <TabsContent value="events" className="mt-0 animate-fade-in">
-            <EventsManagement events={events} />
+            <EnhancedEventsManagement />
           </TabsContent>
 
           <TabsContent value="payments" className="mt-0 animate-fade-in">
