@@ -49,7 +49,20 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNotifications(data || []);
+      
+      // Transform the data to ensure proper types
+      const transformedData = (data || []).map(notification => ({
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        is_read: notification.is_read,
+        created_at: notification.created_at,
+        priority: (notification.priority as 'low' | 'medium' | 'high') || undefined,
+        action_url: notification.action_url || undefined
+      }));
+      
+      setNotifications(transformedData);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -116,14 +129,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
+          const newNotification = payload.new as any;
+          const transformedNotification: Notification = {
+            id: newNotification.id,
+            title: newNotification.title,
+            message: newNotification.message,
+            type: newNotification.type,
+            is_read: newNotification.is_read,
+            created_at: newNotification.created_at,
+            priority: (newNotification.priority as 'low' | 'medium' | 'high') || undefined,
+            action_url: newNotification.action_url || undefined
+          };
+          
+          setNotifications(prev => [transformedNotification, ...prev]);
           
           // Show toast for high priority notifications
-          if (newNotification.priority === 'high') {
+          if (transformedNotification.priority === 'high') {
             toast({
-              title: newNotification.title,
-              description: newNotification.message,
+              title: transformedNotification.title,
+              description: transformedNotification.message,
             });
           }
         }
@@ -137,10 +161,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const updatedNotification = payload.new as Notification;
+          const updatedNotification = payload.new as any;
+          const transformedNotification: Notification = {
+            id: updatedNotification.id,
+            title: updatedNotification.title,
+            message: updatedNotification.message,
+            type: updatedNotification.type,
+            is_read: updatedNotification.is_read,
+            created_at: updatedNotification.created_at,
+            priority: (updatedNotification.priority as 'low' | 'medium' | 'high') || undefined,
+            action_url: updatedNotification.action_url || undefined
+          };
+          
           setNotifications(prev =>
             prev.map(notif =>
-              notif.id === updatedNotification.id ? updatedNotification : notif
+              notif.id === transformedNotification.id ? transformedNotification : notif
             )
           );
         }

@@ -59,7 +59,9 @@ export const useAdminNotifications = () => {
         scheduled_for: notification.scheduled_for || undefined,
         created_at: notification.created_at || '',
         created_by: notification.created_by || '',
-        metadata: notification.metadata || {}
+        metadata: (notification.metadata && typeof notification.metadata === 'object') 
+          ? notification.metadata as Record<string, any> 
+          : {}
       }));
       
       setNotifications(transformedData);
