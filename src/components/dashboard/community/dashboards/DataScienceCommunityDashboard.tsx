@@ -18,26 +18,26 @@ interface DataScienceCommunityDashboardProps {
 
 const DataScienceCommunityDashboard = ({ community }: DataScienceCommunityDashboardProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 w-full">
+      <div className="container mx-auto p-4 sm:p-6 w-full max-w-none">
         {/* Community Header */}
-        <Card className="mb-6 border-indigo-200 bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-indigo-100">
-                  <BarChart3 className="h-8 w-8 text-indigo-600" />
+        <Card className="mb-4 sm:mb-6 border-indigo-200 bg-white/80 backdrop-blur-sm w-full">
+          <CardHeader className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                <div className="p-3 rounded-full bg-indigo-100 flex-shrink-0">
+                  <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600" />
                 </div>
-                <div>
-                  <CardTitle className="text-2xl text-indigo-900">{community.name}</CardTitle>
-                  <CardDescription className="text-indigo-700">{community.description}</CardDescription>
+                <div className="w-full sm:w-auto">
+                  <CardTitle className="text-xl sm:text-2xl text-indigo-900 break-words">{community.name}</CardTitle>
+                  <CardDescription className="text-indigo-700 text-sm sm:text-base break-words">{community.description}</CardDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-indigo-100 text-indigo-800">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+                <Badge variant="secondary" className="bg-indigo-100 text-indigo-800 text-xs">
                   Data Science
                 </Badge>
-                <Badge variant="outline" className="border-indigo-200">
+                <Badge variant="outline" className="border-indigo-200 text-xs">
                   {community.member_count || 0} Members
                 </Badge>
               </div>
@@ -46,50 +46,50 @@ const DataScienceCommunityDashboard = ({ community }: DataScienceCommunityDashbo
         </Card>
 
         {/* Data Science-specific Features */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <Card className="border-indigo-200 bg-white/60 backdrop-blur-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Database className="h-6 w-6 text-indigo-600" />
-                <div>
-                  <p className="text-sm text-indigo-700">Datasets</p>
-                  <p className="text-lg font-semibold text-indigo-900">89</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                <Database className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 flex-shrink-0" />
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-indigo-700">Datasets</p>
+                  <p className="text-lg sm:text-lg font-semibold text-indigo-900">89</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-indigo-200 bg-white/60 backdrop-blur-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Brain className="h-6 w-6 text-purple-600" />
-                <div>
-                  <p className="text-sm text-indigo-700">ML Models</p>
-                  <p className="text-lg font-semibold text-indigo-900">23</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 flex-shrink-0" />
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-indigo-700">ML Models</p>
+                  <p className="text-lg sm:text-lg font-semibold text-indigo-900">23</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-indigo-200 bg-white/60 backdrop-blur-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="h-6 w-6 text-green-600" />
-                <div>
-                  <p className="text-sm text-indigo-700">Visualizations</p>
-                  <p className="text-lg font-semibold text-indigo-900">156</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-indigo-700">Visualizations</p>
+                  <p className="text-lg sm:text-lg font-semibold text-indigo-900">156</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-indigo-200 bg-white/60 backdrop-blur-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
-                <div>
-                  <p className="text-sm text-indigo-700">Accuracy Rate</p>
-                  <p className="text-lg font-semibold text-indigo-900">94.2%</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-indigo-700">Accuracy Rate</p>
+                  <p className="text-lg sm:text-lg font-semibold text-indigo-900">94.2%</p>
                 </div>
               </div>
             </CardContent>
@@ -97,8 +97,8 @@ const DataScienceCommunityDashboard = ({ community }: DataScienceCommunityDashbo
         </div>
 
         {/* Community Tabs */}
-        <Card className="border-indigo-200 bg-white/80 backdrop-blur-sm">
-          <CardContent className="p-6">
+        <Card className="border-indigo-200 bg-white/80 backdrop-blur-sm w-full">
+          <CardContent className="p-4 sm:p-6 w-full">
             <CommunityDashboardTabs communityId={community.id} />
           </CardContent>
         </Card>

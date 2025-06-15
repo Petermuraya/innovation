@@ -24,57 +24,77 @@ const CommunityDashboardTabs = ({ communityId }: CommunityDashboardTabsProps) =>
   useCommunityPointTracking(communityId);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 w-full">
       <div className="flex justify-end">
         <BackToDashboard />
       </div>
       
-      <Tabs defaultValue="members" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="workshops">Workshops</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="meetings">Meetings</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="attendance">Attendance</TabsTrigger>
-          <TabsTrigger value="reminders">Reminders</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="members" className="space-y-4 sm:space-y-6 w-full">
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full min-w-max grid-cols-9 gap-1 h-auto p-1">
+            <TabsTrigger value="members" className="text-xs whitespace-nowrap px-2 py-1">
+              Members
+            </TabsTrigger>
+            <TabsTrigger value="activities" className="text-xs whitespace-nowrap px-2 py-1">
+              Activities
+            </TabsTrigger>
+            <TabsTrigger value="workshops" className="text-xs whitespace-nowrap px-2 py-1">
+              Workshops
+            </TabsTrigger>
+            <TabsTrigger value="events" className="text-xs whitespace-nowrap px-2 py-1">
+              Events
+            </TabsTrigger>
+            <TabsTrigger value="meetings" className="text-xs whitespace-nowrap px-2 py-1">
+              Meetings
+            </TabsTrigger>
+            <TabsTrigger value="projects" className="text-xs whitespace-nowrap px-2 py-1">
+              Projects
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="text-xs whitespace-nowrap px-2 py-1">
+              Resources
+            </TabsTrigger>
+            <TabsTrigger value="attendance" className="text-xs whitespace-nowrap px-2 py-1">
+              Attendance
+            </TabsTrigger>
+            <TabsTrigger value="reminders" className="text-xs whitespace-nowrap px-2 py-1">
+              Reminders
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="members">
+        <TabsContent value="members" className="w-full">
           <CommunityMembersTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="activities">
+        <TabsContent value="activities" className="w-full">
           <CommunityActivitiesTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="workshops">
+        <TabsContent value="workshops" className="w-full">
           <CommunityWorkshopsTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="events">
+        <TabsContent value="events" className="w-full">
           <CommunityEventsTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="meetings">
+        <TabsContent value="meetings" className="w-full">
           <CommunityOnlineMeetingsTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="projects">
+        <TabsContent value="projects" className="w-full">
           <CommunityProjectsTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="resources">
+        <TabsContent value="resources" className="w-full">
           <CommunityResourcesTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="attendance">
+        <TabsContent value="attendance" className="w-full">
           <CommunityAttendanceEnhanced communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
-        <TabsContent value="reminders">
+        <TabsContent value="reminders" className="w-full">
           <CommunityRemindersTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
       </Tabs>

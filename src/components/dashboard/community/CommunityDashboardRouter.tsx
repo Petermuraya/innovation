@@ -14,8 +14,8 @@ const CommunityDashboardRouter = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-4">
+        <Card className="w-full max-w-md">
           <CardContent className="p-6">
             <p>Loading community dashboard...</p>
           </CardContent>
@@ -36,8 +36,8 @@ const CommunityDashboardRouter = () => {
 
   if (!community.is_member) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card className="max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-4">
+        <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h2>
             <p className="text-gray-600">You must be a member of this community to access its dashboard.</p>
@@ -72,9 +72,9 @@ const CommunityDashboardRouter = () => {
 
   // Default fallback dashboard for unrecognized communities
   return (
-    <div className="min-h-screen bg-kic-lightGray">
-      <div className="container mx-auto p-6">
-        <Card>
+    <div className="min-h-screen bg-kic-lightGray p-4">
+      <div className="container mx-auto">
+        <Card className="w-full">
           <CardContent className="p-6 text-center">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Community Dashboard</h2>
             <p className="text-gray-600 mb-4">Welcome to {community.name}</p>
