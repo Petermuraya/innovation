@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,9 +73,9 @@ const PaymentsManagement = ({ payments: initialPayments }: PaymentsManagementPro
         
         return {
           ...payment,
-          members: hasValidMember && memberData ? {
-            name: (memberData as any).name || 'N/A', 
-            email: (memberData as any).email || 'N/A'
+          members: hasValidMember && memberData && typeof memberData === 'object' ? {
+            name: (memberData as { name: string; email: string }).name || 'N/A', 
+            email: (memberData as { name: string; email: string }).email || 'N/A'
           } : null
         };
       });

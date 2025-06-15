@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export const fetchAllMembers = async () => {
@@ -80,11 +79,11 @@ export const fetchAllPayments = async () => {
       
       return {
         ...payment,
-        members: hasValidMember && memberData ? {
-          name: (memberData as any).name || 'N/A',
-          email: (memberData as any).email || 'N/A',
-          phone: (memberData as any).phone || null,
-          avatar_url: (memberData as any).avatar_url || null
+        members: hasValidMember && memberData && typeof memberData === 'object' ? {
+          name: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).name || 'N/A',
+          email: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).email || 'N/A',
+          phone: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).phone || null,
+          avatar_url: (memberData as { name: string; email: string; phone: string | null; avatar_url: string | null }).avatar_url || null
         } : null
       };
     });
