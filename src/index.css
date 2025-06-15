@@ -224,6 +224,19 @@
   }
 }
 
+/* New gradient animation for the INNOVATION CLUB text */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* New animations for enhanced hero section */
 @keyframes pulse-glow {
   0%, 100% {
@@ -274,6 +287,11 @@
   background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite alternate;
 }
 
 .bg-grid-pattern {
