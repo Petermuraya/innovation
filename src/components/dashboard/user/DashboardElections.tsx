@@ -31,38 +31,71 @@ const DashboardElections = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="elections" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-white">
-              <TabsTrigger value="elections" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Active Elections</span>
-                <span className="sm:hidden">Elections</span>
-              </TabsTrigger>
-              <TabsTrigger value="vote" className="flex items-center gap-2">
-                <Vote className="h-4 w-4" />
-                <span className="hidden sm:inline">Cast Vote</span>
-                <span className="sm:hidden">Vote</span>
-              </TabsTrigger>
-              <TabsTrigger value="apply" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span className="hidden sm:inline">Apply</span>
-                <span className="sm:hidden">Apply</span>
-              </TabsTrigger>
-              <TabsTrigger value="campaigns" className="flex items-center gap-2">
-                <Megaphone className="h-4 w-4" />
-                <span className="hidden sm:inline">Campaigns</span>
-                <span className="sm:hidden">Ads</span>
-              </TabsTrigger>
-              <TabsTrigger value="tracker" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Live Results</span>
-                <span className="sm:hidden">Live</span>
-              </TabsTrigger>
-              <TabsTrigger value="results" className="flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                <span className="hidden sm:inline">Results</span>
-                <span className="sm:hidden">Results</span>
-              </TabsTrigger>
-            </TabsList>
+            {/* Mobile: Scrollable horizontal tabs */}
+            <div className="block lg:hidden">
+              <div className="overflow-x-auto scrollbar-hide">
+                <TabsList className="inline-flex h-12 items-center justify-start rounded-md bg-white p-1 min-w-max">
+                  <TabsTrigger value="elections" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">Elections</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="vote" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <Vote className="h-4 w-4" />
+                    <span className="text-sm">Vote</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="apply" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <FileText className="h-4 w-4" />
+                    <span className="text-sm">Apply</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="campaigns" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <Megaphone className="h-4 w-4" />
+                    <span className="text-sm">Campaigns</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="tracker" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <TrendingUp className="h-4 w-4" />
+                    <span className="text-sm">Live</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="results" className="flex items-center gap-2 px-3 py-2 whitespace-nowrap">
+                    <Trophy className="h-4 w-4" />
+                    <span className="text-sm">Results</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+            </div>
+
+            {/* Desktop: Grid layout */}
+            <div className="hidden lg:block">
+              <TabsList className="grid w-full grid-cols-6 bg-white h-12">
+                <TabsTrigger value="elections" className="flex items-center gap-2 px-2">
+                  <Calendar className="h-4 w-4" />
+                  <span className="hidden xl:inline text-sm">Active Elections</span>
+                  <span className="xl:hidden text-sm">Elections</span>
+                </TabsTrigger>
+                <TabsTrigger value="vote" className="flex items-center gap-2 px-2">
+                  <Vote className="h-4 w-4" />
+                  <span className="hidden xl:inline text-sm">Cast Vote</span>
+                  <span className="xl:hidden text-sm">Vote</span>
+                </TabsTrigger>
+                <TabsTrigger value="apply" className="flex items-center gap-2 px-2">
+                  <FileText className="h-4 w-4" />
+                  <span className="text-sm">Apply</span>
+                </TabsTrigger>
+                <TabsTrigger value="campaigns" className="flex items-center gap-2 px-2">
+                  <Megaphone className="h-4 w-4" />
+                  <span className="hidden xl:inline text-sm">Campaigns</span>
+                  <span className="xl:hidden text-sm">Ads</span>
+                </TabsTrigger>
+                <TabsTrigger value="tracker" className="flex items-center gap-2 px-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="hidden xl:inline text-sm">Live Results</span>
+                  <span className="xl:hidden text-sm">Live</span>
+                </TabsTrigger>
+                <TabsTrigger value="results" className="flex items-center gap-2 px-2">
+                  <Trophy className="h-4 w-4" />
+                  <span className="text-sm">Results</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="elections" className="space-y-4">
               <div className="flex items-center gap-2 mb-4">

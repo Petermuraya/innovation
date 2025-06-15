@@ -30,33 +30,69 @@ const CommunityDashboardTabs = ({ communityId }: CommunityDashboardTabsProps) =>
       </div>
       
       <Tabs defaultValue="members" className="space-y-4 sm:space-y-6 w-full">
-        <div className="overflow-x-auto">
-          <TabsList className="grid w-full min-w-max grid-cols-9 gap-1 h-auto p-1">
-            <TabsTrigger value="members" className="text-xs whitespace-nowrap px-2 py-1">
+        {/* Mobile: Scrollable horizontal tabs */}
+        <div className="block lg:hidden">
+          <div className="overflow-x-auto scrollbar-hide">
+            <TabsList className="inline-flex h-12 items-center justify-start rounded-md bg-muted p-1 min-w-max">
+              <TabsTrigger value="members" className="px-3 py-2 text-sm whitespace-nowrap">
+                Members
+              </TabsTrigger>
+              <TabsTrigger value="activities" className="px-3 py-2 text-sm whitespace-nowrap">
+                Activities
+              </TabsTrigger>
+              <TabsTrigger value="workshops" className="px-3 py-2 text-sm whitespace-nowrap">
+                Workshops
+              </TabsTrigger>
+              <TabsTrigger value="events" className="px-3 py-2 text-sm whitespace-nowrap">
+                Events
+              </TabsTrigger>
+              <TabsTrigger value="meetings" className="px-3 py-2 text-sm whitespace-nowrap">
+                Meetings
+              </TabsTrigger>
+              <TabsTrigger value="projects" className="px-3 py-2 text-sm whitespace-nowrap">
+                Projects
+              </TabsTrigger>
+              <TabsTrigger value="resources" className="px-3 py-2 text-sm whitespace-nowrap">
+                Resources
+              </TabsTrigger>
+              <TabsTrigger value="attendance" className="px-3 py-2 text-sm whitespace-nowrap">
+                Attendance
+              </TabsTrigger>
+              <TabsTrigger value="reminders" className="px-3 py-2 text-sm whitespace-nowrap">
+                Reminders
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+
+        {/* Desktop: Grid layout */}
+        <div className="hidden lg:block">
+          <TabsList className="grid w-full grid-cols-9 gap-1 h-12 p-1">
+            <TabsTrigger value="members" className="text-sm px-2 py-1">
               Members
             </TabsTrigger>
-            <TabsTrigger value="activities" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="activities" className="text-sm px-2 py-1">
               Activities
             </TabsTrigger>
-            <TabsTrigger value="workshops" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="workshops" className="text-sm px-2 py-1">
               Workshops
             </TabsTrigger>
-            <TabsTrigger value="events" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="events" className="text-sm px-2 py-1">
               Events
             </TabsTrigger>
-            <TabsTrigger value="meetings" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="meetings" className="text-sm px-2 py-1">
               Meetings
             </TabsTrigger>
-            <TabsTrigger value="projects" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="projects" className="text-sm px-2 py-1">
               Projects
             </TabsTrigger>
-            <TabsTrigger value="resources" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="resources" className="text-sm px-2 py-1">
               Resources
             </TabsTrigger>
-            <TabsTrigger value="attendance" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="attendance" className="text-sm px-2 py-1">
               Attendance
             </TabsTrigger>
-            <TabsTrigger value="reminders" className="text-xs whitespace-nowrap px-2 py-1">
+            <TabsTrigger value="reminders" className="text-sm px-2 py-1">
               Reminders
             </TabsTrigger>
           </TabsList>

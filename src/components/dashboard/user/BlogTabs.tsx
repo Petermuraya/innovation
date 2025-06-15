@@ -29,20 +29,45 @@ const BlogTabs = ({ blogs }: BlogTabsProps) => {
 
   return (
     <Tabs defaultValue="all" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="all">All ({blogs.length})</TabsTrigger>
-        <TabsTrigger value="pending">
-          Pending ({pendingBlogs.length})
-        </TabsTrigger>
-        <TabsTrigger value="published">
-          Published ({publishedBlogs.length})
-        </TabsTrigger>
-        {rejectedBlogs.length > 0 && (
-          <TabsTrigger value="rejected">
-            Rejected ({rejectedBlogs.length})
+      {/* Mobile: Scrollable horizontal tabs */}
+      <div className="block sm:hidden">
+        <div className="overflow-x-auto scrollbar-hide">
+          <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 min-w-max">
+            <TabsTrigger value="all" className="px-3 py-2 text-sm whitespace-nowrap">
+              All ({blogs.length})
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="px-3 py-2 text-sm whitespace-nowrap">
+              Pending ({pendingBlogs.length})
+            </TabsTrigger>
+            <TabsTrigger value="published" className="px-3 py-2 text-sm whitespace-nowrap">
+              Published ({publishedBlogs.length})
+            </TabsTrigger>
+            {rejectedBlogs.length > 0 && (
+              <TabsTrigger value="rejected" className="px-3 py-2 text-sm whitespace-nowrap">
+                Rejected ({rejectedBlogs.length})
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
+      </div>
+
+      {/* Desktop: Standard layout */}
+      <div className="hidden sm:block">
+        <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          <TabsTrigger value="all">All ({blogs.length})</TabsTrigger>
+          <TabsTrigger value="pending">
+            Pending ({pendingBlogs.length})
           </TabsTrigger>
-        )}
-      </TabsList>
+          <TabsTrigger value="published">
+            Published ({publishedBlogs.length})
+          </TabsTrigger>
+          {rejectedBlogs.length > 0 && (
+            <TabsTrigger value="rejected">
+              Rejected ({rejectedBlogs.length})
+            </TabsTrigger>
+          )}
+        </TabsList>
+      </div>
 
       <TabsContent value="all">
         <BlogList blogs={blogs} />
