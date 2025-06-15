@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +17,9 @@ export const useRoleManagement = (canManageRoles: boolean) => {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    if (!canManageRoles) return;
+    
     try {
       setLoading(true);
       console.log('Fetching users for role management...');
@@ -33,7 +35,10 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       }
       
       console.log('Fetched users for role management:', data?.length || 0);
-      setUsers(data || []);
+      
+      // Filter out any users with null user_id (which might indicate deleted users)
+      const validUsers = (data || []).filter(user => user.user_id);
+      setUsers(validUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -44,7 +49,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [canManageRoles, toast]);
 
   const assignRole = async (userId: string, role: ComprehensiveRole) => {
     try {
@@ -64,7 +69,8 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role assigned successfully",
       });
 
-      // Real-time subscription will handle the refresh
+      // Force immediate refresh
+      await fetchUsers();
     } catch (error) {
       console.error('Error assigning role:', error);
       toast({
@@ -97,7 +103,8 @@ export const useRoleManagement = (canManageRoles: boolean) => {
         description: "Role removed successfully",
       });
 
-      // Real-time subscription will handle the refresh
+      // Force immediate refresh
+      await fetchUsers();
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -114,9 +121,9 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     if (canManageRoles) {
       fetchUsers();
 
-      // Set up real-time subscriptions for automatic updates
-      const membersChannel = supabase
-        .channel('role-mgmt-members-changes')
+      // Set up real-time subscription with more robust event handling
+      const channel = supabase
+        .channel('role-mgmt-realtime')
         .on(
           'postgres_changes',
           {
@@ -126,13 +133,10 @@ export const useRoleManagement = (canManageRoles: boolean) => {
           },
           (payload) => {
             console.log('Members table changed (role management):', payload);
+            // Immediately refresh when members table changes
             fetchUsers();
           }
         )
-        .subscribe();
-
-      const userRolesChannel = supabase
-        .channel('role-mgmt-user-roles-changes')
         .on(
           'postgres_changes',
           {
@@ -142,18 +146,20 @@ export const useRoleManagement = (canManageRoles: boolean) => {
           },
           (payload) => {
             console.log('User roles changed (role management):', payload);
+            // Immediately refresh when user roles change
             fetchUsers();
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Role management subscription status:', status);
+        });
 
       return () => {
         console.log('Cleaning up role management subscriptions');
-        supabase.removeChannel(membersChannel);
-        supabase.removeChannel(userRolesChannel);
+        supabase.removeChannel(channel);
       };
     }
-  }, [canManageRoles]);
+  }, [canManageRoles, fetchUsers]);
 
   return {
     users,

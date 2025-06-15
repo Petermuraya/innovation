@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -94,6 +93,7 @@ const UserManagement = () => {
         created_at: member.created_at,
       }));
 
+      console.log('Formatted users:', formattedUsers.length);
       setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -110,9 +110,9 @@ const UserManagement = () => {
   useEffect(() => {
     fetchUsers();
     
-    // Set up real-time subscriptions for automatic updates
-    const membersChannel = supabase
-      .channel('user-mgmt-members-changes')
+    // Set up real-time subscription with more specific event handling
+    const channel = supabase
+      .channel('user-management-realtime')
       .on(
         'postgres_changes',
         {
@@ -121,15 +121,11 @@ const UserManagement = () => {
           table: 'members'
         },
         (payload) => {
-          console.log('Members table changed (user management):', payload);
-          // Force refresh data on any change to members table
+          console.log('Members table change detected:', payload);
+          // Immediately refresh data when any change occurs
           fetchUsers();
         }
       )
-      .subscribe();
-
-    const userRolesChannel = supabase
-      .channel('user-mgmt-roles-changes')
       .on(
         'postgres_changes',
         {
@@ -138,17 +134,18 @@ const UserManagement = () => {
           table: 'user_roles'
         },
         (payload) => {
-          console.log('User roles changed (user management):', payload);
-          // Force refresh data on any change to user_roles table
+          console.log('User roles change detected:', payload);
+          // Immediately refresh data when roles change
           fetchUsers();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
 
     return () => {
-      console.log('Cleaning up user management subscriptions');
-      supabase.removeChannel(membersChannel);
-      supabase.removeChannel(userRolesChannel);
+      console.log('Cleaning up user management real-time subscription');
+      supabase.removeChannel(channel);
     };
   }, []);
 
@@ -194,7 +191,8 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[role]} role granted to ${email}`,
       });
 
-      // Real-time subscription will handle the refresh
+      // Force immediate refresh
+      await fetchUsers();
     } catch (error) {
       console.error('Error granting role:', error);
       toast({
@@ -224,7 +222,8 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[roleToRemove]} role removed successfully`,
       });
 
-      // Real-time subscription will handle the refresh
+      // Force immediate refresh
+      await fetchUsers();
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -260,13 +259,20 @@ const UserManagement = () => {
         description: `User ${user.name} has been removed from the system`,
       });
 
-      // Close the dialog
+      // Close the dialog immediately
       setUserToDelete(null);
       
-      // Force refresh the users list to ensure UI is updated
+      // Immediately update the local state to remove the user
+      setUsers(prevUsers => {
+        const updatedUsers = prevUsers.filter(u => u.id !== user.id);
+        console.log('Updated users list after deletion:', updatedUsers.length);
+        return updatedUsers;
+      });
+
+      // Also force a fresh fetch to ensure consistency
       setTimeout(() => {
         fetchUsers();
-      }, 500);
+      }, 1000);
 
     } catch (error) {
       console.error('Error deleting user:', error);
