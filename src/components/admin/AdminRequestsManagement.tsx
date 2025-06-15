@@ -123,8 +123,8 @@ const AdminRequestsManagement = () => {
           console.log('Member status updated to approved');
         }
 
-        // Assign the appropriate role based on admin type
-        const roleToAssign = request.admin_type === 'general' ? 'general_admin' : 'community_admin';
+        // Assign the appropriate role based on admin type - using the correct enum values
+        const roleToAssign = request.admin_type === 'general_admin' ? 'general_admin' : 'community_admin';
         
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -141,7 +141,7 @@ const AdminRequestsManagement = () => {
         console.log(`Role ${roleToAssign} assigned successfully`);
 
         // If community admin, add to community_admin_roles (if community_id exists)
-        if (request.admin_type === 'community' && request.community_id) {
+        if (request.admin_type === 'community_admin' && request.community_id) {
           const { error: communityRoleError } = await supabase
             .from('community_admin_roles')
             .insert({
