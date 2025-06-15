@@ -61,82 +61,125 @@ export default function Footer() {
     { icon: <FaMapMarkerAlt className="h-4 w-4" />, text: "Karatina University, Kenya" }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
   return (
-    <footer className="bg-gradient-to-br from-background via-background to-muted/20 border-t-2 border-primary/20 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-grid-pattern"></div>
+    <footer className="relative overflow-hidden bg-gradient-to-br from-kic-green-900 via-kic-green-800 to-kic-green-900">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0">
+        {/* Main gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-kic-green-900/95 via-kic-green-800/90 to-kic-green-900/95"></div>
+        
+        {/* Animated pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"2\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        </div>
+
+        {/* Floating orbs */}
+        <motion.div
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-kic-green-400/20 to-kic-green-600/10 rounded-full blur-xl"
+        />
+        <motion.div
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 60, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-kic-green-300/15 to-kic-green-500/10 rounded-full blur-xl"
+        />
       </div>
       
       {/* Main Footer Content */}
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16"
+      >
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-5 lg:gap-8">
           
           {/* Brand Section */}
-          <div className="lg:col-span-2 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <Link to="/" className="inline-flex items-center gap-4 group">
-                <motion.div
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="relative"
-                >
-                  <img
-                    src={Logo}
-                    alt="Karatina Innovation Club"
-                    className="h-16 w-16 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </motion.div>
-                <div>
-                  <h3 className="font-bold text-2xl bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                    Karatina Innovation Club
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">Building Tomorrow's Leaders</p>
-                </div>
-              </Link>
-            </motion.div>
+          <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
+            <Link to="/" className="inline-flex items-center gap-4 group">
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="relative"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-kic-green-400/30 to-kic-green-600/30 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
+                <img
+                  src={Logo}
+                  alt="Karatina Innovation Club"
+                  className="relative h-16 w-16 rounded-xl shadow-2xl border-2 border-kic-green-400/30 group-hover:border-kic-green-300/50 transition-all duration-300"
+                />
+              </motion.div>
+              <div>
+                <h3 className="font-bold text-2xl bg-gradient-to-r from-white via-kic-green-100 to-kic-green-200 bg-clip-text text-transparent">
+                  Karatina Innovation Club
+                </h3>
+                <p className="text-sm text-kic-green-200 mt-1 font-medium">Building Tomorrow's Leaders</p>
+              </div>
+            </Link>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="text-muted-foreground leading-relaxed text-base max-w-md"
-            >
+            <p className="text-kic-green-100 leading-relaxed text-base max-w-md">
               Empowering the next generation of innovators through cutting-edge technology, 
               collaborative learning, and transformative projects that shape the future.
-            </motion.p>
+            </p>
 
             {/* Contact Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="space-y-3"
-            >
-              {contactInfo.map((contact, index) => (
-                <div key={index} className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors">
-                  <span className="text-primary">{contact.icon}</span>
-                  <span>{contact.text}</span>
-                </div>
-              ))}
-            </motion.div>
+            <div className="space-y-4">
+              <h4 className="font-semibold text-white text-lg mb-4">Get In Touch</h4>
+              <div className="space-y-3">
+                {contactInfo.map((contact, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ x: 5 }}
+                    className="flex items-center gap-3 text-sm text-kic-green-100 hover:text-white transition-all duration-300 cursor-pointer group"
+                  >
+                    <span className="text-kic-green-400 group-hover:text-kic-green-300 transition-colors duration-300 p-2 bg-kic-green-800/50 rounded-lg group-hover:bg-kic-green-700/50">
+                      {contact.icon}
+                    </span>
+                    <span>{contact.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
 
             {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-            >
-              <h4 className="font-semibold text-foreground mb-4">Connect With Us</h4>
+            <div>
+              <h4 className="font-semibold text-white mb-4 text-lg">Connect With Us</h4>
               <div className="flex flex-wrap gap-3">
                 {socialLinks.map((social, index) => (
                   <motion.a
@@ -144,44 +187,42 @@ export default function Footer() {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative p-3 rounded-full bg-muted/50 hover:bg-primary text-muted-foreground hover:text-white transition-all duration-300 overflow-hidden"
-                    whileHover={{ scale: 1.1, y: -2 }}
+                    className="group relative p-3 rounded-xl bg-kic-green-800/50 hover:bg-kic-green-700/70 text-kic-green-200 hover:text-white transition-all duration-300 border border-kic-green-700/50 hover:border-kic-green-500/50"
+                    whileHover={{ scale: 1.1, y: -3 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={social.label}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-kic-green-400/10 to-kic-green-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                     <span className="relative z-10">{social.icon}</span>
                   </motion.a>
                 ))}
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="space-y-6"
-          >
-            <h4 className="text-lg font-semibold text-foreground relative">
+          <motion.div variants={itemVariants} className="space-y-6">
+            <h4 className="text-lg font-semibold text-white relative pb-3">
               Quick Links
-              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full"></div>
             </h4>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <motion.li
                   key={index}
-                  whileHover={{ x: 6 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  whileHover={{ x: 8 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                 >
                   <Link
                     to={link.path}
-                    className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
+                    className="text-kic-green-100 hover:text-white transition-all duration-300 flex items-center gap-3 group py-1"
                   >
-                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span>{link.label}</span>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="w-1.5 h-1.5 bg-kic-green-400 rounded-full"
+                    />
+                    <span className="group-hover:text-kic-green-200">{link.label}</span>
                   </Link>
                 </motion.li>
               ))}
@@ -189,30 +230,28 @@ export default function Footer() {
           </motion.div>
 
           {/* Member Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="space-y-6"
-          >
-            <h4 className="text-lg font-semibold text-foreground relative">
+          <motion.div variants={itemVariants} className="space-y-6">
+            <h4 className="text-lg font-semibold text-white relative pb-3">
               For Members
-              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full"></div>
             </h4>
             <ul className="space-y-3">
               {memberLinks.map((link, index) => (
                 <motion.li
                   key={index}
-                  whileHover={{ x: 6 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  whileHover={{ x: 8 }}
+                  transition={{ type: "spring", stiffness: 400 }}
                 >
                   <Link
                     to={link.path}
-                    className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"
+                    className="text-kic-green-100 hover:text-white transition-all duration-300 flex items-center gap-3 group py-1"
                   >
-                    <FaArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span>{link.label}</span>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="w-1.5 h-1.5 bg-kic-green-400 rounded-full"
+                    />
+                    <span className="group-hover:text-kic-green-200">{link.label}</span>
                   </Link>
                 </motion.li>
               ))}
@@ -220,81 +259,67 @@ export default function Footer() {
           </motion.div>
 
           {/* Newsletter Signup */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="space-y-6"
-          >
-            <h4 className="text-lg font-semibold text-foreground relative">
+          <motion.div variants={itemVariants} className="space-y-6">
+            <h4 className="text-lg font-semibold text-white relative pb-3">
               Stay Updated
-              <div className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full"></div>
             </h4>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-kic-green-100 text-sm leading-relaxed">
               Get the latest updates on events, projects, and opportunities delivered to your inbox.
             </p>
             <form className="space-y-4">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-background/50 border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                className="bg-kic-green-800/50 border-kic-green-600/50 text-white placeholder:text-kic-green-300 focus:border-kic-green-400 focus:ring-2 focus:ring-kic-green-400/30 transition-all duration-300"
                 required
               />
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-gradient-to-r from-kic-green-500 to-kic-green-600 hover:from-kic-green-400 hover:to-kic-green-500 text-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 border border-kic-green-400/30 hover:border-kic-green-300/50"
               >
                 Subscribe Now
                 <FaArrowRight className="ml-2 h-3 w-3" />
               </Button>
             </form>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-kic-green-200">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </motion.div>
         </div>
 
-        {/* Divider */}
-        <div className="mt-16 pt-8 border-t border-border/50">
+        {/* Divider with gradient */}
+        <motion.div 
+          variants={itemVariants}
+          className="mt-16 pt-8"
+        >
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-kic-green-400/50 to-transparent mb-8"></div>
+          
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             
             {/* Copyright */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-sm text-muted-foreground text-center md:text-left"
-            >
+            <p className="text-sm text-kic-green-200 text-center md:text-left">
               © {currentYear} Karatina Innovation Club. Crafted with ❤️ for innovation.
-            </motion.p>
+            </p>
 
             {/* Legal Links */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="flex flex-wrap gap-6 justify-center md:justify-end"
-            >
+            <div className="flex flex-wrap gap-6 justify-center md:justify-end">
               {legalLinks.map((link, index) => (
                 <Link
                   key={index}
                   to={link.path}
-                  className="text-xs text-muted-foreground hover:text-primary transition-colors hover:underline underline-offset-4"
+                  className="text-xs text-kic-green-200 hover:text-white transition-colors duration-300 hover:underline underline-offset-4"
                 >
                   {link.label}
                 </Link>
               ))}
-            </motion.div>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-10 right-10 w-20 h-20 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-xl"></div>
-      <div className="absolute bottom-10 left-10 w-32 h-32 bg-gradient-to-br from-secondary/10 to-primary/10 rounded-full blur-xl"></div>
+      {/* Bottom glow effect */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-kic-green-500 via-kic-green-400 to-kic-green-500"></div>
     </footer>
   );
 }
