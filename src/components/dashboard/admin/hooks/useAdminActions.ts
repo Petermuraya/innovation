@@ -10,15 +10,26 @@ export const useAdminActions = () => {
   const updateMemberStatus = async (memberId: string, status: string) => {
     console.log('Updating member status:', memberId, status);
     try {
-      const { error } = await supabase
-        .from('members')
-        .update({ 
-          registration_status: status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', memberId);
+      if (status === 'approved' && user?.id) {
+        // Use the approve_member function for approvals
+        const { error } = await supabase.rpc('approve_member', {
+          member_id: memberId,
+          approver_id: user.id
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Regular status update for rejections
+        const { error } = await supabase
+          .from('members')
+          .update({ 
+            registration_status: status,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', memberId);
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Success",

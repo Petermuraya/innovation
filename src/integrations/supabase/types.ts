@@ -1747,6 +1747,8 @@ export type Database = {
       }
       members: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           avatar_url: string | null
           bio: string | null
           course: string | null
@@ -1769,6 +1771,8 @@ export type Database = {
           year_of_study: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           bio?: string | null
           course?: string | null
@@ -1791,6 +1795,8 @@ export type Database = {
           year_of_study?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           bio?: string | null
           course?: string | null
@@ -2107,6 +2113,39 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_reminders: {
+        Row: {
+          created_at: string
+          id: string
+          is_dismissed: boolean
+          last_reminded_at: string
+          reminder_count: number
+          reminder_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          last_reminded_at?: string
+          reminder_count?: number
+          reminder_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_dismissed?: boolean
+          last_reminded_at?: string
+          reminder_count?: number
+          reminder_type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3004,6 +3043,10 @@ export type Database = {
       }
     }
     Functions: {
+      approve_member: {
+        Args: { member_id: string; approver_id: string }
+        Returns: undefined
+      }
       award_activity_points: {
         Args: {
           user_id_param: string
@@ -3095,6 +3138,10 @@ export type Database = {
           _required_role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Returns: boolean
+      }
+      increment_payment_reminder: {
+        Args: { reminder_user_id: string; reminder_type_param: string }
+        Returns: undefined
       }
       is_admin_or_patron: {
         Args: { _user_id: string }
