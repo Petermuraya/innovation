@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +7,7 @@ import { Bell, Crown, Shield, Star, Users, Wallet } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Card, CardContent } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
 
 const AdminDashboardHeader = () => {
   const { user, signOut } = useAuth();
@@ -132,8 +132,8 @@ const AdminDashboardHeader = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             {/* Left Section - User Info */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
-              <div className="relative group">
-                <Avatar className="w-16 h-16 sm:w-20 sm:h-20 ring-4 ring-kic-green-200 transition-all duration-300 group-hover:ring-kic-green-400 group-hover:scale-105">
+              <Link to="/dashboard?tab=profile" className="relative group">
+                <Avatar className="w-16 h-16 sm:w-20 sm:h-20 ring-4 ring-kic-green-200 transition-all duration-300 group-hover:ring-kic-green-400 group-hover:scale-105 cursor-pointer">
                   <AvatarImage src={memberData?.avatar_url} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-kic-green-400 to-kic-green-600 text-white text-xl font-bold">
                     {memberData?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 
@@ -145,7 +145,7 @@ const AdminDashboardHeader = () => {
                 <div className={`absolute -bottom-1 -right-1 p-1.5 rounded-full ${roleInfo_data.bgColor} ring-2 ring-white shadow-lg`}>
                   <RoleIcon className={`w-4 h-4 ${roleInfo_data.textColor}`} />
                 </div>
-              </div>
+              </Link>
               
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
