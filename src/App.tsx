@@ -39,6 +39,11 @@ function App() {
                   <Route path="/about" element={<About />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/blogs" element={<Blogs />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/careers" element={<Careers />} />
                   
                   {/* Protected routes - require authentication */}
                   <Route 
@@ -46,46 +51,6 @@ function App() {
                     element={
                       <ProtectedRoute requireApproval={false}>
                         <Dashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/projects" 
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Projects />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/leaderboard" 
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Leaderboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/blogs" 
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Blogs />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/events" 
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Events />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/careers" 
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Careers />
                       </ProtectedRoute>
                     } 
                   />
