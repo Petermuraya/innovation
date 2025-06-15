@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +38,7 @@ interface SimpleNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProps> = ({ children }) => {
+export const SimpleNotificationProvider = ({ children }: SimpleNotificationProviderProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);

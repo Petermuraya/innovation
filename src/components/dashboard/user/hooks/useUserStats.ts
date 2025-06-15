@@ -12,11 +12,16 @@ export const useUserStats = () => {
     certificatesEarned: 0,
     totalPoints: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserStats = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      setIsLoading(true);
       // Fetch project count
       const { count: projectCount } = await supabase
         .from('project_submissions')
@@ -51,14 +56,18 @@ export const useUserStats = () => {
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (user) {
       fetchUserStats();
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
-  return { stats, refetchUserStats: fetchUserStats };
+  return { stats, isLoading, refetchUserStats: fetchUserStats };
 };

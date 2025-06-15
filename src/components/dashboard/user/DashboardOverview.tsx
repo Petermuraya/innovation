@@ -31,7 +31,12 @@ const DashboardOverview = () => {
 
   return (
     <div className="space-y-6">
-      <DashboardStats stats={stats} />
+      <DashboardStats 
+        notifications={[]}
+        projects={[]}
+        certificates={[]}
+        upcomingEvents={[]}
+      />
       <DashboardBadges />
     </div>
   );

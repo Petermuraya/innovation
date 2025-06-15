@@ -7,11 +7,16 @@ import { MemberData } from '../types';
 export const useMemberData = () => {
   const { user } = useAuth();
   const [memberData, setMemberData] = useState<MemberData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchMemberData = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('members')
         .select('*')
@@ -26,14 +31,18 @@ export const useMemberData = () => {
       setMemberData(data);
     } catch (error) {
       console.error('Error fetching member data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (user) {
       fetchMemberData();
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
-  return { memberData, refetchMemberData: fetchMemberData };
+  return { memberData, isLoading, refetchMemberData: fetchMemberData };
 };

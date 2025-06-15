@@ -99,9 +99,7 @@ const DashboardTabs = ({
       </TabsList>
 
       <TabsContent value="overview">
-        <DashboardOverview 
-          upcomingEvents={upcomingEvents}
-        />
+        <DashboardOverview />
       </TabsContent>
 
       <TabsContent value="profile">
