@@ -1,95 +1,31 @@
+
 import { cn } from '@/lib/utils';
-import { Bot, User, Loader2, CheckCheck, AlertCircle, ExternalLink } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Bot, User, Loader2, CheckCheck, AlertCircle, Sparkles } from 'lucide-react';
 import { Message } from '../types';
-import EnhancedTypingEffect from './EnhancedTypingEffect';
-import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import SimplifiedTypingMessage from './SimplifiedTypingMessage';
 
 interface SimplifiedMessageBubbleProps {
   message: Message;
+  isRecording: boolean;
   isMobile: boolean;
   showTypingEffect?: boolean;
   onTypingComplete?: () => void;
 }
 
-// Function to detect and convert navigation links in text
-const renderMessageWithLinks = (content: string) => {
-  const linkPattern = /(?:(?:check out|visit|go to|access|view|explore|see)\s+(?:our\s+)?(?:the\s+)?([^\/\s]+)\s+at\s+)?(\/[a-zA-Z0-9\-\/]+)|(?:register|login|sign up|dashboard|home|about|projects|events|blogs|careers|leaderboard|elections)/gi;
-  
-  const parts = content.split(linkPattern);
-  const elements = [];
-  
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    
-    if (part && part.startsWith('/')) {
-      // This is a URL path
-      elements.push(
-        <Link 
-          key={i} 
-          to={part} 
-          className="inline-flex items-center gap-1 text-kic-green-600 hover:text-kic-green-700 underline font-medium transition-colors"
-        >
-          {part}
-          <ExternalLink className="w-3 h-3" />
-        </Link>
-      );
-    } else if (part && ['register', 'login', 'sign up', 'dashboard', 'home', 'about', 'projects', 'events', 'blogs', 'careers', 'leaderboard', 'elections'].includes(part.toLowerCase())) {
-      // This is a page name
-      const pagePath = part.toLowerCase() === 'home' ? '/' : `/${part.toLowerCase().replace(' ', '-')}`;
-      elements.push(
-        <Link 
-          key={i} 
-          to={pagePath} 
-          className="inline-flex items-center gap-1 text-kic-green-600 hover:text-kic-green-700 underline font-medium transition-colors"
-        >
-          {part}
-          <ExternalLink className="w-3 h-3" />
-        </Link>
-      );
-    } else if (part) {
-      elements.push(part);
-    }
-  }
-  
-  return elements;
-};
-
 const SimplifiedMessageBubble = ({ 
   message, 
+  isRecording, 
   isMobile, 
   showTypingEffect = false,
   onTypingComplete 
 }: SimplifiedMessageBubbleProps) => {
-  const { user } = useAuth();
-  const [hasTyped, setHasTyped] = useState(false);
-
-  // Track if this message should show typing effect
-  const shouldShowTyping = !message.isUser && showTypingEffect && !hasTyped;
-
-  const handleTypingComplete = () => {
-    setHasTyped(true);
-    onTypingComplete?.();
-  };
-
-  const getUserAvatarUrl = () => {
-    return user?.user_metadata?.avatar_url || null;
-  };
-
-  const getUserInitials = () => {
-    if (user?.user_metadata?.name) {
-      return user.user_metadata.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-    return user?.email?.charAt(0).toUpperCase() || 'U';
-  };
-
-  if (shouldShowTyping) {
+  // Show typing effect for bot messages when specified
+  if (!message.isUser && showTypingEffect) {
     return (
-      <EnhancedTypingEffect
+      <SimplifiedTypingMessage
         message={message.content}
-        onComplete={handleTypingComplete}
+        onComplete={onTypingComplete}
+        speed={20}
         isMobile={isMobile}
       />
     );
@@ -97,74 +33,79 @@ const SimplifiedMessageBubble = ({
 
   return (
     <div className={cn(
-      "flex items-start gap-3 animate-fade-in",
+      "flex items-start gap-3 animate-fade-in group",
       message.isUser ? "justify-end" : "justify-start"
     )}>
       {!message.isUser && (
         <div className={cn(
-          "rounded-full bg-kic-green-600 flex items-center justify-center flex-shrink-0 shadow-md",
-          isMobile ? "w-8 h-8" : "w-10 h-10"
+          "rounded-full bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center flex-shrink-0 shadow-lg relative",
+          isMobile ? "w-8 h-8" : "w-9 h-9",
+          "ring-2 ring-green-300 ring-opacity-30 group-hover:ring-opacity-50 transition-all duration-200"
         )}>
           <Bot className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+          <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-300 animate-bounce" />
         </div>
       )}
       
       <div
         className={cn(
-          "rounded-2xl p-4 max-w-[80%] shadow-md transition-all duration-200 hover:shadow-lg",
+          "rounded-2xl p-4 relative transition-all duration-300 shadow-lg backdrop-blur-sm",
+          isMobile ? "max-w-[85%] text-sm" : "max-w-[80%] text-sm",
           message.isUser
-            ? "bg-kic-green-600 text-white ml-auto"
-            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700",
-          message.status === 'error' && "border-red-400 bg-red-50 dark:bg-red-900/20"
+            ? "bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white ml-auto shadow-green-200"
+            : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700",
+          message.status === 'error' && "border-2 border-red-400 bg-red-50 dark:bg-red-900/20",
+          isRecording && "ring-2 ring-yellow-400 ring-opacity-50 animate-pulse",
+          "hover:shadow-xl transform hover:scale-[1.02] group-hover:translate-y-[-2px]"
         )}
       >
-        <div className="whitespace-pre-wrap leading-relaxed text-sm">
-          {message.isUser ? message.content : renderMessageWithLinks(message.content)}
-        </div>
+        <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
         
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-opacity-20 border-gray-300 dark:border-gray-600">
-          {!message.isUser && (
-            <span className="text-xs opacity-70 text-kic-green-600 font-medium">kuic assistant</span>
-          )}
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-opacity-20 border-gray-300 dark:border-gray-600">
+          <div className="flex items-center gap-2">
+            {!message.isUser && (
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-yellow-500 rounded-full animate-pulse" />
+                <span className="text-xs opacity-70">kuic assistant</span>
+              </div>
+            )}
+          </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-xs opacity-70">
+            <p className={cn(
+              "text-xs opacity-70",
+              isMobile ? "text-[10px]" : "text-xs"
+            )}>
               {message.timestamp.toLocaleTimeString([], { 
                 hour: '2-digit', 
                 minute: '2-digit' 
               })}
-            </span>
+            </p>
             {message.isUser && (
-              <>
+              <span className="text-xs opacity-70">
                 {message.status === 'sending' && <Loader2 className="h-3 w-3 animate-spin" />}
                 {message.status === 'error' && <AlertCircle className="h-3 w-3 text-red-300" />}
                 {message.status === 'delivered' && <CheckCheck className="h-3 w-3 text-green-300" />}
-              </>
+              </span>
             )}
           </div>
         </div>
+        
+        {/* Enhanced message decoration */}
+        {message.isUser ? (
+          <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-gradient-to-br from-green-600 via-green-700 to-green-800 transform rotate-45" />
+        ) : (
+          <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-white dark:bg-gray-800 border-l border-b border-gray-100 dark:border-gray-700 transform rotate-45" />
+        )}
       </div>
       
       {message.isUser && (
         <div className={cn(
-          "flex-shrink-0 shadow-md",
-          isMobile ? "w-8 h-8" : "w-10 h-10"
+          "rounded-full bg-gradient-to-br from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-700 flex items-center justify-center flex-shrink-0 shadow-lg",
+          isMobile ? "w-8 h-8" : "w-9 h-9",
+          "ring-2 ring-gray-300 ring-opacity-30 group-hover:ring-opacity-50 transition-all duration-200"
         )}>
-          {user ? (
-            <Avatar className={cn("border-2 border-gray-300", isMobile ? "w-8 h-8" : "w-10 h-10")}>
-              <AvatarImage src={getUserAvatarUrl()} />
-              <AvatarFallback className="bg-gray-500 text-white text-sm">
-                {getUserInitials()}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <div className={cn(
-              "rounded-full bg-gray-500 flex items-center justify-center",
-              isMobile ? "w-8 h-8" : "w-10 h-10"
-            )}>
-              <User className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
-            </div>
-          )}
+          <User className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
         </div>
       )}
     </div>

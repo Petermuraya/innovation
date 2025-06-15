@@ -1,6 +1,6 @@
 
 import { cn } from '@/lib/utils';
-import { Bot } from 'lucide-react';
+import { Bot, Sparkles } from 'lucide-react';
 
 interface SimplifiedLoadingIndicatorProps {
   isMobile: boolean;
@@ -9,26 +9,35 @@ interface SimplifiedLoadingIndicatorProps {
 const SimplifiedLoadingIndicator = ({ isMobile }: SimplifiedLoadingIndicatorProps) => (
   <div className="flex items-start gap-3 animate-fade-in">
     <div className={cn(
-      "rounded-full bg-kic-green-600 flex items-center justify-center flex-shrink-0",
-      isMobile ? "w-8 h-8" : "w-10 h-10"
+      "rounded-full bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center flex-shrink-0 shadow-lg relative overflow-hidden",
+      isMobile ? "w-8 h-8" : "w-9 h-9",
+      "ring-2 ring-green-300 ring-opacity-30"
     )}>
-      <Bot className={cn("text-white", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+      <Bot className={cn("text-white z-10", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-pulse" />
+      <Sparkles className="absolute top-1 right-1 w-2 h-2 text-yellow-300 animate-bounce" />
     </div>
     
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md border border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
+      <div className="flex items-center gap-3">
         <div className="flex space-x-1">
           {[0, 0.2, 0.4].map((delay, index) => (
             <div 
               key={index}
-              className="w-2 h-2 bg-kic-green-600 rounded-full animate-bounce"
+              className="w-2 h-2 bg-gradient-to-r from-green-600 to-green-700 rounded-full animate-bounce"
               style={{ animationDelay: `${delay}s` }}
             />
           ))}
         </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          Typing...
+        <span className="text-xs text-gray-500 dark:text-gray-400 animate-pulse">
+          kuic assistant is thinking...
         </span>
+      </div>
+      
+      {/* Enhanced thinking progress bar */}
+      <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
+        <div className="h-full bg-gradient-to-r from-green-400 via-yellow-400 to-green-600 rounded-full animate-pulse" 
+             style={{ width: '60%' }} />
       </div>
     </div>
   </div>
