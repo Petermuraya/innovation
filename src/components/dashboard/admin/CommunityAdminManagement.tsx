@@ -66,35 +66,62 @@ const CommunityAdminManagement = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log('Fetching community admin data...');
       
-      // Fetch community admins with manual joins
+      // Fetch community admins
       const { data: adminsData, error: adminsError } = await supabase
         .from('community_admin_roles')
         .select('*')
         .eq('is_active', true)
         .order('assigned_at', { ascending: false });
 
-      if (adminsError) throw adminsError;
+      if (adminsError) {
+        console.error('Error fetching admins:', adminsError);
+        throw adminsError;
+      }
 
-      // Get member names and community names separately
+      console.log('Fetched admins data:', adminsData);
+
+      // Get member names and community names separately to avoid join issues
       const adminIds = adminsData?.map(admin => admin.user_id) || [];
       const communityIds = adminsData?.map(admin => admin.community_id) || [];
 
-      const { data: membersData } = await supabase
-        .from('members')
-        .select('user_id, name')
-        .in('user_id', adminIds);
+      let membersData = [];
+      let communitiesData = [];
 
-      const { data: communitiesData } = await supabase
-        .from('community_groups')
-        .select('id, name')
-        .in('id', communityIds);
+      if (adminIds.length > 0) {
+        const { data: memberNames, error: membersError } = await supabase
+          .from('members')
+          .select('user_id, name')
+          .in('user_id', adminIds);
+
+        if (membersError) {
+          console.error('Error fetching member names:', membersError);
+          // Don't throw error, just log it and continue with empty member names
+        } else {
+          membersData = memberNames || [];
+        }
+      }
+
+      if (communityIds.length > 0) {
+        const { data: communityNames, error: communitiesError } = await supabase
+          .from('community_groups')
+          .select('id, name')
+          .in('id', communityIds);
+
+        if (communitiesError) {
+          console.error('Error fetching community names:', communitiesError);
+          // Don't throw error, just log it and continue with empty community names
+        } else {
+          communitiesData = communityNames || [];
+        }
+      }
 
       // Combine the data
       const enrichedAdmins = adminsData?.map(admin => ({
         ...admin,
-        member_name: membersData?.find(m => m.user_id === admin.user_id)?.name || 'Unknown',
-        community_name: communitiesData?.find(c => c.id === admin.community_id)?.name || 'Unknown'
+        member_name: membersData?.find(m => m.user_id === admin.user_id)?.name || 'Unknown User',
+        community_name: communitiesData?.find(c => c.id === admin.community_id)?.name || 'Unknown Community'
       })) || [];
 
       setCommunityAdmins(enrichedAdmins);
@@ -106,24 +133,32 @@ const CommunityAdminManagement = () => {
         .eq('is_active', true)
         .order('name');
 
-      if (communitiesError) throw communitiesError;
-      setCommunities(allCommunities || []);
+      if (communitiesError) {
+        console.error('Error fetching communities:', communitiesError);
+      } else {
+        setCommunities(allCommunities || []);
+      }
 
-      // Fetch approved members
+      // Fetch approved members (without role filtering to avoid enum issues)
       const { data: allMembers, error: membersError } = await supabase
         .from('members')
         .select('id, user_id, name, email')
         .eq('registration_status', 'approved')
         .order('name');
 
-      if (membersError) throw membersError;
-      setMembers(allMembers || []);
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+      } else {
+        setMembers(allMembers || []);
+      }
+
+      console.log('Successfully loaded community admin data');
 
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching community admin data:', error);
       toast({
         title: "Error",
-        description: "Failed to load community admin data",
+        description: "Failed to load community admin data. Please try refreshing the page.",
         variant: "destructive",
       });
     } finally {
@@ -224,7 +259,16 @@ const CommunityAdminManagement = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading community admins...</div>;
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-kic-green-500 mx-auto mb-4"></div>
+            <p>Loading community admin data...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (!canAssignAdmins) {
