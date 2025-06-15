@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
@@ -18,8 +18,21 @@ const SecureDashboard = () => {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { loading: statusLoading, isApproved, memberData } = useMemberStatus();
   const { communities: adminCommunities, loading: communityLoading } = useCommunityAdminData();
+  
+  // Set default dashboard view based on admin status
   const [dashboardView, setDashboardView] = useState<'admin' | 'user'>('admin');
   const [direction, setDirection] = useState(0);
+
+  // Effect to set default view based on admin status
+  useEffect(() => {
+    if (!authLoading && isAdmin) {
+      // Default to admin view for any admin user
+      setDashboardView('admin');
+    } else if (!authLoading && !isAdmin) {
+      // Default to user view for non-admin users
+      setDashboardView('user');
+    }
+  }, [isAdmin, authLoading]);
 
   // NOW WE CAN DO CONDITIONAL LOGIC AFTER ALL HOOKS ARE CALLED
   if (authLoading || statusLoading || communityLoading) {
@@ -85,8 +98,8 @@ const SecureDashboard = () => {
     return <RegistrationPending />;
   }
 
-  // Determine if user can access admin features
-  const canAccessAdmin = isAdmin || (adminCommunities && adminCommunities.length > 0);
+  // Any admin can access admin features - simplified logic
+  const canAccessAdmin = isAdmin;
 
   // Dashboard transition variants
   const dashboardVariants = {
@@ -137,7 +150,7 @@ const SecureDashboard = () => {
   return (
     <div className="min-h-screen bg-kic-lightGray">
       <div className="container mx-auto p-4 sm:p-6">
-        {/* Show dashboard switcher only for users with admin privileges */}
+        {/* Show dashboard switcher for all admin users */}
         {canAccessAdmin && (
           <DashboardSwitcher 
             currentView={dashboardView}
