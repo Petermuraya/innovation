@@ -186,7 +186,7 @@ export const useOptimizedUserManagement = () => {
   return {
     users,
     loading,
-    fetchUsers: () => fetchUsers(true),
+    fetchUsers,
     removeUserFromState,
     addUserToState,
     updateUserInState
