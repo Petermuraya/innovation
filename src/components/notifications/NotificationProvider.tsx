@@ -13,6 +13,7 @@ interface Notification {
   created_at: string;
   priority?: 'low' | 'medium' | 'high';
   action_url?: string;
+  expires_at?: string;
 }
 
 interface NotificationContextType {
@@ -59,7 +60,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         is_read: notification.is_read,
         created_at: notification.created_at,
         priority: (notification.priority as 'low' | 'medium' | 'high') || undefined,
-        action_url: notification.action_url || undefined
+        action_url: notification.action_url || undefined,
+        expires_at: notification.expires_at || undefined
       }));
       
       setNotifications(transformedData);
@@ -138,7 +140,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             is_read: newNotification.is_read,
             created_at: newNotification.created_at,
             priority: (newNotification.priority as 'low' | 'medium' | 'high') || undefined,
-            action_url: newNotification.action_url || undefined
+            action_url: newNotification.action_url || undefined,
+            expires_at: newNotification.expires_at || undefined
           };
           
           setNotifications(prev => [transformedNotification, ...prev]);
@@ -170,7 +173,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             is_read: updatedNotification.is_read,
             created_at: updatedNotification.created_at,
             priority: (updatedNotification.priority as 'low' | 'medium' | 'high') || undefined,
-            action_url: updatedNotification.action_url || undefined
+            action_url: updatedNotification.action_url || undefined,
+            expires_at: updatedNotification.expires_at || undefined
           };
           
           setNotifications(prev =>

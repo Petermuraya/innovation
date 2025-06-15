@@ -2004,8 +2004,10 @@ export type Database = {
       }
       notifications: {
         Row: {
+          action_url: string | null
           created_at: string | null
           created_by: string | null
+          expires_at: string | null
           id: string
           is_admin_notification: boolean | null
           is_draft: boolean | null
@@ -2020,8 +2022,10 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          action_url?: string | null
           created_at?: string | null
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           is_admin_notification?: boolean | null
           is_draft?: boolean | null
@@ -2036,8 +2040,10 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          action_url?: string | null
           created_at?: string | null
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           is_admin_notification?: boolean | null
           is_draft?: boolean | null

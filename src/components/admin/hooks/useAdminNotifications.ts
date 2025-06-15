@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +14,8 @@ interface AdminNotification {
   created_at: string;
   created_by: string;
   metadata?: Record<string, any>;
+  action_url?: string;
+  expires_at?: string;
 }
 
 interface NotificationStats {
@@ -61,7 +62,9 @@ export const useAdminNotifications = () => {
         created_by: notification.created_by || '',
         metadata: (notification.metadata && typeof notification.metadata === 'object') 
           ? notification.metadata as Record<string, any> 
-          : {}
+          : {},
+        action_url: notification.action_url || undefined,
+        expires_at: notification.expires_at || undefined
       }));
       
       setNotifications(transformedData);
