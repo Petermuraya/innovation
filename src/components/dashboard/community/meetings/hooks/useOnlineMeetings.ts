@@ -4,6 +4,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { OnlineMeeting, MeetingStats } from '../types';
 
+// Define the database response type to handle the status field properly
+interface DatabaseMeeting {
+  id: string;
+  community_id: string;
+  title: string;
+  description?: string;
+  meeting_link: string;
+  scheduled_date: string;
+  duration_minutes: number;
+  max_participants?: number;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  status: string; // This comes as a generic string from the database
+}
+
+// Define the RPC response type
+interface AttendanceResponse {
+  success: boolean;
+  message: string;
+}
+
 export const useOnlineMeetings = (communityId: string) => {
   const [meetings, setMeetings] = useState<OnlineMeeting[]>([]);
   const [meetingStats, setMeetingStats] = useState<MeetingStats[]>([]);
@@ -31,7 +53,13 @@ export const useOnlineMeetings = (communityId: string) => {
 
       if (statsError) throw statsError;
 
-      setMeetings(meetingsData || []);
+      // Transform the database response to match our OnlineMeeting type
+      const transformedMeetings: OnlineMeeting[] = (meetingsData || []).map((meeting: DatabaseMeeting) => ({
+        ...meeting,
+        status: meeting.status as OnlineMeeting['status'] // Type assertion to match our union type
+      }));
+
+      setMeetings(transformedMeetings);
       setMeetingStats(statsData || []);
     } catch (error) {
       console.error('Error fetching meetings:', error);
@@ -55,13 +83,19 @@ export const useOnlineMeetings = (communityId: string) => {
 
       if (error) throw error;
 
-      setMeetings(prev => [...prev, data]);
+      // Transform the response to match our OnlineMeeting type
+      const transformedMeeting: OnlineMeeting = {
+        ...data,
+        status: data.status as OnlineMeeting['status']
+      };
+
+      setMeetings(prev => [...prev, transformedMeeting]);
       toast({
         title: "Success",
         description: "Meeting scheduled successfully",
       });
 
-      return data;
+      return transformedMeeting;
     } catch (error) {
       console.error('Error creating meeting:', error);
       toast({
@@ -84,13 +118,19 @@ export const useOnlineMeetings = (communityId: string) => {
 
       if (error) throw error;
 
-      setMeetings(prev => prev.map(m => m.id === meetingId ? data : m));
+      // Transform the response to match our OnlineMeeting type
+      const transformedMeeting: OnlineMeeting = {
+        ...data,
+        status: data.status as OnlineMeeting['status']
+      };
+
+      setMeetings(prev => prev.map(m => m.id === meetingId ? transformedMeeting : m));
       toast({
         title: "Success",
         description: "Meeting updated successfully",
       });
 
-      return data;
+      return transformedMeeting;
     } catch (error) {
       console.error('Error updating meeting:', error);
       toast({
@@ -135,21 +175,24 @@ export const useOnlineMeetings = (communityId: string) => {
 
       if (error) throw error;
 
-      if (data.success) {
+      // Type assertion for the RPC response
+      const response = data as AttendanceResponse;
+
+      if (response.success) {
         toast({
           title: "Success",
-          description: data.message,
+          description: response.message,
         });
         await fetchMeetings(); // Refresh stats
       } else {
         toast({
           title: "Info",
-          description: data.message,
+          description: response.message,
           variant: "default",
         });
       }
 
-      return data;
+      return response;
     } catch (error) {
       console.error('Error recording attendance:', error);
       toast({
