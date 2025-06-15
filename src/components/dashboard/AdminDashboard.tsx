@@ -27,7 +27,7 @@ import PaymentsManagement from './admin/PaymentsManagement';
 import RoleManagement from './admin/RoleManagement';
 import AdminAnalytics from './admin/AdminAnalytics';
 import AdminBlogManagement from './admin/AdminBlogManagement';
-import AdminSubmissionsManagement from './admin/AdminSubmissionsManagement';
+import SubmissionsManagement from './admin/SubmissionsManagement';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
 
       {/* Admin Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
           <TabsTrigger value="members" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             <span className="hidden sm:inline">Members</span>
@@ -171,8 +171,8 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="submissions">
-          <RoleGuard requirePermission="content_moderation">
-            <AdminSubmissionsManagement />
+          <RoleGuard requiredRole="general_admin">
+            <SubmissionsManagement />
           </RoleGuard>
         </TabsContent>
 
