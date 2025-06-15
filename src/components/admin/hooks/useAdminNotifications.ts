@@ -40,7 +40,7 @@ export const useAdminNotifications = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('notifications')
-        .select('*')
+        .select('id, title, message, type, priority, target_type, is_draft, scheduled_for, created_at, created_by, metadata')
         .eq('is_admin_notification', true)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -49,8 +49,16 @@ export const useAdminNotifications = () => {
       
       // Transform the data to ensure proper types
       const transformedData = (data || []).map(notification => ({
-        ...notification,
+        id: notification.id,
+        title: notification.title || '',
+        message: notification.message || '',
+        type: notification.type || 'announcement',
         priority: (notification.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        target_type: (notification.target_type as 'all' | 'individual' | 'community') || 'all',
+        is_draft: notification.is_draft || false,
+        scheduled_for: notification.scheduled_for || undefined,
+        created_at: notification.created_at || '',
+        created_by: notification.created_by || '',
         metadata: notification.metadata || {}
       }));
       
