@@ -1,14 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Calendar } from 'lucide-react';
-import NotificationsList from '../NotificationsList';
+import { useNotifications } from '@/components/notifications/PerfectedNotificationProvider';
+import EnhancedNotificationsList from '../EnhancedNotificationsList';
 
 interface DashboardOverviewProps {
-  notifications: any[];
   upcomingEvents: any[];
 }
 
-const DashboardOverview = ({ notifications, upcomingEvents }: DashboardOverviewProps) => {
+const DashboardOverview = ({ upcomingEvents }: DashboardOverviewProps) => {
+  const { notifications } = useNotifications();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <Card>
@@ -19,7 +21,7 @@ const DashboardOverview = ({ notifications, upcomingEvents }: DashboardOverviewP
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <NotificationsList notifications={notifications.slice(0, 5)} />
+          <EnhancedNotificationsList notifications={notifications.slice(0, 5)} />
         </CardContent>
       </Card>
 

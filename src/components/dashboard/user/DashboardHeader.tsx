@@ -2,11 +2,11 @@
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNotifications } from '@/components/notifications/NotificationProvider';
+import { useNotifications } from '@/components/notifications/PerfectedNotificationProvider';
 import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import NotificationsList from '@/components/dashboard/NotificationsList';
+import EnhancedNotificationsList from '@/components/dashboard/EnhancedNotificationsList';
 import { useState } from 'react';
 
 interface DashboardHeaderProps {
@@ -72,7 +72,7 @@ const DashboardHeader = ({ memberData, user }: DashboardHeaderProps) => {
               </div>
             </div>
             <div className="max-h-96 overflow-y-auto">
-              <NotificationsList 
+              <EnhancedNotificationsList 
                 notifications={notifications.slice(0, 10)} 
                 onMarkAllRead={markAllAsRead}
               />

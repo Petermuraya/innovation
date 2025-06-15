@@ -1,21 +1,30 @@
 
-import React from 'react';
-
 export type PriorityLevel = 'low' | 'medium' | 'high' | 'urgent';
 
-export interface WorldClassNotification {
-  type: string;
+export interface NotificationData {
+  id: string;
   title: string;
   message: string;
-  priority: PriorityLevel;
-  icon: React.ReactNode;
+  type: 'event' | 'payment' | 'approval' | 'announcement' | 'alert' | 'success' | 'info' | 'warning' | 'achievement';
+  is_read: boolean;
+  created_at: string;
+  priority?: PriorityLevel;
+  action_url?: string;
   metadata?: Record<string, any>;
+  expires_at?: string;
 }
 
-export interface StandardNotification {
-  type: string;
-  title: string;
-  message: string;
-  priority: PriorityLevel;
-  icon: React.ReactNode;
+export interface NotificationContextType {
+  notifications: NotificationData[];
+  unreadCount: number;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  refreshNotifications: () => Promise<void>;
+  createNotification: (
+    type: string,
+    title: string,
+    message: string,
+    priority?: PriorityLevel,
+    metadata?: Record<string, any>
+  ) => Promise<void>;
 }
