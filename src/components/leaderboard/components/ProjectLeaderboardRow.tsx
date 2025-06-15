@@ -1,105 +1,145 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Star, Github, ExternalLink, Award } from 'lucide-react';
-import { ProjectRank } from '../types/projectLeaderboard';
-import { getProjectBadgeColor, getEngagementLevel } from '../utils/projectUtils';
+import { Github, ExternalLink, Heart, MessageCircle, Eye, Trophy, Award, Star, Medal } from 'lucide-react';
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  github_url?: string;
+  thumbnail_url?: string;
+  tech_tags?: string[];
+  author_name?: string;
+  engagement_score: number;
+  likes_count: number;
+  comments_count: number;
+}
 
 interface ProjectLeaderboardRowProps {
-  project: ProjectRank;
+  project: Project;
   index: number;
 }
 
 const ProjectLeaderboardRow = ({ project, index }: ProjectLeaderboardRowProps) => {
-  const engagement = getEngagementLevel(project.engagement_score);
-  const EngagementIcon = engagement.icon;
+  const rank = index + 1;
+
+  const getRankIcon = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />;
+      case 2:
+        return <Award className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />;
+      case 3:
+        return <Star className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />;
+      default:
+        return <Medal className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />;
+    }
+  };
+
+  const getRankBadgeColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white';
+      case 2:
+        return 'bg-gradient-to-r from-gray-300 to-gray-500 text-white';
+      case 3:
+        return 'bg-gradient-to-r from-orange-400 to-orange-600 text-white';
+      default:
+        return rank <= 10 ? 'bg-gradient-to-r from-blue-400 to-blue-600 text-white' : 'bg-gray-100 text-gray-600';
+    }
+  };
 
   return (
-    <div
-      className={`border-b border-gray-100 p-6 transition-all duration-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-purple-50/30 ${
-        index < 3 ? 'bg-gradient-to-r from-blue-50/50 to-purple-50/50' : 'bg-white'
-      }`}
-    >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3">
-            <Badge className={`${getProjectBadgeColor(index)} font-bold min-w-[60px] flex justify-center px-4 py-2 transform hover:scale-105`}>
-              #{index + 1}
-            </Badge>
-            <div className="flex items-center gap-2">
-              {index < 3 && <Award className="w-5 h-5 text-amber-500" />}
-              <h3 className="text-xl font-bold text-gray-900">{project.title}</h3>
-            </div>
-            <Badge className={`${engagement.bg} border-0 shadow-sm hover:shadow-md transition-all duration-200 px-3 py-1`}>
-              <EngagementIcon className="w-3 h-3 mr-1" />
-              <span className={`font-medium bg-gradient-to-r ${engagement.gradient} bg-clip-text text-transparent`}>
-                {engagement.label}
-              </span>
-            </Badge>
-          </div>
-          <p className="text-sm text-gray-600 mb-2 font-medium">by {project.author_name}</p>
-          <p className="text-gray-700 mb-4 line-clamp-2 leading-relaxed">{project.description}</p>
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-yellow-200 p-3 sm:p-4 lg:p-6 hover:shadow-xl hover:border-yellow-300 transition-all duration-300 hover:scale-[1.02] group">
+      {/* Header with Rank and Title */}
+      <div className="flex items-start space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          {getRankIcon(rank)}
+          <Badge className={`${getRankBadgeColor(rank)} text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 shadow-lg`}>
+            #{rank}
+          </Badge>
         </div>
         
-        {project.thumbnail_url && (
-          <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden ml-6 shadow-lg ring-2 ring-blue-100 hover:ring-blue-200 transition-all duration-200">
-            <img 
-              src={project.thumbnail_url} 
-              alt={project.title}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
-            />
-          </div>
-        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-gray-800 group-hover:text-yellow-600 transition-colors text-sm sm:text-base lg:text-lg line-clamp-2">
+            {project.title}
+          </h3>
+          {project.author_name && (
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
+              by {project.author_name}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Tech Tags */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {project.tech_tags?.slice(0, 6).map((tag, tagIndex) => (
-          <Badge key={tagIndex} className="text-xs bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border border-slate-200 hover:bg-gradient-to-r hover:from-slate-200 hover:to-gray-200 transition-all duration-200 px-3 py-1">
-            {tag}
-          </Badge>
-        ))}
-        {project.tech_tags?.length > 6 && (
-          <Badge className="text-xs bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 border border-blue-200 hover:bg-gradient-to-r hover:from-blue-200 hover:to-cyan-200 transition-all duration-200 px-3 py-1">
-            +{project.tech_tags.length - 6} more
-          </Badge>
-        )}
-      </div>
+      {/* Project Content - Responsive Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+        {/* Project Info */}
+        <div className="lg:col-span-2 space-y-3">
+          {/* Description */}
+          <p className="text-xs sm:text-sm text-gray-600 line-clamp-3">
+            {project.description}
+          </p>
 
-      {/* Stats and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Badge className="bg-gradient-to-r from-red-400 to-pink-500 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 px-3 py-2">
-            <Heart className="w-4 h-4 mr-2" />
-            <span className="font-semibold">{project.likes_count}</span>
-          </Badge>
-          <Badge className="bg-gradient-to-r from-blue-400 to-cyan-500 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 px-3 py-2">
-            <MessageCircle className="w-4 h-4 mr-2" />
-            <span className="font-semibold">{project.comments_count}</span>
-          </Badge>
-          <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 px-3 py-2">
-            <Star className="w-4 h-4 mr-2" />
-            <span className="font-semibold">{project.engagement_score} pts</span>
-          </Badge>
+          {/* Tech Tags - Responsive */}
+          {project.tech_tags && project.tech_tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 sm:gap-2">
+              {project.tech_tags.slice(0, 6).map((tag, idx) => (
+                <Badge key={idx} variant="outline" className="text-xs px-2 py-1 border-yellow-300 text-yellow-700 bg-yellow-50">
+                  {tag}
+                </Badge>
+              ))}
+              {project.tech_tags.length > 6 && (
+                <Badge variant="outline" className="text-xs px-2 py-1 border-gray-300 text-gray-500">
+                  +{project.tech_tags.length - 6} more
+                </Badge>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-2">
-          {project.github_url && (
-            <Button variant="outline" size="sm" asChild className="hover:bg-gray-100 border-gray-300 hover:border-gray-400 transition-all duration-200">
-              <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                <Github className="w-4 h-4 mr-2" />
-                Code
-              </a>
+        {/* Stats and Actions */}
+        <div className="space-y-3">
+          {/* Engagement Stats - Mobile: Horizontal, Desktop: Vertical */}
+          <div className="grid grid-cols-3 lg:grid-cols-1 gap-2 lg:gap-1 text-xs sm:text-sm">
+            <div className="flex items-center justify-center lg:justify-start space-x-1 text-red-500">
+              <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="font-medium">{project.likes_count}</span>
+            </div>
+            <div className="flex items-center justify-center lg:justify-start space-x-1 text-blue-500">
+              <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="font-medium">{project.comments_count}</span>
+            </div>
+            <div className="flex items-center justify-center lg:justify-start space-x-1 text-green-500">
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="font-medium">{project.engagement_score}</span>
+            </div>
+          </div>
+
+          {/* Action Buttons - Responsive */}
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
+            {project.github_url && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs sm:text-sm border-gray-300 hover:border-gray-400 flex-1 lg:flex-none"
+                onClick={() => window.open(project.github_url, '_blank')}
+              >
+                <Github className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Code</span>
+                <span className="sm:hidden">View</span>
+              </Button>
+            )}
+            <Button
+              size="sm"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-xs sm:text-sm flex-1 lg:flex-none"
+            >
+              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">View Project</span>
+              <span className="sm:hidden">View</span>
             </Button>
-          )}
-          <Button variant="outline" size="sm" className="hover:bg-blue-50 border-blue-300 text-blue-600 hover:border-blue-400 transition-all duration-200">
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View
-          </Button>
+          </div>
         </div>
       </div>
     </div>

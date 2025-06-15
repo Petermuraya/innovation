@@ -22,7 +22,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-yellow-50">
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Header Section */}
         <LeaderboardHeader />
         
