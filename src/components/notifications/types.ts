@@ -5,13 +5,14 @@ export interface NotificationData {
   id: string;
   title: string;
   message: string;
-  type: 'event' | 'payment' | 'approval' | 'announcement' | 'alert' | 'success' | 'info' | 'warning' | 'achievement';
+  type: string; // Changed from union type to string to match database
   is_read: boolean;
   created_at: string;
   priority?: PriorityLevel;
   action_url?: string;
   metadata?: Record<string, any>;
   expires_at?: string;
+  user_id?: string; // Added to match database schema
 }
 
 export interface NotificationContextType {

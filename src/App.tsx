@@ -11,7 +11,7 @@ import Login from '@/pages/Login';
 import Blogs from '@/pages/Blogs';
 import Events from '@/pages/Events';
 import Careers from '@/pages/Careers';
-import CommunityDashboard from '@/pages/CommunityDashboard';
+import CommunityDashboardRouter from '@/components/dashboard/community/CommunityDashboardRouter';
 import Elections from '@/pages/Elections';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -38,7 +38,7 @@ function App() {
                 <Route path="/blogs" element={<Blogs />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/careers" element={<Careers />} />
-                <Route path="/community/:communityId" element={<CommunityDashboard />} />
+                <Route path="/community/:communityId" element={<CommunityDashboardRouter />} />
                 <Route path="/elections" element={<Elections />} />
                 <Route path="/test-notifications" element={<NotificationTesterPage />} />
               </Routes>
