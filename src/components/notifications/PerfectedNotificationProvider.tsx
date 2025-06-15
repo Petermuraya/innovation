@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,11 +15,11 @@ export const useNotifications = () => {
   return context;
 };
 
-export interface PerfectedNotificationProviderProps {
+interface PerfectedNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export const PerfectedNotificationProvider: React.FC<PerfectedNotificationProviderProps> = ({ children }) => {
+export function PerfectedNotificationProvider({ children }: PerfectedNotificationProviderProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -272,4 +273,4 @@ export const PerfectedNotificationProvider: React.FC<PerfectedNotificationProvid
       {children}
     </NotificationContext.Provider>
   );
-};
+}
