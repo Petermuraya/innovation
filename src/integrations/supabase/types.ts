@@ -2011,6 +2011,8 @@ export type Database = {
           is_draft: boolean | null
           is_read: boolean | null
           message: string
+          metadata: Json | null
+          priority: string | null
           scheduled_for: string | null
           target_type: string | null
           title: string
@@ -2025,6 +2027,8 @@ export type Database = {
           is_draft?: boolean | null
           is_read?: boolean | null
           message: string
+          metadata?: Json | null
+          priority?: string | null
           scheduled_for?: string | null
           target_type?: string | null
           title: string
@@ -2039,6 +2043,8 @@ export type Database = {
           is_draft?: boolean | null
           is_read?: boolean | null
           message?: string
+          metadata?: Json | null
+          priority?: string | null
           scheduled_for?: string | null
           target_type?: string | null
           title?: string

@@ -40,14 +40,14 @@ export const useAdminNotifications = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('notifications')
-        .select('id, title, message, type, priority, target_type, is_draft, scheduled_for, created_at, created_by, metadata')
+        .select('*')
         .eq('is_admin_notification', true)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
       
-      // Transform the data to ensure proper types
+      // Transform the data to ensure proper types, handling missing columns gracefully
       const transformedData = (data || []).map(notification => ({
         id: notification.id,
         title: notification.title || '',
