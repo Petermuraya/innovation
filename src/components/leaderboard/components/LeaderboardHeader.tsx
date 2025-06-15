@@ -5,7 +5,7 @@ const LeaderboardHeader = () => {
   return (
     <div className="text-center space-y-6">
       <div className="relative">
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 via-yellow-600 to-green-600 bg-clip-text text-transparent mb-4">
           Community Leaderboards
         </h1>
         <div className="absolute -top-2 -right-2 animate-bounce">

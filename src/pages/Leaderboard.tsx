@@ -21,7 +21,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-yellow-50">
       <div className="container mx-auto p-6 space-y-8">
         {/* Header Section */}
         <LeaderboardHeader />

@@ -32,11 +32,11 @@ const EnhancedMemberRanking = ({ searchTerm = '', filter = 'all', timeFilter = '
 
         {/* Load More Button */}
         {filteredRankings.length < rankings.length && (
-          <div className="p-4 text-center border-t border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50/30">
+          <div className="p-4 text-center border-t border-gray-200 bg-gradient-to-r from-gray-50 to-green-50/30">
             <Button 
               variant="outline" 
               onClick={() => setDisplayCount(prev => prev + 10)}
-              className="bg-white/90 backdrop-blur-sm hover:bg-blue-50 border-gray-300 hover:border-blue-400 transition-all duration-200 px-6 py-2"
+              className="bg-white/90 backdrop-blur-sm hover:bg-green-50 border-gray-300 hover:border-green-400 transition-all duration-200 px-6 py-2"
             >
               Load More Members
             </Button>

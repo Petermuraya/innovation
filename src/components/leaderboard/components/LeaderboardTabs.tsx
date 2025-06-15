@@ -14,17 +14,17 @@ interface LeaderboardTabsProps {
 const LeaderboardTabs = ({ searchTerm, memberFilter, projectFilter, timeFilter }: LeaderboardTabsProps) => {
   return (
     <Tabs defaultValue="members" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto bg-white/90 shadow-lg border-2 border-blue-200 backdrop-blur-sm">
+      <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto bg-white/90 shadow-lg border-2 border-green-200 backdrop-blur-sm">
         <TabsTrigger 
           value="members" 
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium transition-all duration-200"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium transition-all duration-200"
         >
           <Trophy className="w-4 h-4 mr-2" />
           Member Rankings
         </TabsTrigger>
         <TabsTrigger 
           value="projects" 
-          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium transition-all duration-200"
+          className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-yellow-500 data-[state=active]:text-white data-[state=active]:shadow-md font-medium transition-all duration-200"
         >
           <Code2 className="w-4 h-4 mr-2" />
           Project Rankings

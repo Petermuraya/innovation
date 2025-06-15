@@ -33,11 +33,11 @@ const EnhancedProjectLeaderboard = ({ searchTerm = '', filter = 'all', timeFilte
 
         {/* Load More Button */}
         {filteredProjects.length < projects.length && (
-          <div className="p-4 text-center border-t border-gray-200 bg-gradient-to-r from-gray-50 to-purple-50/30">
+          <div className="p-4 text-center border-t border-gray-200 bg-gradient-to-r from-gray-50 to-yellow-50/30">
             <Button 
               variant="outline" 
               onClick={() => setDisplayCount(prev => prev + 10)}
-              className="bg-white/90 backdrop-blur-sm hover:bg-purple-50 border-gray-300 hover:border-purple-400 transition-all duration-200 px-6 py-2"
+              className="bg-white/90 backdrop-blur-sm hover:bg-yellow-50 border-gray-300 hover:border-yellow-400 transition-all duration-200 px-6 py-2"
             >
               Load More Projects
             </Button>

@@ -8,33 +8,33 @@ const LeaderboardStats = () => {
       title: "Total Members",
       value: "250+",
       icon: Users,
-      gradient: "from-blue-500 to-cyan-600",
-      bgGradient: "from-blue-50 to-cyan-50",
-      borderColor: "border-blue-200"
+      gradient: "from-green-500 to-emerald-600",
+      bgGradient: "from-green-50 to-emerald-50",
+      borderColor: "border-green-200"
     },
     {
       title: "Active Projects",
       value: "45",
       icon: Code2,
-      gradient: "from-purple-500 to-indigo-600",
-      bgGradient: "from-purple-50 to-indigo-50",
-      borderColor: "border-purple-200"
+      gradient: "from-yellow-500 to-amber-600",
+      bgGradient: "from-yellow-50 to-amber-50",
+      borderColor: "border-yellow-200"
     },
     {
       title: "Competition Level",
       value: "High",
       icon: TrendingUp,
-      gradient: "from-emerald-500 to-green-600",
-      bgGradient: "from-emerald-50 to-green-50",
-      borderColor: "border-emerald-200"
+      gradient: "from-green-600 to-green-700",
+      bgGradient: "from-green-50 to-green-100",
+      borderColor: "border-green-300"
     },
     {
       title: "Top Achievers",
       value: "15",
       icon: Trophy,
-      gradient: "from-amber-500 to-yellow-600",
-      bgGradient: "from-amber-50 to-yellow-50",
-      borderColor: "border-amber-200"
+      gradient: "from-yellow-600 to-yellow-700",
+      bgGradient: "from-yellow-50 to-yellow-100",
+      borderColor: "border-yellow-300"
     }
   ];
 
