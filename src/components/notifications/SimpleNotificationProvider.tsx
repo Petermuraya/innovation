@@ -38,7 +38,7 @@ interface SimpleNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export const SimpleNotificationProvider = ({ children }: SimpleNotificationProviderProps) => {
+export const SimpleNotificationProvider: React.FC<SimpleNotificationProviderProps> = ({ children }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -202,7 +202,6 @@ export const SimpleNotificationProvider = ({ children }: SimpleNotificationProvi
     }
   }, [user, toast, refreshNotifications]);
 
-  // Initialize notifications when user changes
   useEffect(() => {
     if (user && !isInitialized) {
       console.log('🚀 Initializing notifications for user:', user.id);
@@ -214,7 +213,6 @@ export const SimpleNotificationProvider = ({ children }: SimpleNotificationProvi
     }
   }, [user, isInitialized, refreshNotifications]);
 
-  // Set up real-time subscription
   useEffect(() => {
     if (!user) return;
 
