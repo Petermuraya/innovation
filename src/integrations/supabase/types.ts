@@ -1931,30 +1931,116 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_targets: {
+        Row: {
+          created_at: string
+          id: string
+          notification_id: string
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_id: string
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_id?: string
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_notification_targets_notification"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          priority: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          priority?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          priority?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
+          created_by: string | null
           id: string
+          is_admin_notification: boolean | null
+          is_draft: boolean | null
           is_read: boolean | null
           message: string
+          scheduled_for: string | null
+          target_type: string | null
           title: string
           type: string
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
+          is_admin_notification?: boolean | null
+          is_draft?: boolean | null
           is_read?: boolean | null
           message: string
+          scheduled_for?: string | null
+          target_type?: string | null
           title: string
           type: string
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
+          is_admin_notification?: boolean | null
+          is_draft?: boolean | null
           is_read?: boolean | null
           message?: string
+          scheduled_for?: string | null
+          target_type?: string | null
           title?: string
           type?: string
           user_id?: string | null
@@ -3029,6 +3115,19 @@ export type Database = {
       record_meeting_attendance: {
         Args: { meeting_id_param: string }
         Returns: Json
+      }
+      send_bulk_notification: {
+        Args: {
+          p_title: string
+          p_message: string
+          p_type?: string
+          p_priority?: string
+          p_target_type?: string
+          p_target_ids?: string[]
+          p_scheduled_for?: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
       track_community_dashboard_visit: {
         Args: { user_id_param: string; community_id_param: string }
