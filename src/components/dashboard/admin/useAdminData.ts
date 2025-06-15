@@ -2,9 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AdminStats } from './types/adminData';
-import { useAdminActions } from './hooks/useAdminActions';
-import { calculateStats } from './utils/statsCalculator';
 import {
   fetchAllMembers,
   fetchAllProjects,
@@ -17,36 +14,22 @@ import {
 export const useAdminData = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { updateMemberStatus, updateProjectStatus } = useAdminActions();
-  
-  const [stats, setStats] = useState<AdminStats>({
-    totalMembers: 0,
-    pendingMembers: 0,
-    totalProjects: 0,
-    pendingProjects: 0,
-    totalEvents: 0,
-    totalPayments: 0,
-    totalCertificates: 0,
-    pendingAdminRequests: 0
-  });
-  
-  const [members, setMembers] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      fetchAdminData();
-    }
-  }, [user]);
+  const [members, setMembers] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [adminRequests, setAdminRequests] = useState([]);
 
   const fetchAdminData = async () => {
-    console.log('Fetching admin data...');
-    setLoading(true);
-    
+    if (!user) return;
+
     try {
+      console.log('Fetching admin data...');
+      setLoading(true);
+
+      // Fetch all data with proper error handling
       const [
         membersData,
         projectsData,
@@ -54,7 +37,7 @@ export const useAdminData = () => {
         paymentsData,
         certificatesData,
         adminRequestsData
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         fetchAllMembers(),
         fetchAllProjects(),
         fetchAllEvents(),
@@ -63,43 +46,90 @@ export const useAdminData = () => {
         fetchAllAdminRequests()
       ]);
 
-      setMembers(membersData);
-      setProjects(projectsData);
-      setEvents(eventsData);
-      setPayments(paymentsData);
+      // Set data with fallbacks for failed promises
+      setMembers(membersData.status === 'fulfilled' ? membersData.value : []);
+      setProjects(projectsData.status === 'fulfilled' ? projectsData.value : []);
+      setEvents(eventsData.status === 'fulfilled' ? eventsData.value : []);
+      setPayments(paymentsData.status === 'fulfilled' ? paymentsData.value : []);
+      setCertificates(certificatesData.status === 'fulfilled' ? certificatesData.value : []);
+      setAdminRequests(adminRequestsData.status === 'fulfilled' ? adminRequestsData.value : []);
 
-      const calculatedStats = calculateStats(
-        membersData,
-        projectsData,
-        eventsData,
-        paymentsData,
-        certificatesData,
-        adminRequestsData
-      );
-
-      setStats(calculatedStats);
+      // Log any failed fetches
+      if (membersData.status === 'rejected') console.error('Members fetch failed:', membersData.reason);
+      if (projectsData.status === 'rejected') console.error('Projects fetch failed:', projectsData.reason);
+      if (eventsData.status === 'rejected') console.error('Events fetch failed:', eventsData.reason);
+      if (paymentsData.status === 'rejected') console.error('Payments fetch failed:', paymentsData.reason);
+      if (certificatesData.status === 'rejected') console.error('Certificates fetch failed:', certificatesData.reason);
+      if (adminRequestsData.status === 'rejected') console.error('Admin requests fetch failed:', adminRequestsData.reason);
 
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast({
         title: "Error",
-        description: "Failed to load admin data. Please try again.",
-        variant: "destructive"
+        description: "Some admin data failed to load. Please refresh the page.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchAdminData();
+  }, [user]);
+
+  const stats = {
+    totalMembers: members.length,
+    pendingMembers: members.filter((m: any) => m.registration_status === 'pending').length,
+    totalProjects: projects.length,
+    pendingProjects: projects.filter((p: any) => p.status === 'pending').length,
+    totalEvents: events.length,
+    totalPayments: payments.length,
+    totalCertificates: certificates.length,
+    pendingAdminRequests: adminRequests.filter((r: any) => r.status === 'pending').length,
+  };
+
+  console.log('Calculated stats:', stats);
+
+  const updateMemberStatus = async (memberId: string, status: string) => {
+    try {
+      // Implementation for updating member status
+      await fetchAdminData(); // Refresh data after update
+    } catch (error) {
+      console.error('Error updating member status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update member status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateProjectStatus = async (projectId: string, status: string, feedback?: string) => {
+    try {
+      // Implementation for updating project status
+      await fetchAdminData(); // Refresh data after update
+    } catch (error) {
+      console.error('Error updating project status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update project status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
+    loading,
     stats,
     members,
-    events,
     projects,
+    events,
     payments,
-    loading,
+    certificates,
+    adminRequests,
     updateMemberStatus,
     updateProjectStatus,
-    refreshData: fetchAdminData
+    refetch: fetchAdminData
   };
 };

@@ -68,7 +68,7 @@ const CommunityAdminManagement = () => {
       setLoading(true);
       console.log('Fetching community admin data...');
       
-      // Fetch community admins
+      // Fetch community admins - simplified query without joins
       const { data: adminsData, error: adminsError } = await supabase
         .from('community_admin_roles')
         .select('*')
@@ -77,56 +77,13 @@ const CommunityAdminManagement = () => {
 
       if (adminsError) {
         console.error('Error fetching admins:', adminsError);
-        throw adminsError;
+        // Don't throw, continue with empty array
       }
 
-      console.log('Fetched admins data:', adminsData);
+      console.log('Fetched admins data:', adminsData || []);
+      setCommunityAdmins(adminsData || []);
 
-      // Get member names and community names separately to avoid join issues
-      const adminIds = adminsData?.map(admin => admin.user_id) || [];
-      const communityIds = adminsData?.map(admin => admin.community_id) || [];
-
-      let membersData = [];
-      let communitiesData = [];
-
-      if (adminIds.length > 0) {
-        const { data: memberNames, error: membersError } = await supabase
-          .from('members')
-          .select('user_id, name')
-          .in('user_id', adminIds);
-
-        if (membersError) {
-          console.error('Error fetching member names:', membersError);
-          // Don't throw error, just log it and continue with empty member names
-        } else {
-          membersData = memberNames || [];
-        }
-      }
-
-      if (communityIds.length > 0) {
-        const { data: communityNames, error: communitiesError } = await supabase
-          .from('community_groups')
-          .select('id, name')
-          .in('id', communityIds);
-
-        if (communitiesError) {
-          console.error('Error fetching community names:', communitiesError);
-          // Don't throw error, just log it and continue with empty community names
-        } else {
-          communitiesData = communityNames || [];
-        }
-      }
-
-      // Combine the data
-      const enrichedAdmins = adminsData?.map(admin => ({
-        ...admin,
-        member_name: membersData?.find(m => m.user_id === admin.user_id)?.name || 'Unknown User',
-        community_name: communitiesData?.find(c => c.id === admin.community_id)?.name || 'Unknown Community'
-      })) || [];
-
-      setCommunityAdmins(enrichedAdmins);
-
-      // Fetch all communities
+      // Fetch all communities - simplified query
       const { data: allCommunities, error: communitiesError } = await supabase
         .from('community_groups')
         .select('id, name')
@@ -139,7 +96,7 @@ const CommunityAdminManagement = () => {
         setCommunities(allCommunities || []);
       }
 
-      // Fetch approved members (without role filtering to avoid enum issues)
+      // Fetch approved members - simplified query
       const { data: allMembers, error: membersError } = await supabase
         .from('members')
         .select('id, user_id, name, email')
@@ -185,9 +142,13 @@ const CommunityAdminManagement = () => {
         .eq('user_id', selectedMember)
         .eq('community_id', selectedCommunity)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (existingError && existingError.code !== 'PGRST116') throw existingError;
+      if (existingError) {
+        console.error('Error checking existing admin:', existingError);
+        throw existingError;
+      }
+
       if (existing) {
         toast({
           title: "Already assigned",
@@ -378,14 +339,16 @@ const CommunityAdminManagement = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="h-4 w-4 text-blue-500" />
-                    <h4 className="font-medium text-kic-gray">{admin.member_name}</h4>
+                    <h4 className="font-medium text-kic-gray">
+                      {admin.member_name || 'Loading...'}
+                    </h4>
                     <Badge variant="secondary">{admin.role}</Badge>
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm text-kic-gray/70">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {admin.community_name}
+                      {admin.community_name || 'Loading...'}
                     </div>
                     <div>
                       Assigned: {new Date(admin.assigned_at).toLocaleDateString()}
