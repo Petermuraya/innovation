@@ -1016,6 +1016,66 @@ export type Database = {
           },
         ]
       }
+      community_online_meetings: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          max_participants: number | null
+          meeting_link: string
+          scheduled_date: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          max_participants?: number | null
+          meeting_link: string
+          scheduled_date: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          max_participants?: number | null
+          meeting_link?: string
+          scheduled_date?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_online_meetings_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_online_meetings_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_projects: {
         Row: {
           approved_at: string | null
@@ -1579,6 +1639,45 @@ export type Database = {
           visibility?: string | null
         }
         Relationships: []
+      }
+      meeting_link_attendance: {
+        Row: {
+          id: string
+          joined_at: string | null
+          meeting_id: string
+          points_awarded: boolean | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          meeting_id: string
+          points_awarded?: boolean | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          meeting_id?: string
+          points_awarded?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_link_attendance_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "community_meeting_stats"
+            referencedColumns: ["meeting_id"]
+          },
+          {
+            foreignKeyName: "meeting_link_attendance_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "community_online_meetings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       member_badges: {
         Row: {
@@ -2590,6 +2689,33 @@ export type Database = {
         }
         Relationships: []
       }
+      community_meeting_stats: {
+        Row: {
+          community_id: string | null
+          meeting_id: string | null
+          points_awarded_count: number | null
+          scheduled_date: string | null
+          status: string | null
+          title: string | null
+          total_attendees: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_online_meetings_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_dashboard_stats"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_online_meetings_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enhanced_member_leaderboard: {
         Row: {
           avatar_url: string | null
@@ -2904,6 +3030,10 @@ export type Database = {
           marked_by_param?: string
         }
         Returns: undefined
+      }
+      record_meeting_attendance: {
+        Args: { meeting_id_param: string }
+        Returns: Json
       }
       track_community_dashboard_visit: {
         Args: { user_id_param: string; community_id_param: string }

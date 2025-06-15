@@ -8,6 +8,7 @@ import CommunityActivitiesTab from './activities/CommunityActivitiesTab';
 import CommunityWorkshopsTab from './workshops/CommunityWorkshopsTab';
 import CommunityResourcesTab from './resources/CommunityResourcesTab';
 import CommunityRemindersTab from './CommunityRemindersTab';
+import CommunityOnlineMeetingsTab from './meetings/CommunityOnlineMeetingsTab';
 import BackToDashboard from './BackToDashboard';
 import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
 import { useCommunityPointTracking } from '@/hooks/useCommunityPointTracking';
@@ -29,11 +30,12 @@ const CommunityDashboardTabs = ({ communityId }: CommunityDashboardTabsProps) =>
       </div>
       
       <Tabs defaultValue="members" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="activities">Activities</TabsTrigger>
           <TabsTrigger value="workshops">Workshops</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="meetings">Meetings</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
@@ -54,6 +56,10 @@ const CommunityDashboardTabs = ({ communityId }: CommunityDashboardTabsProps) =>
 
         <TabsContent value="events">
           <CommunityEventsTab communityId={communityId} isAdmin={isAdmin} />
+        </TabsContent>
+
+        <TabsContent value="meetings">
+          <CommunityOnlineMeetingsTab communityId={communityId} isAdmin={isAdmin} />
         </TabsContent>
 
         <TabsContent value="projects">
