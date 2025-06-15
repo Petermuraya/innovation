@@ -6,8 +6,8 @@ import FeaturedProjects from '@/components/home/FeaturedProjects';
 import UpcomingEvents from '@/components/home/UpcomingEvents';
 import CommunitiesSection from '@/components/home/CommunitiesSection';
 import ElectionBanner from '@/components/home/ElectionBanner';
-import { MetaHead } from '@/components/seo/MetaHead';
-import { StructuredData } from '@/components/seo/StructuredData';
+import MetaHead from '@/components/seo/MetaHead';
+import StructuredData from '@/components/seo/StructuredData';
 
 const Index = () => {
   const nextSectionRef = useRef<HTMLDivElement>(null);
@@ -26,10 +26,10 @@ const Index = () => {
         description="Welcome to Kabarak University Innovation Club - Where creativity meets technology. Join our community of innovators, developers, and tech enthusiasts."
         keywords="innovation, technology, university club, programming, development, students"
       />
-      <StructuredData />
+      <StructuredData type="organization" />
       
       <div className="min-h-screen">
-        <HeroSection scrollToNextSection={scrollToNextSection} />
+        <HeroSection />
         
         {/* Election Banner - Only shows during active elections */}
         <ElectionBanner />
