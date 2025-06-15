@@ -18,7 +18,7 @@ interface PerfectedNotificationProviderProps {
   children: React.ReactNode;
 }
 
-export const PerfectedNotificationProvider: React.FC<PerfectedNotificationProviderProps> = ({ children }) => {
+export const PerfectedNotificationProvider = ({ children }: PerfectedNotificationProviderProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
