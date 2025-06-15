@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -11,6 +12,8 @@ import { Shield, Crown } from 'lucide-react';
 import QuickRoleAssignment from './components/QuickRoleAssignment';
 import UserSearchAndFilters from './components/UserSearchAndFilters';
 import UserList from './components/UserList';
+import { useUserDeletion } from './hooks/useUserDeletion';
+import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
 
 type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
@@ -58,101 +61,16 @@ const ROLE_COLORS: Record<ComprehensiveRole, 'default' | 'destructive' | 'second
 const UserManagement = () => {
   const { toast } = useToast();
   const { isSuperAdmin, roleInfo } = useRolePermissions();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { users, loading, fetchUsers, removeUserFromState } = useOptimizedUserManagement();
+  const { deleteUserCompletely, loading: deletionLoading } = useUserDeletion();
+  
   const [searchEmail, setSearchEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState<ComprehensiveRole>('general_admin');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching users...');
-      
-      const { data: members, error } = await supabase
-        .from('member_management_view')
-        .select('user_id, email, name, registration_status, roles, phone, course, created_at')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        throw error;
-      }
-
-      console.log('Fetched users:', members?.length || 0);
-
-      const formattedUsers = (members || []).map(member => ({
-        id: member.user_id || '',
-        email: member.email,
-        name: member.name,
-        roles: member.roles || [],
-        registration_status: member.registration_status,
-        phone: member.phone,
-        course: member.course,
-        created_at: member.created_at,
-      }));
-
-      console.log('Formatted users:', formattedUsers.length);
-      setUsers(formattedUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch users",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-    
-    // Set up real-time subscription with more specific event handling
-    const channel = supabase
-      .channel('user-management-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'members'
-        },
-        (payload) => {
-          console.log('Members table change detected:', payload);
-          // Immediately refresh data when any change occurs
-          fetchUsers();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_roles'
-        },
-        (payload) => {
-          console.log('User roles change detected:', payload);
-          // Immediately refresh data when roles change
-          fetchUsers();
-        }
-      )
-      .subscribe((status) => {
-        console.log('Real-time subscription status:', status);
-      });
-
-    return () => {
-      console.log('Cleaning up user management real-time subscription');
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const grantRole = async (email: string, role: ComprehensiveRole) => {
     try {
-      setLoading(true);
-
       const user = users.find(u => u.email === email);
       if (!user) {
         toast({
@@ -191,8 +109,8 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[role]} role granted to ${email}`,
       });
 
-      // Force immediate refresh
-      await fetchUsers();
+      // Force refresh to get latest data
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error granting role:', error);
       toast({
@@ -200,15 +118,11 @@ const UserManagement = () => {
         description: "Failed to grant role",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const removeRole = async (userId: string, roleToRemove: ComprehensiveRole) => {
     try {
-      setLoading(true);
-
       const { error } = await supabase
         .from('user_roles')
         .delete()
@@ -222,8 +136,8 @@ const UserManagement = () => {
         description: `${ROLE_LABELS[roleToRemove]} role removed successfully`,
       });
 
-      // Force immediate refresh
-      await fetchUsers();
+      // Force refresh to get latest data
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -231,58 +145,21 @@ const UserManagement = () => {
         description: "Failed to remove role",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const deleteUser = async (user: User) => {
-    try {
-      setLoading(true);
-      console.log('Deleting user:', user.name, user.id);
-
-      // Delete member record - the trigger will handle cleanup of related data
-      const { error: memberError } = await supabase
-        .from('members')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (memberError) {
-        console.error('Error deleting member record:', memberError);
-        throw memberError;
-      }
-
-      console.log('User deleted successfully from database');
-
-      toast({
-        title: "Success",
-        description: `User ${user.name} has been removed from the system`,
-      });
-
-      // Close the dialog immediately
+    const success = await deleteUserCompletely(user);
+    
+    if (success) {
+      // Immediately remove from local state
+      removeUserFromState(user.id);
       setUserToDelete(null);
       
-      // Immediately update the local state to remove the user
-      setUsers(prevUsers => {
-        const updatedUsers = prevUsers.filter(u => u.id !== user.id);
-        console.log('Updated users list after deletion:', updatedUsers.length);
-        return updatedUsers;
-      });
-
-      // Also force a fresh fetch to ensure consistency
+      // Force refresh after a short delay to ensure database consistency
       setTimeout(() => {
-        fetchUsers();
+        fetchUsers(true);
       }, 1000);
-
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete user",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -329,7 +206,7 @@ const UserManagement = () => {
 
       <UserList
         users={users}
-        loading={loading}
+        loading={loading || deletionLoading}
         canManageUsers={canManageUsers}
         selectedRole={selectedRole}
         searchEmail={searchEmail}
@@ -351,16 +228,18 @@ const UserManagement = () => {
                 <div>• All assigned roles</div>
                 <div>• Member registration data</div>
                 <div>• User profile information</div>
+                <div>• All activity history and points</div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deletionLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => userToDelete && deleteUser(userToDelete)}
               className="bg-red-600 hover:bg-red-700"
+              disabled={deletionLoading}
             >
-              Delete User
+              {deletionLoading ? 'Deleting...' : 'Delete User'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

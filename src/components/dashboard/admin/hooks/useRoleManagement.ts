@@ -16,31 +16,79 @@ export const useRoleManagement = (canManageRoles: boolean) => {
   const { toast } = useToast();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (force = false) => {
     if (!canManageRoles) return;
+    
+    // Debounce rapid fetches unless forced
+    const now = Date.now();
+    if (!force && now - lastFetchTime < 1000) {
+      console.log('Skipping role management fetch due to debounce');
+      return;
+    }
     
     try {
       setLoading(true);
-      console.log('Fetching users for role management...');
+      console.log('Fetching users for role management with optimized query...');
       
-      const { data, error } = await supabase
-        .from('member_management_view')
-        .select('user_id, name, email, roles')
+      // Use direct queries instead of view to avoid caching
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .select('user_id, name, email')
+        .not('user_id', 'is', null)
         .order('name');
 
-      if (error) {
-        console.error('Error fetching users for role management:', error);
-        throw error;
+      if (memberError) {
+        console.error('Error fetching members for role management:', memberError);
+        throw memberError;
       }
+
+      if (!memberData || memberData.length === 0) {
+        console.log('No members found for role management');
+        setUsers([]);
+        setLastFetchTime(now);
+        return;
+      }
+
+      // Get roles separately
+      const userIds = memberData.map(m => m.user_id).filter(Boolean);
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      if (rolesError) {
+        console.error('Error fetching roles for role management:', rolesError);
+        // Continue without roles
+      }
+
+      // Create roles map
+      const rolesMap = new Map<string, ComprehensiveRole[]>();
+      if (rolesData) {
+        rolesData.forEach(roleRecord => {
+          if (!rolesMap.has(roleRecord.user_id)) {
+            rolesMap.set(roleRecord.user_id, []);
+          }
+          rolesMap.get(roleRecord.user_id)?.push(roleRecord.role as ComprehensiveRole);
+        });
+      }
+
+      // Format users with roles
+      const validUsers = memberData
+        .filter(user => user.user_id)
+        .map(user => ({
+          user_id: user.user_id!,
+          name: user.name,
+          email: user.email,
+          roles: rolesMap.get(user.user_id!) || ['member']
+        }));
       
-      console.log('Fetched users for role management:', data?.length || 0);
-      
-      // Filter out any users with null user_id (which might indicate deleted users)
-      const validUsers = (data || []).filter(user => user.user_id);
+      console.log('Fetched users for role management:', validUsers.length);
       setUsers(validUsers);
+      setLastFetchTime(now);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching users for role management:', error);
       toast({
         title: "Error",
         description: "Failed to fetch users",
@@ -49,7 +97,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     } finally {
       setLoading(false);
     }
-  }, [canManageRoles, toast]);
+  }, [canManageRoles, toast, lastFetchTime]);
 
   const assignRole = async (userId: string, role: ComprehensiveRole) => {
     try {
@@ -70,7 +118,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       });
 
       // Force immediate refresh
-      await fetchUsers();
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error assigning role:', error);
       toast({
@@ -104,7 +152,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       });
 
       // Force immediate refresh
-      await fetchUsers();
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error removing role:', error);
       toast({
@@ -119,11 +167,11 @@ export const useRoleManagement = (canManageRoles: boolean) => {
 
   useEffect(() => {
     if (canManageRoles) {
-      fetchUsers();
+      fetchUsers(true);
 
-      // Set up real-time subscription with more robust event handling
+      // Set up real-time subscription with optimized handling
       const channel = supabase
-        .channel('role-mgmt-realtime')
+        .channel('role-mgmt-realtime-optimized')
         .on(
           'postgres_changes',
           {
@@ -132,9 +180,9 @@ export const useRoleManagement = (canManageRoles: boolean) => {
             table: 'members'
           },
           (payload) => {
-            console.log('Members table changed (role management):', payload);
-            // Immediately refresh when members table changes
-            fetchUsers();
+            console.log('Members table changed (role management):', payload.eventType);
+            // Delay refresh to allow database to settle
+            setTimeout(() => fetchUsers(true), 500);
           }
         )
         .on(
@@ -145,9 +193,9 @@ export const useRoleManagement = (canManageRoles: boolean) => {
             table: 'user_roles'
           },
           (payload) => {
-            console.log('User roles changed (role management):', payload);
-            // Immediately refresh when user roles change
-            fetchUsers();
+            console.log('User roles changed (role management):', payload.eventType);
+            // Delay refresh to allow database to settle
+            setTimeout(() => fetchUsers(true), 500);
           }
         )
         .subscribe((status) => {
@@ -166,6 +214,6 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     loading,
     assignRole,
     removeRole,
-    fetchUsers
+    fetchUsers: () => fetchUsers(true)
   };
 };
