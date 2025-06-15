@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, 
@@ -230,10 +229,7 @@ const AdminDashboardTabs = ({
           </TabsContent>
 
           <TabsContent value="projects" className="mt-0 animate-fade-in">
-            <ProjectsManagement 
-              projects={projects}
-              updateProjectStatus={updateProjectStatus}
-            />
+            <ProjectsManagement />
           </TabsContent>
 
           <TabsContent value="events" className="mt-0 animate-fade-in">

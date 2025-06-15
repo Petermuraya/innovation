@@ -1,5 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { fetchAllProjectSubmissions } from './adminProjectService';
 
 export const fetchAllMembers = async () => {
   try {
@@ -23,18 +23,8 @@ export const fetchAllMembers = async () => {
 
 export const fetchAllProjects = async () => {
   try {
-    console.log('Fetching projects...');
-    const { data, error } = await supabase
-      .from('project_submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching projects:', error);
-      throw error;
-    }
-
-    return data || [];
+    console.log('Fetching projects using enhanced service...');
+    return await fetchAllProjectSubmissions();
   } catch (error) {
     console.error('Projects fetch failed:', error);
     return [];
