@@ -50,10 +50,18 @@ export const fetchAllEvents = async () => {
 };
 
 export const fetchAllPayments = async () => {
-  console.log('Fetching payments...');
+  console.log('Fetching payments with member information...');
   const { data: paymentsData, error: paymentsError } = await supabase
     .from('mpesa_payments')
-    .select('*')
+    .select(`
+      *,
+      members (
+        name,
+        email,
+        phone,
+        avatar_url
+      )
+    `)
     .order('created_at', { ascending: false });
 
   if (paymentsError) {
@@ -94,4 +102,50 @@ export const fetchAllAdminRequests = async () => {
   }
   
   return adminRequestsData || [];
+};
+
+export const fetchPaymentStats = async () => {
+  console.log('Fetching payment statistics...');
+  try {
+    const { data: statsData, error: statsError } = await supabase
+      .from('mpesa_payments')
+      .select('amount, status, payment_type, created_at');
+
+    if (statsError) {
+      console.error('Error fetching payment stats:', statsError);
+      return {
+        totalRevenue: 0,
+        completedPayments: 0,
+        pendingPayments: 0,
+        failedPayments: 0,
+        membershipPayments: 0,
+        eventPayments: 0
+      };
+    }
+
+    const payments = statsData || [];
+    const completedPayments = payments.filter(p => p.status === 'completed');
+    
+    const stats = {
+      totalRevenue: completedPayments.reduce((sum, p) => sum + Number(p.amount), 0),
+      completedPayments: completedPayments.length,
+      pendingPayments: payments.filter(p => p.status === 'pending').length,
+      failedPayments: payments.filter(p => p.status === 'failed').length,
+      membershipPayments: payments.filter(p => p.payment_type === 'membership').length,
+      eventPayments: payments.filter(p => p.payment_type === 'event').length
+    };
+
+    console.log('Payment stats calculated:', stats);
+    return stats;
+  } catch (error) {
+    console.error('Error calculating payment stats:', error);
+    return {
+      totalRevenue: 0,
+      completedPayments: 0,
+      pendingPayments: 0,
+      failedPayments: 0,
+      membershipPayments: 0,
+      eventPayments: 0
+    };
+  }
 };
