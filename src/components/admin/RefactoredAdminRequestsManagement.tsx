@@ -13,9 +13,12 @@ import AdminRequestDialog from './components/AdminRequestDialog';
 import { useAdminRequests } from './hooks/useAdminRequests';
 import type { Database } from '@/integrations/supabase/types';
 
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+
 type AdminRequest = Database['public']['Tables']['admin_requests']['Row'] & {
   reviewed_by?: { name: string } | null;
   community?: { name: string } | null;
+  admin_type: ComprehensiveRole;
 };
 
 type Community = Database['public']['Tables']['community_groups']['Row'];
@@ -105,49 +108,43 @@ const RefactoredAdminRequestsManagement = () => {
         const request = requests.find(r => r.id === requestId);
         if (!request?.user_id) throw new Error("Request data incomplete");
 
-        if (request.admin_type === 'general') {
-          // Assign general admin role
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .upsert({
-              user_id: request.user_id,
-              role: 'general_admin'
-            });
+        // Update member status if exists
+        await supabase
+          .from('members')
+          .update({ registration_status: 'approved' })
+          .eq('user_id', request.user_id);
 
-          if (roleError) throw roleError;
+        // Assign the requested role
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: request.user_id,
+            role: request.admin_type
+          });
 
-          // Update member status if exists
-          await supabase
-            .from('members')
-            .update({ registration_status: 'approved' })
-            .eq('user_id', request.user_id);
+        if (roleError) throw roleError;
 
-        } else if (request.admin_type === 'community' && request.community_id) {
-          // Assign community admin role
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .upsert({
-              user_id: request.user_id,
-              role: 'community_admin'
-            });
-
-          if (roleError) throw roleError;
-
-          // Also assign to community admin roles table
-          const { error: communityAdminError } = await supabase
+        // If community admin, add to community_admin_roles (if community_id exists)
+        if (request.admin_type === 'community_admin' && request.community_id) {
+          const { error: communityRoleError } = await supabase
             .from('community_admin_roles')
-            .upsert({
+            .insert({
               user_id: request.user_id,
               community_id: request.community_id,
-              role: 'admin',
               assigned_by: user.id,
-              is_active: true,
+              role: 'admin',
+              is_active: true
             });
 
-          if (communityAdminError) throw communityAdminError;
+          if (communityRoleError) {
+            console.error('Error assigning community role:', communityRoleError);
+            // Don't throw error, just log it
+          } else {
+            console.log('Community admin role assigned successfully');
+          }
 
           // Set default permissions for community admin
-          await supabase
+          const { error: permissionsError } = await supabase
             .from('community_dashboard_permissions')
             .upsert({
               community_id: request.community_id,
@@ -162,6 +159,12 @@ const RefactoredAdminRequestsManagement = () => {
                 upload_projects: true
               }
             });
+
+          if (permissionsError) {
+            console.error('Error setting community permissions:', permissionsError);
+          } else {
+            console.log('Community permissions set successfully');
+          }
         }
       }
 

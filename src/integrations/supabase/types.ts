@@ -66,7 +66,7 @@ export type Database = {
       admin_requests: {
         Row: {
           admin_code: string | null
-          admin_type: string | null
+          admin_type: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id: string | null
           created_at: string
           email: string
@@ -81,7 +81,7 @@ export type Database = {
         }
         Insert: {
           admin_code?: string | null
-          admin_type?: string | null
+          admin_type?: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id?: string | null
           created_at?: string
           email: string
@@ -96,7 +96,7 @@ export type Database = {
         }
         Update: {
           admin_code?: string | null
-          admin_type?: string | null
+          admin_type?: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id?: string | null
           created_at?: string
           email?: string

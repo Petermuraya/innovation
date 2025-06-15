@@ -12,6 +12,7 @@ import { Shield, Crown } from 'lucide-react';
 import QuickRoleAssignment from './components/QuickRoleAssignment';
 import UserSearchAndFilters from './components/UserSearchAndFilters';
 import UserList from './components/UserList';
+import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
 
@@ -196,6 +197,8 @@ const UserManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {isSuperAdmin && <AdminRegistrationShare />}
 
       {canManageUsers && (
         <QuickRoleAssignment

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+
 interface AdminRequest {
   id: string;
   user_id?: string;
@@ -10,7 +12,7 @@ interface AdminRequest {
   email: string;
   justification: string;
   status: string;
-  admin_type: string;
+  admin_type: ComprehensiveRole;
   admin_code?: string;
   community_id?: string;
   created_at: string;

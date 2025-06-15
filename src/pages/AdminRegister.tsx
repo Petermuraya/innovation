@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Lock } from "lucide-react";
 
+type ComprehensiveRole = 'general_admin' | 'community_admin';
+
 const AdminRegister = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -22,7 +24,7 @@ const AdminRegister = () => {
     confirmPassword: "",
     justification: "",
     adminCode: "",
-    adminType: "general"
+    adminType: "general_admin" as ComprehensiveRole
   });
   
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ const AdminRegister = () => {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value as ComprehensiveRole }));
   };
 
   const validateForm = () => {
@@ -238,8 +240,8 @@ const AdminRegister = () => {
                     <SelectValue placeholder="Select admin type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="general">General Admin</SelectItem>
-                    <SelectItem value="community">Community Admin</SelectItem>
+                    <SelectItem value="general_admin">General Admin</SelectItem>
+                    <SelectItem value="community_admin">Community Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

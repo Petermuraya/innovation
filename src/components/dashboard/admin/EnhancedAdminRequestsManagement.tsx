@@ -1,13 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, XCircle, Clock, Eye, Users, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
 interface AdminRequest {
   id: string;
@@ -15,8 +17,8 @@ interface AdminRequest {
   name: string;
   email: string;
   justification: string;
-  status: string; // Changed from union type to string to match database
-  admin_type: string; // Changed from union type to string to match database
+  status: string;
+  admin_type: ComprehensiveRole;
   admin_code?: string;
   community_id?: string;
   created_at: string;
@@ -31,6 +33,21 @@ interface Community {
   id: string;
   name: string;
 }
+
+const ROLE_LABELS: Record<ComprehensiveRole, string> = {
+  member: 'Member',
+  super_admin: 'Super Admin',
+  general_admin: 'General Admin',
+  community_admin: 'Community Admin',
+  events_admin: 'Events Admin',
+  projects_admin: 'Projects Admin',
+  finance_admin: 'Finance Admin',
+  content_admin: 'Content Admin',
+  technical_admin: 'Technical Admin',
+  marketing_admin: 'Marketing Admin',
+  chairman: 'Chairman',
+  vice_chairman: 'Vice Chairman'
+};
 
 const EnhancedAdminRequestsManagement = () => {
   const { user } = useAuth();
@@ -121,29 +138,37 @@ const EnhancedAdminRequestsManagement = () => {
         const request = requests.find(r => r.id === requestId);
         if (!request) throw new Error("Request not found");
 
-        if (request.admin_type === 'general' && request.user_id) {
-          // Assign general admin role instead of 'admin'
+        if (request.user_id) {
+          // Assign the requested role
           const { error: roleError } = await supabase
             .from('user_roles')
             .upsert({
               user_id: request.user_id,
-              role: 'general_admin'
+              role: request.admin_type
             });
 
           if (roleError) throw roleError;
-        } else if (request.admin_type === 'community' && request.community_id && request.user_id) {
-          // Assign community admin role
-          const { error: communityAdminError } = await supabase
-            .from('community_admin_roles')
-            .upsert({
-              user_id: request.user_id,
-              community_id: request.community_id,
-              role: 'admin',
-              assigned_by: user.id,
-              is_active: true,
-            });
 
-          if (communityAdminError) throw communityAdminError;
+          // Update member status to approved if exists
+          await supabase
+            .from('members')
+            .update({ registration_status: 'approved' })
+            .eq('user_id', request.user_id);
+
+          // If community admin, also add to community_admin_roles
+          if (request.admin_type === 'community_admin' && request.community_id) {
+            const { error: communityAdminError } = await supabase
+              .from('community_admin_roles')
+              .upsert({
+                user_id: request.user_id,
+                community_id: request.community_id,
+                role: 'admin',
+                assigned_by: user.id,
+                is_active: true,
+              });
+
+            if (communityAdminError) throw communityAdminError;
+          }
         }
       }
 
@@ -179,15 +204,11 @@ const EnhancedAdminRequestsManagement = () => {
     }
   };
 
-  const getAdminTypeBadge = (adminType: string) => {
-    switch (adminType) {
-      case 'general':
-        return <Badge variant="outline" className="flex items-center gap-1"><Shield className="h-3 w-3" />General Admin</Badge>;
-      case 'community':
-        return <Badge variant="outline" className="flex items-center gap-1"><Users className="h-3 w-3" />Community Admin</Badge>;
-      default:
-        return <Badge variant="outline">{adminType}</Badge>;
-    }
+  const getAdminTypeBadge = (adminType: ComprehensiveRole) => {
+    return <Badge variant="outline" className="flex items-center gap-1">
+      <Shield className="h-3 w-3" />
+      {ROLE_LABELS[adminType]}
+    </Badge>;
   };
 
   if (loading) {
@@ -262,7 +283,7 @@ const EnhancedAdminRequestsManagement = () => {
                           <strong>Email:</strong> {request.email}
                         </div>
                         <div>
-                          <strong>Admin Type:</strong> {request.admin_type}
+                          <strong>Admin Type:</strong> {ROLE_LABELS[request.admin_type]}
                         </div>
                         {request.community_groups?.name && (
                           <div>
