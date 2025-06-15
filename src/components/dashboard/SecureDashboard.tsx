@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useCommunityAdminData } from '@/hooks/useCommunityAdminData';
@@ -6,6 +7,7 @@ import UserDashboard from '@/components/dashboard/UserDashboard';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
 import CommunityDashboard from '@/components/dashboard/community/CommunityDashboard';
 import RegistrationPending from '@/components/auth/RegistrationPending';
+import DashboardSwitcher from '@/components/dashboard/DashboardSwitcher';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, UserX } from 'lucide-react';
@@ -14,6 +16,7 @@ const SecureDashboard = () => {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const { loading: statusLoading, isApproved, memberData } = useMemberStatus();
   const { communities: adminCommunities, loading: communityLoading } = useCommunityAdminData();
+  const [dashboardView, setDashboardView] = useState<'admin' | 'user'>('admin');
 
   if (authLoading || statusLoading || communityLoading) {
     return (
@@ -29,24 +32,6 @@ const SecureDashboard = () => {
 
   if (!user) {
     return null; // This will be handled by ProtectedRoute
-  }
-
-  // Main admins can always access the admin dashboard
-  if (isAdmin) {
-    return (
-      <div className="min-h-screen bg-kic-lightGray">
-        <AdminDashboard />
-      </div>
-    );
-  }
-
-  // Community admins can access the community dashboard
-  if (adminCommunities && adminCommunities.length > 0) {
-    return (
-      <div className="min-h-screen bg-kic-lightGray">
-        <CommunityDashboard />
-      </div>
-    );
   }
 
   // Check if user is not registered at all (no member record)
@@ -87,13 +72,44 @@ const SecureDashboard = () => {
   }
 
   // Regular users need approval
-  if (!isApproved) {
+  if (!isApproved && !isAdmin) {
     return <RegistrationPending />;
   }
 
+  // Determine if user can access admin features
+  const canAccessAdmin = isAdmin || (adminCommunities && adminCommunities.length > 0);
+
+  // Handle dashboard view logic
+  const renderDashboard = () => {
+    // If user has admin privileges and chooses admin view
+    if (canAccessAdmin && dashboardView === 'admin') {
+      // Main admins get the full admin dashboard
+      if (isAdmin) {
+        return <AdminDashboard />;
+      }
+      // Community admins get the community dashboard
+      if (adminCommunities && adminCommunities.length > 0) {
+        return <CommunityDashboard />;
+      }
+    }
+    
+    // Default to user dashboard (member view)
+    return <UserDashboard />;
+  };
+
   return (
     <div className="min-h-screen bg-kic-lightGray">
-      <UserDashboard />
+      <div className="container mx-auto p-4 sm:p-6">
+        {/* Show dashboard switcher only for users with admin privileges */}
+        {canAccessAdmin && (
+          <DashboardSwitcher 
+            currentView={dashboardView}
+            onViewChange={setDashboardView}
+          />
+        )}
+        
+        {renderDashboard()}
+      </div>
     </div>
   );
 };
