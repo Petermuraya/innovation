@@ -6,7 +6,9 @@ import ElectionsList from '@/components/elections/ElectionsList';
 import VotingInterface from '@/components/elections/VotingInterface';
 import CandidateApplication from '@/components/elections/CandidateApplication';
 import ElectionResults from '@/components/elections/ElectionResults';
-import { Vote, Users, Trophy, FileText, Calendar, CheckCircle } from 'lucide-react';
+import CandidateAdManager from '@/components/elections/CandidateAdManager';
+import RealTimeVoteTracker from '@/components/elections/RealTimeVoteTracker';
+import { Vote, Users, Trophy, FileText, Calendar, CheckCircle, Megaphone, TrendingUp } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const DashboardElections = () => {
@@ -23,13 +25,13 @@ const DashboardElections = () => {
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Participate in democratic leadership selection, apply for positions, and view election results.
+              Participate in democratic leadership selection, apply for positions, manage campaigns, and view real-time results.
             </AlertDescription>
           </Alert>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="elections" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-white">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-white">
               <TabsTrigger value="elections" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">Active Elections</span>
@@ -44,6 +46,16 @@ const DashboardElections = () => {
                 <FileText className="h-4 w-4" />
                 <span className="hidden sm:inline">Apply</span>
                 <span className="sm:hidden">Apply</span>
+              </TabsTrigger>
+              <TabsTrigger value="campaigns" className="flex items-center gap-2">
+                <Megaphone className="h-4 w-4" />
+                <span className="hidden sm:inline">Campaigns</span>
+                <span className="sm:hidden">Ads</span>
+              </TabsTrigger>
+              <TabsTrigger value="tracker" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">Live Results</span>
+                <span className="sm:hidden">Live</span>
               </TabsTrigger>
               <TabsTrigger value="results" className="flex items-center gap-2">
                 <Trophy className="h-4 w-4" />
@@ -74,6 +86,22 @@ const DashboardElections = () => {
                 <h3 className="text-lg font-semibold text-kic-gray">Candidate Application</h3>
               </div>
               <CandidateApplication />
+            </TabsContent>
+
+            <TabsContent value="campaigns" className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Megaphone className="h-5 w-5 text-kic-green-600" />
+                <h3 className="text-lg font-semibold text-kic-gray">Campaign Management</h3>
+              </div>
+              <CandidateAdManager />
+            </TabsContent>
+
+            <TabsContent value="tracker" className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="h-5 w-5 text-kic-green-600" />
+                <h3 className="text-lg font-semibold text-kic-gray">Real-Time Vote Tracking</h3>
+              </div>
+              <RealTimeVoteTracker />
             </TabsContent>
 
             <TabsContent value="results" className="space-y-4">

@@ -1,107 +1,48 @@
 
-import { useState, useEffect } from "react";
+import React, { useEffect, useRef } from 'react';
+import HeroSection from '@/components/home/HeroSection';
+import StatsSection from '@/components/home/StatsSection';
+import FeaturedProjects from '@/components/home/FeaturedProjects';
+import UpcomingEvents from '@/components/home/UpcomingEvents';
+import CommunitiesSection from '@/components/home/CommunitiesSection';
+import ElectionBanner from '@/components/home/ElectionBanner';
+import { MetaHead } from '@/components/seo/MetaHead';
+import { StructuredData } from '@/components/seo/StructuredData';
 
-// Components
-import HeroSection from "@/components/home/HeroSection";
-import FeaturedProjects from "@/components/home/FeaturedProjects";
-import UpcomingEvents from "@/components/home/UpcomingEvents";
-import CommunitiesSection from "@/components/home/CommunitiesSection";
-import StatsSection from "@/components/home/StatsSection";
-import SEOHead from "@/components/seo/SEOHead";
-import StructuredData from "@/components/seo/StructuredData";
+const Index = () => {
+  const nextSectionRef = useRef<HTMLDivElement>(null);
 
-// Constants
-const SEO_CONFIG = {
-  title: "Home",
-  description: "Karatina University Innovation Club - Building technology leaders of tomorrow through innovation, collaboration, and cutting-edge projects. Join our community of tech enthusiasts.",
-  canonical: "/",
-  keywords: [
-    "Karatina University", 
-    "innovation club", 
-    "technology", 
-    "programming", 
-    "web development", 
-    "AI", 
-    "hackathons", 
-    "tech community"
-  ],
-};
-
-const HomePage = () => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const initializePage = () => {
-      console.log("Home page mounted");
-      setIsMounted(true);
-    };
-
-    const handleScroll = () => setScrollY(window.scrollY);
-
-    initializePage();
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      console.log("Home page unmounted");
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  if (!isMounted) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kic-green-500 mx-auto"></div>
-          <p className="mt-4 text-kic-gray">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const scrollToNextSection = () => {
+    nextSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   return (
     <>
-      {/* SEO Metadata */}
-      <SEOHead {...SEO_CONFIG} />
-      <StructuredData type="organization" />
-      <StructuredData type="webpage" />
-
-      {/* Page Content */}
-      <main className="flex flex-col w-full bg-kic-lightGray">
-        <HeroSection />
+      <MetaHead 
+        title="Home"
+        description="Welcome to Kabarak University Innovation Club - Where creativity meets technology. Join our community of innovators, developers, and tech enthusiasts."
+        keywords="innovation, technology, university club, programming, development, students"
+      />
+      <StructuredData />
+      
+      <div className="min-h-screen">
+        <HeroSection scrollToNextSection={scrollToNextSection} />
         
-        <section 
-          id="stats-section" 
-          aria-label="Statistics"
-          className="transform transition-all duration-300 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.02}px)` }}
-        >
+        {/* Election Banner - Only shows during active elections */}
+        <ElectionBanner />
+        
+        <div ref={nextSectionRef}>
           <StatsSection />
-        </section>
-        
-        <section 
-          className="transform transition-all duration-300 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.01}px)` }}
-        >
-          <FeaturedProjects />
-        </section>
-        
-        <section 
-          className="transform transition-all duration-300 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.005}px)` }}
-        >
-          <UpcomingEvents />
-        </section>
-        
-        <section 
-          className="transform transition-all duration-300 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.002}px)` }}
-        >
-          <CommunitiesSection />
-        </section>
-      </main>
+        </div>
+        <FeaturedProjects />
+        <UpcomingEvents />
+        <CommunitiesSection />
+      </div>
     </>
   );
 };
 
-export default HomePage;
+export default Index;

@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ad_impressions: {
+        Row: {
+          advertisement_id: string
+          id: string
+          ip_address: unknown | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          advertisement_id: string
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          advertisement_id?: string
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_impressions_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "election_advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_communications: {
         Row: {
           attachments: Json | null
@@ -1343,6 +1381,72 @@ export type Database = {
         }
         Relationships: []
       }
+      election_advertisements: {
+        Row: {
+          candidate_id: string
+          clicks_count: number | null
+          content: string
+          created_at: string
+          display_priority: number | null
+          election_id: string
+          expires_at: string | null
+          id: string
+          image_url: string | null
+          impressions_count: number | null
+          is_active: boolean | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          candidate_id: string
+          clicks_count?: number | null
+          content: string
+          created_at?: string
+          display_priority?: number | null
+          election_id: string
+          expires_at?: string | null
+          id?: string
+          image_url?: string | null
+          impressions_count?: number | null
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          clicks_count?: number | null
+          content?: string
+          created_at?: string
+          display_priority?: number | null
+          election_id?: string
+          expires_at?: string | null
+          id?: string
+          image_url?: string | null
+          impressions_count?: number | null
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "election_advertisements_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "election_candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "election_advertisements_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "elections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       election_candidates: {
         Row: {
           approved_at: string | null
@@ -1415,6 +1519,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "election_positions_election_id_fkey"
+            columns: ["election_id"]
+            isOneToOne: false
+            referencedRelation: "elections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      election_vote_tracking: {
+        Row: {
+          election_id: string
+          id: string
+          last_updated: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          total_votes: number | null
+        }
+        Insert: {
+          election_id: string
+          id?: string
+          last_updated?: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          total_votes?: number | null
+        }
+        Update: {
+          election_id?: string
+          id?: string
+          last_updated?: string
+          position_type?: Database["public"]["Enums"]["election_position"]
+          total_votes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "election_vote_tracking_election_id_fkey"
             columns: ["election_id"]
             isOneToOne: false
             referencedRelation: "elections"
@@ -3110,6 +3246,29 @@ export type Database = {
           vote_count: number
         }[]
       }
+      get_election_vote_counts: {
+        Args: { election_id_param: string }
+        Returns: {
+          position_type: Database["public"]["Enums"]["election_position"]
+          candidate_id: string
+          candidate_name: string
+          vote_count: number
+          total_position_votes: number
+        }[]
+      }
+      get_random_election_ads: {
+        Args: { limit_count?: number }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          image_url: string
+          video_url: string
+          candidate_name: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          election_title: string
+        }[]
+      }
       handle_admin_request: {
         Args: {
           request_id: string
@@ -3187,6 +3346,16 @@ export type Database = {
           p_metadata?: Json
         }
         Returns: string
+      }
+      track_ad_impression: {
+        Args: {
+          ad_id: string
+          user_id_param?: string
+          ip_address_param?: unknown
+          user_agent_param?: string
+          session_id_param?: string
+        }
+        Returns: undefined
       }
       track_community_dashboard_visit: {
         Args: { user_id_param: string; community_id_param: string }
