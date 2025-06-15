@@ -1,20 +1,7 @@
 
 import AttendanceRecordCard from './AttendanceRecordCard';
 import AttendanceEmptyState from './AttendanceEmptyState';
-
-interface AttendanceRecord {
-  id: string;
-  activity_id?: string;
-  event_id?: string;
-  workshop_id?: string;
-  user_id: string;
-  attended: boolean;
-  attendance_time: string;
-  attendance_type: string;
-  member_name: string;
-  activity_title?: string;
-  notes?: string;
-}
+import { AttendanceRecord } from './types';
 
 interface AttendanceRecordsListProps {
   records: AttendanceRecord[];

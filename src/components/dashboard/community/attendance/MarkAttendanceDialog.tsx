@@ -5,18 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, XCircle } from 'lucide-react';
-
-interface CommunityMember {
-  user_id: string;
-  name: string;
-}
-
-interface CommunityActivity {
-  id: string;
-  title: string;
-  scheduled_date: string;
-  type: 'activity' | 'event' | 'workshop';
-}
+import { CommunityMember, CommunityActivity } from './types';
 
 interface MarkAttendanceDialogProps {
   open: boolean;
