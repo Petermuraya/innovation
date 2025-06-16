@@ -1,7 +1,7 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
+
 import Layout from '@/components/layout/Layout';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
@@ -18,11 +18,15 @@ import Elections from '@/pages/Elections';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
 import Payments from '@/pages/Payments';
 import ProtectedRoute from '@/components/security/ProtectedRoute';
+import NotFound from '@/pages/NotFound';
+
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/components/notifications/NotificationProvider';
 import { Toaster } from '@/components/ui/toaster';
+
 import './App.css';
 
+// React Query client instance
 const queryClient = new QueryClient();
 
 function App() {
@@ -31,10 +35,11 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
-            <Router>
+            {/* Router with explicit basename to match vite.config.ts base */}
+            <Router basename="/innovation/">
               <Layout>
                 <Routes>
-                  {/* Public routes - accessible without authentication */}
+                  {/* Public routes */}
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/login" element={<Login />} />
@@ -44,58 +49,63 @@ function App() {
                   <Route path="/blogs" element={<Blogs />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/careers" element={<Careers />} />
-                  
-                  {/* Protected routes - require authentication */}
-                  <Route 
-                    path="/dashboard" 
+
+                  {/* Protected routes */}
+                  <Route
+                    path="/dashboard"
                     element={
                       <ProtectedRoute requireApproval={false}>
                         <Dashboard />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
-                  <Route 
-                    path="/elections" 
+                  <Route
+                    path="/elections"
                     element={
                       <ProtectedRoute requireApproval={true}>
                         <Elections />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
-                  <Route 
-                    path="/payments" 
+                  <Route
+                    path="/payments"
                     element={
                       <ProtectedRoute requireApproval={false}>
                         <Payments />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
-                  <Route 
-                    path="/community/:communityId" 
+                  <Route
+                    path="/community/:communityId"
                     element={
                       <ProtectedRoute requireApproval={true}>
                         <CommunityDashboardRouter />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
-                  <Route 
-                    path="/community-dashboard/:communityId" 
+                  <Route
+                    path="/community-dashboard/:communityId"
                     element={
                       <ProtectedRoute requireApproval={true}>
                         <CommunityDashboardRouter />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
-                  <Route 
-                    path="/test-notifications" 
+                  <Route
+                    path="/test-notifications"
                     element={
                       <ProtectedRoute requireApproval={false} requiredRole="super_admin">
                         <NotificationTesterPage />
                       </ProtectedRoute>
-                    } 
+                    }
                   />
+
+                  {/* Fallback route */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Layout>
+
+              {/* Global toast notifications */}
               <Toaster />
             </Router>
           </NotificationProvider>

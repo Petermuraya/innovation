@@ -299,7 +299,7 @@ export default function Footer() {
             
             {/* Copyright */}
             <p className="text-sm text-kic-green-200 text-center md:text-left">
-              © {currentYear} Karatina Innovation Club. Crafted with ❤️ for innovation.
+              © {currentYear} Karatina Innovation Club. Crafted by peter muraya.
             </p>
 
             {/* Legal Links */}
