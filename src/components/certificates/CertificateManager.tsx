@@ -43,15 +43,12 @@ const CertificateManager = () => {
     if (!confirm('Are you sure you want to delete this certificate?')) return;
 
     try {
-      // Delete from storage
       const fileName = certificateUrl.split('/').pop();
       if (fileName) {
         await supabase.storage
           .from('certificates')
           .remove([fileName]);
       }
-
-      // Delete record
       const { error } = await supabase
         .from('certificates')
         .delete()

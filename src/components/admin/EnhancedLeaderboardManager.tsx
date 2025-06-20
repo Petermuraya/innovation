@@ -43,8 +43,6 @@ const EnhancedLeaderboardManager = () => {
 
   useEffect(() => {
     fetchEnhancedLeaderboard();
-
-    // Set up real-time subscriptions for automatic updates
     const memberPointsChannel = supabase
       .channel('leaderboard-member-points-changes')
       .on(

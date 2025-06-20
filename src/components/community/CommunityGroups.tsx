@@ -60,11 +60,8 @@ const CommunityGroups = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // For each group, get member count, check if user is a member, and check if user is admin
       const enrichedGroups = await Promise.all(
         (groupsData || []).map(async (group) => {
-          // Get member count
           const { count: memberCount } = await supabase
             .from('community_memberships')
             .select('*', { count: 'exact', head: true })

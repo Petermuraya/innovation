@@ -65,8 +65,6 @@ const NotificationTemplateManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Transform the data to ensure proper types
       const transformedData = (data || []).map(template => ({
         ...template,
         priority: (template.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium'

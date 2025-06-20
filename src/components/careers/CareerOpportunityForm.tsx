@@ -18,8 +18,12 @@ const CareerOpportunityForm = ({ opportunity, onClose, onSuccess }: CareerOpport
   });
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div 
+     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+     >
+      <Card 
+      className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg sm:max-w-lg max-h-[90vh] overflow-y-auto mt-16"
+      >
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>{opportunity ? 'Edit' : 'Post'} Career Opportunity</CardTitle>

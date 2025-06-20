@@ -50,8 +50,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Transform the data to ensure proper types
       const transformedData = (data || []).map(notification => ({
         id: notification.id,
         title: notification.title,
@@ -113,8 +111,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.error('Error marking all notifications as read:', error);
     }
   };
-
-  // Set up real-time subscription for new notifications
   useEffect(() => {
     if (!user) return;
 

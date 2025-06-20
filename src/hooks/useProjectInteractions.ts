@@ -19,7 +19,6 @@ export const useProjectInteractions = (projectId: string) => {
 
   const fetchInteractions = async () => {
     try {
-      // Fetch likes
       const { data: likesData } = await supabase
         .from('project_likes')
         .select('*')

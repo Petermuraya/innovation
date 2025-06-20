@@ -148,7 +148,6 @@ export const useAdminNotifications = () => {
 
   const resendNotification = async (notificationId: string) => {
     try {
-      // Get the original notification details
       const { data: notification, error: fetchError } = await supabase
         .from('notifications')
         .select('*')
@@ -156,8 +155,6 @@ export const useAdminNotifications = () => {
         .single();
 
       if (fetchError) throw fetchError;
-
-      // Resend using the bulk function
       const { data, error } = await supabase.rpc('send_bulk_notification', {
         p_title: `[RESENT] ${notification.title}`,
         p_message: notification.message,

@@ -1,5 +1,5 @@
-
 import ImageUploader from '@/components/uploads/ImageUploader';
+import { useToast } from '@/hooks/use-toast';
 
 interface EventImageUploadProps {
   selectedImage: File | null;
@@ -14,10 +14,36 @@ const EventImageUpload = ({
   onImageRemove, 
   previewUrl 
 }: EventImageUploadProps) => {
+  const { toast } = useToast();
+
+  const handleImageSelect = (file: File) => {
+    try {
+      onImageSelect(file);
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to process the image",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleImageRemove = () => {
+    try {
+      onImageRemove();
+    } catch (error) {
+      toast({
+        title: "Remove Error",
+        description: "Failed to remove the image",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <ImageUploader
-      onImageSelect={onImageSelect}
-      onImageRemove={onImageRemove}
+      onImageSelect={handleImageSelect}
+      onImageRemove={handleImageRemove}
       selectedImage={selectedImage}
       previewUrl={previewUrl}
       maxSize={5}

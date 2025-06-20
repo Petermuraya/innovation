@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +11,7 @@ interface ImageUploaderProps {
   onImageRemove: () => void;
   selectedImage?: File | null;
   previewUrl?: string;
-  maxSize?: number; // in MB
+  maxSize?: number; 
   accept?: string;
   className?: string;
 }
@@ -29,6 +28,7 @@ const ImageUploader = ({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): boolean => {
     setError('');
@@ -61,6 +61,10 @@ const ImageUploader = ({
     if (file) {
       handleFileSelect(file);
     }
+    // Reset the input to allow selecting the same file again
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -82,6 +86,10 @@ const ImageUploader = ({
     e.preventDefault();
     setDragOver(false);
   }, []);
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -132,9 +140,15 @@ const ImageUploader = ({
             onChange={handleInputChange}
             className="hidden"
             id="image-upload"
+            ref={fileInputRef}
           />
           <Label htmlFor="image-upload" asChild>
-            <Button type="button" variant="outline" className="cursor-pointer">
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="cursor-pointer"
+              onClick={triggerFileInput}
+            >
               <Upload className="h-4 w-4 mr-2" />
               Choose Image
             </Button>

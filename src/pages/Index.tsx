@@ -18,7 +18,6 @@ const Index = () => {
       block: 'start'
     });
   };
-
   return (
     <>
       <MetaHead 
@@ -30,10 +29,7 @@ const Index = () => {
       
       <div className="min-h-screen">
         <HeroSection />
-        
-        {/* Election Banner - Only shows during active elections */}
         <ElectionBanner />
-        
         <div ref={nextSectionRef}>
           <StatsSection />
         </div>

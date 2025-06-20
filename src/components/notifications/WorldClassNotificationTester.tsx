@@ -9,7 +9,7 @@ import BulkCreateButton from './components/BulkCreateButton';
 const WorldClassNotificationTester = () => {
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-gradient-to-r from-purple-200 to-pink-200 shadow-xl">
+      <Card className="border-2 border-gradient-to-r from-purple-200 to-pink-200 bg-green-600">
         <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
           <CardTitle className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">

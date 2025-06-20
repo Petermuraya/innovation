@@ -14,12 +14,11 @@ const Events = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
 
   const getEventType = (event: any) => {
-    // Extract type from title or description, or default to "Event"
     const title = event.title.toLowerCase();
     if (title.includes('workshop')) return 'Workshop';
     if (title.includes('hackathon')) return 'Hackathon';
     if (title.includes('career') || title.includes('job')) return 'Career';
-    if (title.includes('meetup')) return 'Meetup';
+    if (title.includes('meetup')) return 'Meetup'; 
     if (title.includes('conference')) return 'Conference';
     return 'Event';
   };
@@ -40,15 +39,11 @@ const Events = () => {
       minute: '2-digit' 
     });
   };
-
-  // Separate upcoming and past events
   const now = new Date();
   const upcomingEvents = events.filter(event => new Date(event.date) >= now);
   const pastEvents = events.filter(event => new Date(event.date) < now);
-
-  // Convert database events to the format expected by StructuredData
   const structuredDataEvents = upcomingEvents.map((event, index) => ({
-    id: index + 1, // Convert UUID to number for StructuredData
+    id: index + 1, 
     title: event.title,
     description: event.description,
     date: event.date,
@@ -67,7 +62,6 @@ const Events = () => {
       </div>
     );
   }
-
   return (
     <div>
       <SEOHead
@@ -76,10 +70,7 @@ const Events = () => {
         canonical="/events"
         keywords={["tech events", "workshops", "hackathons", "networking", "programming bootcamp", "innovation meetups"]}
       />
-      
       <StructuredData type="events" events={structuredDataEvents} />
-
-      {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
@@ -92,8 +83,6 @@ const Events = () => {
           </div>
         </div>
       </section>
-
-      {/* Events Listing */}
       <section className="py-16 bg-white">
         <div className="container-custom">
           <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
@@ -107,7 +96,6 @@ const Events = () => {
                 </TabsTrigger>
               </TabsList>
             </div>
-            
             <TabsContent value="upcoming">
               {upcomingEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -146,7 +134,7 @@ const Events = () => {
                           <Link to={`/events/${event.id}`}>
                             {event.requires_registration ? 'Register Now' : 'View Details'}
                           </Link>
-                        </Button>
+                        </Button> 
                       </CardFooter>
                     </Card>
                   ))}
@@ -159,7 +147,6 @@ const Events = () => {
                 </div>
               )}
             </TabsContent>
-            
             <TabsContent value="past">
               {pastEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

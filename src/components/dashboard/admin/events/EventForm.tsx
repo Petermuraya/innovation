@@ -56,13 +56,17 @@ const EventForm = ({ open, onOpenChange, editingEvent, onEventSaved }: EventForm
   };
 
   return (
+
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6
+       shadow-lg sm:max-w-lg max-h-[90vh] overflow-y-auto mt-14">
         <DialogHeader>
           <DialogTitle>
             {editingEvent ? 'Edit Event' : 'Create New Event'}
           </DialogTitle>
         </DialogHeader>
+
         <div className="space-y-4">
           <EventImageUpload
             selectedImage={selectedImage}
