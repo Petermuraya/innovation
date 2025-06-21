@@ -8,42 +8,42 @@ interface HeroFeaturesProps {
 
 export default function HeroFeatures({ isVisible, isMobile }: HeroFeaturesProps) {
   const features = [
-    { 
-      icon: Users, 
-      title: "Tech Community", 
-      description: "Connect with like-minded innovators",
-      color: "from-green-400 to-green-500"
-    },
-    { 
-      icon: Code, 
-      title: "Code & Create", 
-      description: "Build amazing projects together",
-      color: "from-yellow-400 to-yellow-500"
-    },
-    { 
-      icon: Lightbulb, 
-      title: "Innovation Hub", 
-      description: "Transform ideas into reality",
-      color: "from-green-400 to-yellow-400"
-    },
-    { 
-      icon: Trophy, 
-      title: "Compete & Win", 
-      description: "Showcase your skills and achievements",
-      color: "from-yellow-500 to-green-500"
-    },
-    { 
-      icon: Zap, 
-      title: "Fast Track", 
-      description: "Accelerate your tech career",
-      color: "from-green-500 to-emerald-500"
-    },
-    { 
-      icon: Target, 
-      title: "Goal Oriented", 
-      description: "Achieve your technology dreams",
-      color: "from-yellow-400 to-amber-500"
-    }
+    // { 
+    //   icon: Users, 
+    //   title: "Tech Community", 
+    //   description: "Connect with like-minded innovators",
+    //   color: "from-green-400 to-green-500"
+    // },
+    // { 
+    //   icon: Code, 
+    //   title: "Code & Create", 
+    //   description: "Build amazing projects together",
+    //   color: "from-yellow-400 to-yellow-500"
+    // },
+    // { 
+    //   icon: Lightbulb, 
+    //   title: "Innovation Hub", 
+    //   description: "Transform ideas into reality",
+    //   color: "from-green-400 to-yellow-400"
+    // },
+    // { 
+    //   icon: Trophy, 
+    //   title: "Compete & Win", 
+    //   description: "Showcase your skills and achievements",
+    //   color: "from-yellow-500 to-green-500"
+    // },
+    // { 
+    //   icon: Zap, 
+    //   title: "Fast Track", 
+    //   description: "Accelerate your tech career",
+    //   color: "from-green-500 to-emerald-500"
+    // },
+    // { 
+    //   icon: Target, 
+    //   title: "Goal Oriented", 
+    //   description: "Achieve your technology dreams",
+    //   color: "from-yellow-400 to-amber-500"
+    // }
   ];
 
   return (

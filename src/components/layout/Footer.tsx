@@ -16,7 +16,7 @@ import {
   FaMapMarkerAlt
 } from "react-icons/fa";
 import { motion } from "framer-motion";
-import Logo from "@/assets/logo.png";
+import Logo from "@/assets/Innovation Club New Logo- Primary Logo.png";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -82,7 +82,10 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-kic-green-900 via-kic-green-800 to-kic-green-900">
+    <footer 
+    className="relative overflow-hidden  bg-gradient-to-br from-kic-amber-900 via-kic-amber-800 to-kic-amber-900"
+    // className="bg-amber-300 relative "
+    >
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         {/* Main gradient overlay */}
@@ -138,11 +141,14 @@ export default function Footer() {
                 transition={{ type: "spring", stiffness: 300 }}
                 className="relative"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-kic-green-400/30 to-kic-green-600/30 rounded-xl blur-lg group-hover:blur-xl transition-all duration-300"></div>
+                <div
+                  className="absolute inset-0"
+                 ></div>
                 <img
                   src={Logo}
                   alt="Karatina Innovation Club"
-                  className="relative h-16 w-16 rounded-xl shadow-2xl border-2 border-kic-green-400/30 group-hover:border-kic-green-300/50 transition-all duration-300"
+                  
+                  
                 />
               </motion.div>
               <div>

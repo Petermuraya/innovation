@@ -16,10 +16,8 @@ export default function HeroBackground({ scrollY }: HeroBackgroundProps) {
         <div className="absolute bottom-10 sm:bottom-20 left-1/4 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-300/20 rounded-full animate-ping" />
         <div className="absolute top-1/2 right-1/3 w-6 h-6 sm:w-8 sm:h-8 bg-yellow-300/20 rounded-full animate-pulse" />
       </div>
-
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-900/50 to-green-900/80" />
-      
       {/* Animated particles - responsive count */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(window.innerWidth < 768 ? 10 : 20)].map((_, i) => (

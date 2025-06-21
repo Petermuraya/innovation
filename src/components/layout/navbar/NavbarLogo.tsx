@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Logo from "@/assets/Logo.svg";
+import Logo from "@/assets/Innovation Club New Logo- Website Browser Icon.png";
 
 const NavbarLogo = () => {
   return (
