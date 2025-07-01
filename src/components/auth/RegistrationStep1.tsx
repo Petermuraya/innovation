@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,22 +36,19 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
 
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
-      // Check if username is already taken by querying the display_name field
-      // Since profiles.username doesn't exist, we'll use display_name instead
-      const { data, error } = await supabase
+      // Simplified approach: use count to check if username exists
+      const result = await supabase
         .from('profiles')
-        .select('display_name')
-        .eq('display_name', username.toLowerCase())
-        .single();
+        .select('display_name', { count: 'exact', head: true })
+        .eq('display_name', username.toLowerCase());
       
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "not found" which means username is available
-        console.error('Error checking username:', error);
+      if (result.error) {
+        console.error('Error checking username:', result.error);
         return true; // Assume available if there's an error
       }
       
-      // If we get data back, username is taken
-      return !data;
+      // If count is 0, username is available
+      return (result.count || 0) === 0;
     } catch (error) {
       console.error('Error checking username availability:', error);
       return true; // Assume available if there's an error
