@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,26 +18,26 @@ interface Community {
 }
 
 const RegistrationForm = () => {
-  const [step, setStep] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Step 1: Basic signup data
-  const [email, setEmail] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Step 2: Additional details
-  const [fullName, setFullName] = useState<string>("");
-  const [department, setDepartment] = useState<string>("");
-  const [course, setCourse] = useState<string>("");
-  const [year, setYear] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
+  const [fullName, setFullName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [course, setCourse] = useState("");
+  const [year, setYear] = useState("");
+  const [phone, setPhone] = useState("");
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
-  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
@@ -178,10 +177,6 @@ const RegistrationForm = () => {
         return prev;
       }
     });
-  };
-
-  const handleTermsChange = (checked: boolean) => {
-    setAcceptedTerms(checked);
   };
 
   if (step === 1) {
@@ -381,13 +376,7 @@ const RegistrationForm = () => {
                   <Checkbox
                     id={community.id}
                     checked={selectedCommunities.includes(community.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        handleCommunityToggle(community.id);
-                      } else {
-                        handleCommunityToggle(community.id);
-                      }
-                    }}
+                    onCheckedChange={() => handleCommunityToggle(community.id)}
                     disabled={!selectedCommunities.includes(community.id) && selectedCommunities.length >= 3}
                   />
                   <Label 
@@ -408,7 +397,7 @@ const RegistrationForm = () => {
             <Checkbox
               id="terms"
               checked={acceptedTerms}
-              onCheckedChange={(checked) => handleTermsChange(!!checked)}
+              onCheckedChange={(checked) => setAcceptedTerms(!!checked)}
             />
             <Label htmlFor="terms" className="text-sm text-kic-gray cursor-pointer">
               I accept the{" "}
