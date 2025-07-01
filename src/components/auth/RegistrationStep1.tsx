@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [usernameGenerated, setUsernameGenerated] = useState(false);
 
   const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
@@ -34,25 +36,86 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
-    try {
-      // Simplified approach: use count to check if username exists
-      const result = await supabase
-        .from('profiles')
-        .select('display_name', { count: 'exact', head: true })
-        .eq('display_name', username.toLowerCase());
-      
-      if (result.error) {
-        console.error('Error checking username:', result.error);
-        return true; // Assume available if there's an error
-      }
-      
-      // If count is 0, username is available
-      return (result.count || 0) === 0;
-    } catch (error) {
-      console.error('Error checking username availability:', error);
-      return true; // Assume available if there's an error
+  const generateUsernameFromEmail = (email: string): string => {
+    if (!email || !email.includes('@')) return '';
+    
+    const localPart = email.split('@')[0];
+    const parts = localPart.split('.');
+    
+    // Try different combinations
+    const options = [];
+    
+    if (parts.length >= 2) {
+      // For "ndungu.muraya", try "muraya", "ndungu", "ndungumuraya"
+      options.push(parts[parts.length - 1]); // Last part: "muraya"
+      options.push(parts[0]); // First part: "ndungu"
+      options.push(parts.join('')); // Combined: "ndungumuraya"
+    } else {
+      // Single part, use as is
+      options.push(localPart);
     }
+    
+    return options[0] || 'user';
+  };
+
+  const generateUniqueUsername = async (baseUsername: string): Promise<string> => {
+    if (!baseUsername) return 'user';
+    
+    let username = baseUsername.toLowerCase();
+    let counter = 0;
+    
+    while (counter < 100) { // Prevent infinite loops
+      try {
+        const { count } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('display_name', username);
+        
+        if (count === 0) {
+          return username;
+        }
+        
+        counter++;
+        // Generate different number formats
+        if (counter <= 9) {
+          username = `${baseUsername}${counter}`;
+        } else if (counter <= 99) {
+          username = `${baseUsername}${counter.toString().padStart(2, '0')}`;
+        } else {
+          username = `${baseUsername}${counter.toString().padStart(3, '0')}`;
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        return `${baseUsername}${Math.floor(Math.random() * 1000)}`;
+      }
+    }
+    
+    return `${baseUsername}${Math.floor(Math.random() * 10000)}`;
+  };
+
+  // Auto-generate username when email changes
+  useEffect(() => {
+    const generateUsername = async () => {
+      if (email && validateKaratinaEmail(email) && !usernameGenerated) {
+        setLoading(true);
+        const baseUsername = generateUsernameFromEmail(email);
+        const uniqueUsername = await generateUniqueUsername(baseUsername);
+        setUsername(uniqueUsername);
+        setUsernameGenerated(true);
+        setLoading(false);
+      }
+    };
+
+    if (email && !usernameGenerated) {
+      generateUsername();
+    }
+  }, [email, usernameGenerated]);
+
+  // Reset username generation when email changes
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setUsernameGenerated(false);
+    setUsername('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,9 +141,8 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
       return;
     }
 
-    const isUsernameAvailable = await checkUsernameAvailability(username);
-    if (!isUsernameAvailable) {
-      setError("Username is already taken. Please choose another one.");
+    if (!username) {
+      setError("Username is required");
       setLoading(false);
       return;
     }
@@ -105,7 +167,7 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
             type="email" 
             placeholder="e.g., john.doe@s.karu.ac.ke" 
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleEmailChange}
             required
             className="border-kic-lightGray focus:border-kic-green-500"
           />
@@ -119,14 +181,14 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
           <Input 
             id="username"
             type="text" 
-            placeholder="Choose a unique username" 
+            placeholder="Auto-generated from your email" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
             className="border-kic-lightGray focus:border-kic-green-500"
           />
           <p className="text-xs text-kic-gray/60">
-            This will be your unique identifier in the club
+            Auto-generated from your email or customize as needed
           </p>
         </div>
         
@@ -162,7 +224,7 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
           className="w-full bg-kic-green-500 hover:bg-kic-green-600" 
           disabled={loading || !validatePassword(password) || password !== confirmPassword}
         >
-          {loading ? "Validating..." : "Continue to Step 2"}
+          {loading ? "Processing..." : "Continue to Step 2"}
         </Button>
       </form>
     </>
