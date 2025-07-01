@@ -31,8 +31,6 @@ export default function HeroText({ isVisible, typingWords, isMobile }: HeroTextP
         }`}
       >
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold leading-tight">
-          <span className="block text-white drop-shadow-lg">Revealing the</span>
-          <span className="block text-white drop-shadow-lg">Treasures of</span>
           <span className="block bg-gradient-to-r from-green-300 via-yellow-300 to-green-400 bg-clip-text text-transparent filter drop-shadow-2xl">
             <TypingEffect 
               words={typingWords}

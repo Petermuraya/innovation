@@ -6,7 +6,7 @@ interface HeroBackgroundProps {
 export default function HeroBackground({ scrollY }: HeroBackgroundProps) {
   return (
     <>
-      {/* Animated background elements - responsive */}
+      {/* Simplified animated background elements - no 3D components */}
       <div 
         className="absolute inset-0 opacity-20 sm:opacity-30"
         style={{ transform: `translateY(${scrollY * 0.5}px)` }}
@@ -18,9 +18,9 @@ export default function HeroBackground({ scrollY }: HeroBackgroundProps) {
       </div>
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-900/50 to-green-900/80" />
-      {/* Animated particles - responsive count */}
+      {/* Simplified animated particles */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(window.innerWidth < 768 ? 10 : 20)].map((_, i) => (
+        {[...Array(window.innerWidth < 768 ? 8 : 15)].map((_, i) => (
           <div
             key={i}
             className="absolute w-0.5 h-0.5 sm:w-1 sm:h-1 bg-green-300/40 rounded-full animate-pulse"
