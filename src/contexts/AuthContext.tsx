@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string) => Promise<void>;
-  signUp: (email: string, password?: string) => Promise<void>;
+  signUp: (email: string, password?: string, userData?: any) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -87,10 +88,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password?: string) => {
+  const signUp = async (email: string, password?: string, userData?: any) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const signUpData: any = { email };
+      if (password) signUpData.password = password;
+      if (userData) signUpData.options = { data: userData };
+      
+      const { error } = await supabase.auth.signUp(signUpData);
       if (error) throw error;
       alert('Check your email to verify your account.');
     } catch (error) {
