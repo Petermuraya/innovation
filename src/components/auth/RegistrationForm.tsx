@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -157,16 +156,13 @@ const RegistrationForm = () => {
   ];
 
   const handleCommunityToggle = (communityId: string) => {
-    setSelectedCommunities(prev => {
-      if (prev.includes(communityId)) {
-        return prev.filter(id => id !== communityId);
-      } else if (prev.length < 3) {
-        return [...prev, communityId];
-      } else {
-        setError("You can select a maximum of 3 communities");
-        return prev;
-      }
-    });
+    if (selectedCommunities.includes(communityId)) {
+      setSelectedCommunities(prev => prev.filter(id => id !== communityId));
+    } else if (selectedCommunities.length < 3) {
+      setSelectedCommunities(prev => [...prev, communityId]);
+    } else {
+      setError("You can select a maximum of 3 communities");
+    }
   };
 
   if (step === 1) {
