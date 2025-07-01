@@ -36,7 +36,6 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
-            {/* Router without basename to match vite.config.ts base */}
             <Router>
               <Layout>
                 <Routes>
@@ -60,6 +59,17 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  
+                  {/* Member dashboard route */}
+                  <Route
+                    path="/member/user/dashboard"
+                    element={
+                      <ProtectedRoute requireApproval={false}>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  
                   <Route
                     path="/elections"
                     element={

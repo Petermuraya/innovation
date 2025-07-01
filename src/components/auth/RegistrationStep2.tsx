@@ -81,34 +81,45 @@ const RegistrationStep2 = ({ basicData, onBack }: RegistrationStep2Props) => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      console.log('Starting user registration...');
+
+      // Create the user account with email confirmation
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: basicData.email,
         password: basicData.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/member/user/dashboard`,
           data: {
-            username: basicData.username.toLowerCase(),
+            display_name: basicData.username.toLowerCase(),
             full_name: fullName,
             phone,
             department,
             course,
-            year,
+            year_of_study: year,
             communities: selectedCommunities,
           },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
-      if (error) throw error;
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw authError;
+      }
 
+      console.log('User created successfully:', authData);
+
+      // Show success message
       toast({
         title: "Registration successful!",
-        description: "Please check your Karatina University email to verify your account.",
+        description: "Please check your Karatina University email to verify your account. After verification, you'll be redirected to your dashboard.",
       });
 
-      navigate("/login");
+      // Navigate to login with a success message
+      navigate("/login?message=registration-success");
+
     } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.");
       console.error("Registration error:", err);
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

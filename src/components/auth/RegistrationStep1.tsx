@@ -42,16 +42,13 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     const localPart = email.split('@')[0];
     const parts = localPart.split('.');
     
-    // Try different combinations
     const options = [];
     
     if (parts.length >= 2) {
-      // For "ndungu.muraya", try "muraya", "ndungu", "ndungumuraya"
-      options.push(parts[parts.length - 1]); // Last part: "muraya"
-      options.push(parts[0]); // First part: "ndungu"
-      options.push(parts.join('')); // Combined: "ndungumuraya"
+      options.push(parts[parts.length - 1]);
+      options.push(parts[0]);
+      options.push(parts.join(''));
     } else {
-      // Single part, use as is
       options.push(localPart);
     }
     
@@ -60,25 +57,22 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
 
   const checkUsernameExists = async (usernameToCheck: string): Promise<boolean> => {
     try {
-      // Use a simple query with explicit typing to avoid complex inference
-      const { data, error } = await supabase
+      console.log('Checking username availability:', usernameToCheck);
+      
+      // Simple query without complex type inference
+      const { data } = await supabase
         .from('profiles')
         .select('id')
         .eq('display_name', usernameToCheck)
-        .maybeSingle();
+        .limit(1);
       
-      if (error) {
-        console.error('Error checking username:', error);
-        // In case of error, assume username exists to be safe
-        return true;
-      }
+      const exists = data && data.length > 0;
+      console.log('Username exists:', exists);
       
-      // If data exists, username is taken
-      return data !== null;
+      return exists;
     } catch (error) {
       console.error('Error checking username:', error);
-      // In case of error, assume username exists to be safe
-      return true;
+      return true; // Assume exists to be safe
     }
   };
 
@@ -88,14 +82,13 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     let username = baseUsername.toLowerCase();
     let counter = 0;
     
-    while (counter < 100) { // Prevent infinite loops
+    while (counter < 100) {
       const exists = await checkUsernameExists(username);
       
       if (!exists) {
         return username;
       }
       
-      // If username exists, try next variation
       counter++;
       if (counter <= 9) {
         username = `${baseUsername}${counter}`;
@@ -109,7 +102,6 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     return `${baseUsername}${Math.floor(Math.random() * 10000)}`;
   };
 
-  // Auto-generate username when email changes
   useEffect(() => {
     const generateUsername = async () => {
       if (email && validateKaratinaEmail(email) && !usernameGenerated) {
@@ -127,7 +119,6 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     }
   }, [email, usernameGenerated]);
 
-  // Reset username generation when email changes
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     setUsernameGenerated(false);

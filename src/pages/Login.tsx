@@ -1,48 +1,79 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Shield } from "lucide-react";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Check for registration success message
+    const message = searchParams.get('message');
+    if (message === 'registration-success') {
+      setSuccessMessage("Registration successful! Please check your email to verify your account before signing in.");
+    }
+
+    // Handle email confirmation redirect
+    const handleAuthStateChange = () => {
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          console.log('User signed in after email confirmation');
+          navigate('/member/user/dashboard');
+        }
+      });
+    };
+
+    handleAuthStateChange();
+  }, [searchParams, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccessMessage("");
+
     try {
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
+
       if (error) throw error;
+
       toast({
         title: "Success!",
-        description: "You have been logged in successfully."
+        description: "You have been logged in successfully.",
       });
-      navigate("/dashboard");
+
+      // Redirect to member dashboard
+      navigate("/member/user/dashboard");
     } catch (err: any) {
-      setError(err.message || "Login failed. Please check your email and password.");
+      if (err.message?.includes('Email not confirmed')) {
+        setError("Please confirm your email address before signing in. Check your inbox for the confirmation link.");
+      } else {
+        setError(err.message || "Login failed. Please check your email and password.");
+      }
       console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen flex items-center justify-center bg-kic-lightGray py-12 px-4 sm:px-6 lg:px-8">
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-kic-lightGray py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="inline-flex items-center justify-center mb-6">
@@ -56,14 +87,30 @@ const Login = () => {
         
         <Card className="bg-kic-white border-kic-lightGray">
           <CardContent className="pt-6">
-            {error && <Alert variant="destructive" className="mb-6">
+            {successMessage && (
+              <Alert className="mb-6 border-green-200 bg-green-50">
+                <AlertDescription className="text-green-800">{successMessage}</AlertDescription>
+              </Alert>
+            )}
+            
+            {error && (
+              <Alert variant="destructive" className="mb-6">
                 <AlertDescription>{error}</AlertDescription>
-              </Alert>}
+              </Alert>
+            )}
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-kic-gray">Email address</Label>
-                <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required className="border-kic-lightGray focus:border-kic-green-500" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="border-kic-lightGray focus:border-kic-green-500"
+                />
               </div>
               
               <div className="space-y-2">
@@ -73,10 +120,22 @@ const Login = () => {
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required className="border-kic-lightGray focus:border-kic-green-500" />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  placeholder="Enter your password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-kic-lightGray focus:border-kic-green-500"
+                />
               </div>
               
-              <Button type="submit" className="w-full bg-kic-green-500 hover:bg-kic-green-600" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-kic-green-500 hover:bg-kic-green-600" 
+                disabled={loading}
+              >
                 {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
@@ -89,13 +148,11 @@ const Login = () => {
                 Sign up
               </Link>
             </p>
-            
-            <div className="border-t border-kic-lightGray pt-4 w-full">
-              
-            </div>
           </CardFooter>
         </Card>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Login;
