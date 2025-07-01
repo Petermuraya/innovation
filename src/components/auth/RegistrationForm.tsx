@@ -174,6 +174,10 @@ const RegistrationForm = () => {
     });
   };
 
+  const handleTermsChange = (checked: boolean | "indeterminate") => {
+    setAcceptedTerms(checked === true);
+  };
+
   if (step === 1) {
     return (
       <Card className="bg-kic-white border-kic-lightGray">
@@ -392,7 +396,7 @@ const RegistrationForm = () => {
             <Checkbox
               id="terms"
               checked={acceptedTerms}
-              onCheckedChange={setAcceptedTerms}
+              onCheckedChange={handleTermsChange}
             />
             <Label htmlFor="terms" className="text-sm text-kic-gray cursor-pointer">
               I accept the{" "}
