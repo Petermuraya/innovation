@@ -24,13 +24,13 @@ const RegistrationForm = () => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  // Step 2: Additional details
+  // Step 2: Additional details - explicitly typed
   const [fullName, setFullName] = useState<string>("");
   const [department, setDepartment] = useState<string>("");
   const [course, setCourse] = useState<string>("");
   const [year, setYear] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
-  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
+  const [selectedCommunities, setSelectedCommunities] = useState<Array<string>>([]);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
   const validateKaratinaEmail = (email: string): boolean => {
@@ -155,13 +155,15 @@ const RegistrationForm = () => {
     { id: "ui-ux", name: "UI/UX Design" },
   ];
 
-  const handleCommunityToggle = (communityId: string) => {
-    const currentCommunities = selectedCommunities;
+  const handleCommunityToggle = (communityId: string): void => {
+    const current: string[] = [...selectedCommunities];
     
-    if (currentCommunities.includes(communityId)) {
-      setSelectedCommunities(currentCommunities.filter(id => id !== communityId));
-    } else if (currentCommunities.length < 3) {
-      setSelectedCommunities([...currentCommunities, communityId]);
+    if (current.includes(communityId)) {
+      const filtered: string[] = current.filter((id: string) => id !== communityId);
+      setSelectedCommunities(filtered);
+    } else if (current.length < 3) {
+      const updated: string[] = [...current, communityId];
+      setSelectedCommunities(updated);
     } else {
       setError("You can select a maximum of 3 communities");
     }
