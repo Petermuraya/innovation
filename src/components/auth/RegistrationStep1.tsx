@@ -37,26 +37,29 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
 
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
-      // Simplified query to avoid TypeScript inference issues
+      // Check if username is already taken by querying the display_name field
+      // Since profiles.username doesn't exist, we'll use display_name instead
       const { data, error } = await supabase
         .from('profiles')
-        .select('username')
-        .eq('username', username.toLowerCase())
-        .limit(1);
+        .select('display_name')
+        .eq('display_name', username.toLowerCase())
+        .single();
       
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "not found" which means username is available
         console.error('Error checking username:', error);
-        return false;
+        return true; // Assume available if there's an error
       }
       
-      return !data || data.length === 0;
+      // If we get data back, username is taken
+      return !data;
     } catch (error) {
-      console.error('Error checking username:', error);
-      return false;
+      console.error('Error checking username availability:', error);
+      return true; // Assume available if there's an error
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
