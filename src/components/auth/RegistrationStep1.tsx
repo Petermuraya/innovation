@@ -66,20 +66,22 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     
     while (counter < 100) { // Prevent infinite loops
       try {
-        // Simplified query to avoid complex type inference
-        const { data, error } = await supabase
+        // Use a simple string-based query to avoid type inference issues
+        const query = supabase
           .from('profiles')
-          .select('display_name')
-          .eq('display_name', username)
+          .select('id')
+          .eq('username', username)
           .limit(1);
         
-        if (error) {
-          console.error('Error checking username:', error);
+        const result = await query;
+        
+        if (result.error) {
+          console.error('Error checking username:', result.error);
           return `${baseUsername}${Math.floor(Math.random() * 1000)}`;
         }
         
         // If no data returned, username is available
-        if (!data || data.length === 0) {
+        if (!result.data || result.data.length === 0) {
           return username;
         }
         
