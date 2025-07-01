@@ -23,33 +23,38 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const validateKaratinaEmail = (email: string) => {
+  const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
     return karatinaEmailPattern.test(email);
   };
 
-  const validatePassword = (password: string) => {
+  const validatePassword = (password: string): boolean => {
     return password.length >= 8 &&
            /[a-z]/.test(password) &&
            /[A-Z]/.test(password) &&
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string) => {
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
-      const { data } = await supabase
+      const response = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username.toLowerCase());
       
-      return !data || data.length === 0;
+      if (response.error) {
+        console.error('Error checking username:', response.error);
+        return false;
+      }
+      
+      return !response.data || response.data.length === 0;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
