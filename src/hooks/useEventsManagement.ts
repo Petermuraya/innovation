@@ -20,6 +20,19 @@ interface Event {
   image_url?: string;
 }
 
+interface EventInput {
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  price: number;
+  visibility: string;
+  is_published: boolean;
+  max_attendees?: number;
+  requires_registration: boolean;
+  image_url?: string;
+}
+
 export const useEventsManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -47,7 +60,7 @@ export const useEventsManagement = () => {
     }
   };
 
-  const createEvent = async (eventData: Partial<Event>) => {
+  const createEvent = async (eventData: EventInput) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -58,13 +71,24 @@ export const useEventsManagement = () => {
     }
 
     try {
+      // Ensure all required fields are present
+      const insertData = {
+        title: eventData.title,
+        description: eventData.description,
+        date: eventData.date, // This is required by the database
+        location: eventData.location,
+        price: eventData.price,
+        visibility: eventData.visibility,
+        is_published: eventData.is_published,
+        max_attendees: eventData.max_attendees || null,
+        requires_registration: eventData.requires_registration,
+        status: eventData.is_published ? 'published' : 'draft',
+        image_url: eventData.image_url || null,
+      };
+
       const { error } = await supabase
         .from('events')
-        .insert({
-          ...eventData,
-          created_by: user.id,
-          status: eventData.is_published ? 'published' : 'draft',
-        });
+        .insert(insertData);
 
       if (error) throw error;
 
@@ -86,14 +110,16 @@ export const useEventsManagement = () => {
     }
   };
 
-  const updateEvent = async (eventId: string, eventData: Partial<Event>) => {
+  const updateEvent = async (eventId: string, eventData: Partial<EventInput>) => {
     try {
+      const updateData: any = {
+        ...eventData,
+        status: eventData.is_published ? 'published' : 'draft',
+      };
+
       const { error } = await supabase
         .from('events')
-        .update({
-          ...eventData,
-          status: eventData.is_published ? 'published' : 'draft',
-        })
+        .update(updateData)
         .eq('id', eventId);
 
       if (error) throw error;

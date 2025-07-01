@@ -173,8 +173,8 @@ const RegistrationForm = () => {
     });
   };
 
-  const handleTermsChange = (checked: boolean) => {
-    setAcceptedTerms(checked);
+  const handleTermsChange = (checked: boolean | string) => {
+    setAcceptedTerms(checked === true);
   };
 
   if (step === 1) {
