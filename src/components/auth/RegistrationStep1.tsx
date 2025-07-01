@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,19 +35,21 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string) => {
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
-      const result = await supabase
+      // Simplified query to avoid TypeScript inference issues
+      const { data, error } = await supabase
         .from('profiles')
         .select('username')
-        .eq('username', username.toLowerCase());
+        .eq('username', username.toLowerCase())
+        .limit(1);
       
-      if (result.error) {
-        console.error('Error checking username:', result.error);
+      if (error) {
+        console.error('Error checking username:', error);
         return false;
       }
       
-      return !result.data || result.data.length === 0;
+      return !data || data.length === 0;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;

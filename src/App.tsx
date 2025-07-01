@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
@@ -35,8 +36,8 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <NotificationProvider>
-            {/* Router with explicit basename to match vite.config.ts base */}
-            <Router basename="/innovation/">
+            {/* Router without basename to match vite.config.ts base */}
+            <Router>
               <Layout>
                 <Routes>
                   {/* Public routes */}
