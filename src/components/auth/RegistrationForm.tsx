@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,27 +12,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 
+// Define types to prevent deep type instantiation
+interface Community {
+  id: string;
+  name: string;
+}
+
 const RegistrationForm = () => {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [step, setStep] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Step 1: Basic signup data
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   // Step 2: Additional details
-  const [fullName, setFullName] = useState("");
-  const [department, setDepartment] = useState("");
-  const [course, setCourse] = useState("");
-  const [year, setYear] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState<string>("");
+  const [department, setDepartment] = useState<string>("");
+  const [course, setCourse] = useState<string>("");
+  const [year, setYear] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
   const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
@@ -149,7 +156,7 @@ const RegistrationForm = () => {
     }
   };
 
-  const communities = [
+  const communities: Community[] = [
     { id: "web-dev", name: "Web Development" },
     { id: "mobile-dev", name: "Mobile Development" },
     { id: "data-science", name: "Data Science & AI" },
@@ -173,8 +180,8 @@ const RegistrationForm = () => {
     });
   };
 
-  const handleTermsChange = (checked: boolean | string) => {
-    setAcceptedTerms(checked === true);
+  const handleTermsChange = (checked: boolean) => {
+    setAcceptedTerms(checked);
   };
 
   if (step === 1) {
@@ -374,7 +381,13 @@ const RegistrationForm = () => {
                   <Checkbox
                     id={community.id}
                     checked={selectedCommunities.includes(community.id)}
-                    onCheckedChange={() => handleCommunityToggle(community.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        handleCommunityToggle(community.id);
+                      } else {
+                        handleCommunityToggle(community.id);
+                      }
+                    }}
                     disabled={!selectedCommunities.includes(community.id) && selectedCommunities.length >= 3}
                   />
                   <Label 
@@ -395,7 +408,7 @@ const RegistrationForm = () => {
             <Checkbox
               id="terms"
               checked={acceptedTerms}
-              onCheckedChange={handleTermsChange}
+              onCheckedChange={(checked) => handleTermsChange(!!checked)}
             />
             <Label htmlFor="terms" className="text-sm text-kic-gray cursor-pointer">
               I accept the{" "}
