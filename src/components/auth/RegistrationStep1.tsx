@@ -35,19 +35,19 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  const checkUsernameAvailability = async (username: string) => {
     try {
-      const response = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username.toLowerCase());
       
-      if (response.error) {
-        console.error('Error checking username:', response.error);
+      if (error) {
+        console.error('Error checking username:', error);
         return false;
       }
       
-      return !response.data || response.data.length === 0;
+      return !data || data.length === 0;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;
