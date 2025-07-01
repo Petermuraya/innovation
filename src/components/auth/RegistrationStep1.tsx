@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,22 +60,21 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
 
   const checkUsernameExists = async (usernameToCheck: string): Promise<boolean> => {
     try {
-      // Use raw SQL query to avoid complex type inference
-      const result = await supabase.rpc('check_username_exists', { 
-        username_to_check: usernameToCheck 
-      });
+      // Use a simple query with explicit typing to avoid complex inference
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('display_name', usernameToCheck)
+        .maybeSingle();
       
-      // If RPC doesn't exist, fall back to simple query
-      if (result.error && result.error.code === '42883') {
-        const simpleQuery = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('display_name', usernameToCheck);
-        
-        return Boolean(simpleQuery.data && simpleQuery.data.length > 0);
+      if (error) {
+        console.error('Error checking username:', error);
+        // In case of error, assume username exists to be safe
+        return true;
       }
       
-      return Boolean(result.data);
+      // If data exists, username is taken
+      return data !== null;
     } catch (error) {
       console.error('Error checking username:', error);
       // In case of error, assume username exists to be safe
