@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,12 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
-
-// Define types to prevent deep type instantiation
-interface Community {
-  id: string;
-  name: string;
-}
 
 const RegistrationForm = () => {
   const [step, setStep] = useState(1);
@@ -39,27 +34,26 @@ const RegistrationForm = () => {
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const validateKaratinaEmail = (email: string): boolean => {
+  const validateKaratinaEmail = (email: string) => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
     return karatinaEmailPattern.test(email);
   };
 
-  const validatePassword = (password: string): boolean => {
+  const validatePassword = (password: string) => {
     return password.length >= 8 &&
            /[a-z]/.test(password) &&
            /[A-Z]/.test(password) &&
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  const checkUsernameAvailability = async (username: string) => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username.toLowerCase());
       
-      if (error) throw error;
-      return data.length === 0;
+      return !data || data.length === 0;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;
@@ -71,28 +65,24 @@ const RegistrationForm = () => {
     setLoading(true);
     setError("");
 
-    // Validate Karatina email
     if (!validateKaratinaEmail(email)) {
       setError("Please use a valid Karatina University email (@s.karu.ac.ke or @karu.ac.ke)");
       setLoading(false);
       return;
     }
 
-    // Validate password
     if (!validatePassword(password)) {
       setError("Password must be at least 8 characters with uppercase, lowercase, and number");
       setLoading(false);
       return;
     }
 
-    // Check password confirmation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
-    // Check username availability
     const isUsernameAvailable = await checkUsernameAvailability(username);
     if (!isUsernameAvailable) {
       setError("Username is already taken. Please choose another one.");
@@ -155,7 +145,7 @@ const RegistrationForm = () => {
     }
   };
 
-  const communities: Community[] = [
+  const communities = [
     { id: "web-dev", name: "Web Development" },
     { id: "mobile-dev", name: "Mobile Development" },
     { id: "data-science", name: "Data Science & AI" },
