@@ -1,9 +1,8 @@
 
-import EventsManagementRefactored from './events/EventsManagementRefactored';
+import AdminEventsManagement from './events/AdminEventsManagement';
 
-// This component now simply exports the refactored version
 const EnhancedEventsManagement = () => {
-  return <EventsManagementRefactored />;
+  return <AdminEventsManagement />;
 };
 
 export default EnhancedEventsManagement;

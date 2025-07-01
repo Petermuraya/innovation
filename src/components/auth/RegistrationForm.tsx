@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -174,8 +173,8 @@ const RegistrationForm = () => {
     });
   };
 
-  const handleTermsChange = (checked: boolean | "indeterminate") => {
-    setAcceptedTerms(checked === true);
+  const handleTermsChange = (checked: boolean) => {
+    setAcceptedTerms(checked);
   };
 
   if (step === 1) {
