@@ -155,14 +155,17 @@ const RegistrationForm = () => {
     { id: "ui-ux", name: "UI/UX Design" },
   ];
 
-  const handleCommunityToggle = (communityId: string): void => {
-    if (selectedCommunities.includes(communityId)) {
-      setSelectedCommunities(selectedCommunities.filter(id => id !== communityId));
-    } else if (selectedCommunities.length < 3) {
-      setSelectedCommunities([...selectedCommunities, communityId]);
-    } else {
-      setError("You can select a maximum of 3 communities");
-    }
+  const handleCommunityToggle = (communityId: string) => {
+    setSelectedCommunities(prev => {
+      if (prev.includes(communityId)) {
+        return prev.filter(id => id !== communityId);
+      } else if (prev.length < 3) {
+        return [...prev, communityId];
+      } else {
+        setError("You can select a maximum of 3 communities");
+        return prev;
+      }
+    });
   };
 
   if (step === 1) {
