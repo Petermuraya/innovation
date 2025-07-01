@@ -12,40 +12,40 @@ import { useToast } from "@/hooks/use-toast";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 
 const RegistrationForm = () => {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [step, setStep] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Step 1: Basic signup data
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   // Step 2: Additional details
-  const [fullName, setFullName] = useState("");
-  const [department, setDepartment] = useState("");
-  const [course, setCourse] = useState("");
-  const [year, setYear] = useState("");
-  const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState<string>("");
+  const [department, setDepartment] = useState<string>("");
+  const [course, setCourse] = useState<string>("");
+  const [year, setYear] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
 
-  const validateKaratinaEmail = (email: string) => {
+  const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
     return karatinaEmailPattern.test(email);
   };
 
-  const validatePassword = (password: string) => {
+  const validatePassword = (password: string): boolean => {
     return password.length >= 8 &&
            /[a-z]/.test(password) &&
            /[A-Z]/.test(password) &&
            /\d/.test(password);
   };
 
-  const checkUsernameAvailability = async (username: string) => {
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
       const { data } = await supabase
         .from('profiles')
@@ -155,11 +155,11 @@ const RegistrationForm = () => {
     { id: "ui-ux", name: "UI/UX Design" },
   ];
 
-  const handleCommunityToggle = (communityId: string) => {
+  const handleCommunityToggle = (communityId: string): void => {
     if (selectedCommunities.includes(communityId)) {
-      setSelectedCommunities(prev => prev.filter(id => id !== communityId));
+      setSelectedCommunities(selectedCommunities.filter(id => id !== communityId));
     } else if (selectedCommunities.length < 3) {
-      setSelectedCommunities(prev => [...prev, communityId]);
+      setSelectedCommunities([...selectedCommunities, communityId]);
     } else {
       setError("You can select a maximum of 3 communities");
     }
