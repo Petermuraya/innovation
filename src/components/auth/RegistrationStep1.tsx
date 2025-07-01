@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,22 +65,19 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     
     while (counter < 100) { // Prevent infinite loops
       try {
-        // Use a simple string-based query to avoid type inference issues
-        const query = supabase
+        // Simplified approach to avoid TypeScript type inference issues
+        const { count, error } = await supabase
           .from('profiles')
-          .select('id')
-          .eq('username', username)
-          .limit(1);
+          .select('*', { count: 'exact', head: true })
+          .eq('display_name', username);
         
-        const result = await query;
-        
-        if (result.error) {
-          console.error('Error checking username:', result.error);
+        if (error) {
+          console.error('Error checking username:', error);
           return `${baseUsername}${Math.floor(Math.random() * 1000)}`;
         }
         
-        // If no data returned, username is available
-        if (!result.data || result.data.length === 0) {
+        // If count is 0, username is available
+        if (count === 0) {
           return username;
         }
         
