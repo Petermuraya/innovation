@@ -54,7 +54,7 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError("");
