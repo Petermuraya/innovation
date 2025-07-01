@@ -156,16 +156,15 @@ const RegistrationForm = () => {
   ];
 
   const handleCommunityToggle = (communityId: string) => {
-    setSelectedCommunities(prev => {
-      if (prev.includes(communityId)) {
-        return prev.filter(id => id !== communityId);
-      } else if (prev.length < 3) {
-        return [...prev, communityId];
-      } else {
-        setError("You can select a maximum of 3 communities");
-        return prev;
-      }
-    });
+    const currentCommunities = selectedCommunities;
+    
+    if (currentCommunities.includes(communityId)) {
+      setSelectedCommunities(currentCommunities.filter(id => id !== communityId));
+    } else if (currentCommunities.length < 3) {
+      setSelectedCommunities([...currentCommunities, communityId]);
+    } else {
+      setError("You can select a maximum of 3 communities");
+    }
   };
 
   if (step === 1) {
