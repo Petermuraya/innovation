@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +57,31 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     return options[0] || 'user';
   };
 
+  const checkUsernameExists = async (usernameToCheck: string): Promise<boolean> => {
+    try {
+      // Use raw SQL query to avoid complex type inference
+      const result = await supabase.rpc('check_username_exists', { 
+        username_to_check: usernameToCheck 
+      });
+      
+      // If RPC doesn't exist, fall back to simple query
+      if (result.error && result.error.code === '42883') {
+        const simpleQuery = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('display_name', usernameToCheck);
+        
+        return Boolean(simpleQuery.data && simpleQuery.data.length > 0);
+      }
+      
+      return Boolean(result.data);
+    } catch (error) {
+      console.error('Error checking username:', error);
+      // In case of error, assume username exists to be safe
+      return true;
+    }
+  };
+
   const generateUniqueUsername = async (baseUsername: string): Promise<string> => {
     if (!baseUsername) return 'user';
     
@@ -65,31 +89,20 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     let counter = 0;
     
     while (counter < 100) { // Prevent infinite loops
-      try {
-        // Simplified query to avoid TypeScript inference issues
-        const { data } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('display_name', username)
-          .limit(1);
-        
-        // If no results found, username is available
-        if (!data || data.length === 0) {
-          return username;
-        }
-        
-        // If username exists, try next variation
-        counter++;
-        if (counter <= 9) {
-          username = `${baseUsername}${counter}`;
-        } else if (counter <= 99) {
-          username = `${baseUsername}${counter.toString().padStart(2, '0')}`;
-        } else {
-          username = `${baseUsername}${counter.toString().padStart(3, '0')}`;
-        }
-      } catch (error) {
-        console.error('Error checking username:', error);
-        return `${baseUsername}${Math.floor(Math.random() * 1000)}`;
+      const exists = await checkUsernameExists(username);
+      
+      if (!exists) {
+        return username;
+      }
+      
+      // If username exists, try next variation
+      counter++;
+      if (counter <= 9) {
+        username = `${baseUsername}${counter}`;
+      } else if (counter <= 99) {
+        username = `${baseUsername}${counter.toString().padStart(2, '0')}`;
+      } else {
+        username = `${baseUsername}${counter.toString().padStart(3, '0')}`;
       }
     }
     
