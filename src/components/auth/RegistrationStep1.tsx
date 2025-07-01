@@ -66,15 +66,15 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     
     while (counter < 100) { // Prevent infinite loops
       try {
-        // Simple query without complex type inference
-        const response = await supabase
+        // Simplified query to avoid TypeScript inference issues
+        const { data } = await supabase
           .from('profiles')
           .select('display_name')
           .eq('display_name', username)
-          .single();
+          .limit(1);
         
-        // If no data found (error 406), username is available
-        if (response.error && response.error.code === 'PGRST116') {
+        // If no results found, username is available
+        if (!data || data.length === 0) {
           return username;
         }
         
