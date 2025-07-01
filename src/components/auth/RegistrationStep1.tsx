@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,24 +36,24 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
 
   const checkUsernameAvailability = async (username: string) => {
     try {
-      const { data, error } = await supabase
+      const result = await supabase
         .from('profiles')
         .select('username')
         .eq('username', username.toLowerCase());
       
-      if (error) {
-        console.error('Error checking username:', error);
+      if (result.error) {
+        console.error('Error checking username:', result.error);
         return false;
       }
       
-      return !data || data.length === 0;
+      return !result.data || result.data.length === 0;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
