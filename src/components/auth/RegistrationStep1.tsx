@@ -55,67 +55,20 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
     return options[0] || 'user';
   };
 
-  const checkUsernameExists = async (usernameToCheck: string): Promise<boolean> => {
-    try {
-      console.log('Checking username availability:', usernameToCheck);
-      
-      // Simple query without complex type inference
-      const { data } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('display_name', usernameToCheck)
-        .limit(1);
-      
-      const exists = data && data.length > 0;
-      console.log('Username exists:', exists);
-      
-      return exists;
-    } catch (error) {
-      console.error('Error checking username:', error);
-      return true; // Assume exists to be safe
-    }
-  };
-
-  const generateUniqueUsername = async (baseUsername: string): Promise<string> => {
+  const generateUniqueUsername = (baseUsername: string): string => {
     if (!baseUsername) return 'user';
     
-    let username = baseUsername.toLowerCase();
-    let counter = 0;
-    
-    while (counter < 100) {
-      const exists = await checkUsernameExists(username);
-      
-      if (!exists) {
-        return username;
-      }
-      
-      counter++;
-      if (counter <= 9) {
-        username = `${baseUsername}${counter}`;
-      } else if (counter <= 99) {
-        username = `${baseUsername}${counter.toString().padStart(2, '0')}`;
-      } else {
-        username = `${baseUsername}${counter.toString().padStart(3, '0')}`;
-      }
-    }
-    
-    return `${baseUsername}${Math.floor(Math.random() * 10000)}`;
+    // Generate username with timestamp for uniqueness
+    const timestamp = Date.now().toString().slice(-4);
+    return `${baseUsername.toLowerCase()}${timestamp}`;
   };
 
   useEffect(() => {
-    const generateUsername = async () => {
-      if (email && validateKaratinaEmail(email) && !usernameGenerated) {
-        setLoading(true);
-        const baseUsername = generateUsernameFromEmail(email);
-        const uniqueUsername = await generateUniqueUsername(baseUsername);
-        setUsername(uniqueUsername);
-        setUsernameGenerated(true);
-        setLoading(false);
-      }
-    };
-
-    if (email && !usernameGenerated) {
-      generateUsername();
+    if (email && validateKaratinaEmail(email) && !usernameGenerated) {
+      const baseUsername = generateUsernameFromEmail(email);
+      const uniqueUsername = generateUniqueUsername(baseUsername);
+      setUsername(uniqueUsername);
+      setUsernameGenerated(true);
     }
   }, [email, usernameGenerated]);
 

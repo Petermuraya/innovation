@@ -92,11 +92,11 @@ const RegistrationStep2 = ({ basicData, onBack }: RegistrationStep2Props) => {
           data: {
             display_name: basicData.username.toLowerCase(),
             full_name: fullName,
-            phone,
-            department,
-            course,
+            phone: phone,
+            department: department,
+            course: course,
             year_of_study: year,
-            communities: selectedCommunities,
+            communities: JSON.stringify(selectedCommunities), // Ensure this is a string
           },
         },
       });
