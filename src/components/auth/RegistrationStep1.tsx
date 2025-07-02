@@ -10,7 +10,7 @@ import PasswordStrengthMeter from "./PasswordStrengthMeter";
 interface RegistrationStep1Props {
   onNext: (data: {
     email: string;
-    username: string;
+    fullName: string;
     password: string;
   }) => void;
 }
@@ -19,10 +19,9 @@ const RegistrationStep1 = ({ onNext }: RegistrationStep1Props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [usernameGenerated, setUsernameGenerated] = useState(false);
 
   const validateKaratinaEmail = (email: string): boolean => {
     const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
