@@ -96,7 +96,7 @@ const RegistrationStep2 = ({ basicData, onBack }: RegistrationStep2Props) => {
             department: department,
             course: course,
             year_of_study: year,
-            communities: JSON.stringify(selectedCommunities), // Ensure this is a string
+            communities: JSON.stringify(selectedCommunities),
           },
         },
       });
