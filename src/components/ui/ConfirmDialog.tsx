@@ -14,8 +14,8 @@ export const ConfirmDialog = ({ open, onClose, onConfirm, title, description }: 
   return (
     <Dialog.Root open={open} onOpenChange={onClose}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Dialog.Content className="fixed z-50 bg-white p-6 rounded-lg max-w-sm w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-lg">
+        <Dialog.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9998]" />
+        <Dialog.Content className="fixed z-[9999] bg-white p-6 rounded-lg max-w-sm w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-xl">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">{title}</h2>
             <button onClick={onClose}><X className="w-5 h-5" /></button>
