@@ -17,7 +17,6 @@ import {
 import { motion } from "framer-motion";
 import Logo from "@/assets/Innovation Club New Logo- Primary Logo.png";
 
-// Type definitions for better type safety
 interface SocialLink {
   icon: React.ReactNode;
   url: string;
@@ -37,7 +36,6 @@ interface ContactInfo {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
-  // Social links data
   const socialLinks: SocialLink[] = [
     { icon: <FaTwitter className="h-5 w-5" />, url: "https://twitter.com/", label: "Twitter" },
     { icon: <FaGithub className="h-5 w-5" />, url: "https://github.com/", label: "GitHub" },
@@ -48,7 +46,6 @@ const Footer = () => {
     { icon: <FaDiscord className="h-5 w-5" />, url: "https://discord.gg/", label: "Discord" },
   ];
 
-  // Navigation links data
   const quickLinks: NavLink[] = [
     { label: "Home", path: "/" },
     { label: "About Us", path: "/about" },
@@ -73,14 +70,12 @@ const Footer = () => {
     { label: "Contact Us", path: "/contact" },
   ];
 
-  // Contact information data
   const contactInfo: ContactInfo[] = [
     { icon: <FaEnvelope className="h-4 w-4" />, text: "info@karatinaclub.ac.ke" },
     { icon: <FaPhone className="h-4 w-4" />, text: "+254 700 000 000" },
     { icon: <FaMapMarkerAlt className="h-4 w-4" />, text: "Karatina University, Kenya" },
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -111,12 +106,14 @@ const Footer = () => {
     tap: { scale: 0.95 },
   };
 
-  // Render a list of navigation links
   const renderLinkList = (links: NavLink[], title: string) => (
-    <motion.div variants={itemVariants} className="space-y-6">
-      <h4 className="text-lg font-semibold text-white relative pb-3">
+    <motion.div 
+      variants={itemVariants} 
+      className="space-y-6 text-center md:text-left"
+    >
+      <h4 className="text-lg font-semibold text-white relative pb-3 inline-block">
         {title}
-        <div className="absolute bottom-0 left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full" />
+        <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
       </h4>
       <ul className="space-y-3">
         {links.map((link, index) => (
@@ -126,6 +123,7 @@ const Footer = () => {
             whileTap="tap"
             variants={linkHoverVariants}
             transition={{ type: "spring", stiffness: 400 }}
+            className="flex justify-center md:justify-start"
           >
             <Link
               to={link.path}
@@ -146,17 +144,13 @@ const Footer = () => {
 
   return (
     <footer className="relative overflow-hidden bg-gradient-to-br from-kic-amber-900 via-kic-amber-800 to-kic-amber-900">
-      {/* Animated Background Elements */}
+      {/* Background Elements */}
       <div className="absolute inset-0">
-        {/* Main gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-kic-green-900/95 via-kic-green-800/90 to-kic-green-900/95" />
-        
-        {/* Animated pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.3%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse" />
         </div>
 
-        {/* Floating orbs */}
         <motion.div
           animate={{
             x: [0, 100, 0],
@@ -183,7 +177,7 @@ const Footer = () => {
         />
       </div>
       
-      {/* Main Footer Content */}
+      {/* Main Content */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -191,33 +185,41 @@ const Footer = () => {
         viewport={{ once: true, margin: "-100px" }}
         className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16"
       >
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-5 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Section */}
-          <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
-            <Link to="/" className="inline-flex items-center gap-4 group">
+          <motion.div 
+            variants={itemVariants} 
+            className="lg:col-span-2 space-y-8 text-center md:text-left"
+          >
+            <Link to="/" className="inline-flex items-center gap-4 group mx-auto md:mx-0">
               <motion.div
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="relative"
               >
-                <img src={Logo} alt="Karatina Innovation Club" className="h-16 w-auto" />
+                <img 
+                  src={Logo} 
+                  alt="Karatina Innovation Club" 
+                  className="h-16 w-auto mx-auto md:mx-0"
+                />
               </motion.div>
             </Link>
 
-            <p className="text-kic-green-100 leading-relaxed text-base max-w-md">
+            <p className="text-kic-green-100 leading-relaxed text-base max-w-md mx-auto md:mx-0">
               Empowering the next generation of innovators through cutting-edge technology, 
               collaborative learning, and transformative projects that shape the future.
             </p>
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-white text-lg mb-4">Get In Touch</h4>
+              <h4 className="font-semibold text-white text-lg mb-4 text-center md:text-left">
+                Get In Touch
+              </h4>
               <div className="space-y-3">
                 {contactInfo.map((contact, index) => (
                   <motion.div
                     key={index}
                     whileHover={{ x: 5 }}
-                    className="flex items-center gap-3 text-sm text-kic-green-100 hover:text-white transition-all duration-300 cursor-pointer group"
+                    className="flex items-center gap-3 text-sm text-kic-green-100 hover:text-white transition-all duration-300 cursor-pointer justify-center md:justify-start"
                   >
                     <span className="text-kic-green-400 group-hover:text-kic-green-300 transition-colors duration-300 p-2 bg-kic-green-800/50 rounded-lg group-hover:bg-kic-green-700/50">
                       {contact.icon}
@@ -230,8 +232,10 @@ const Footer = () => {
 
             {/* Social Links */}
             <div>
-              <h4 className="font-semibold text-white mb-4 text-lg">Connect With Us</h4>
-              <div className="flex flex-wrap gap-3">
+              <h4 className="font-semibold text-white mb-4 text-lg text-center md:text-left">
+                Connect With Us
+              </h4>
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 {socialLinks.map((social, index) => (
                   <motion.a
                     key={index}
@@ -258,20 +262,23 @@ const Footer = () => {
           {/* Member Links */}
           {renderLinkList(memberLinks, "For Members")}
 
-          {/* Newsletter Signup */}
-          <motion.div variants={itemVariants} className="space-y-6">
-            <h4 className="text-lg font-semibold text-white relative pb-3">
+          {/* Newsletter Section */}
+          <motion.div 
+            variants={itemVariants} 
+            className="space-y-6 text-center md:text-left"
+          >
+            <h4 className="text-lg font-semibold text-white relative pb-3 inline-block">
               Stay Updated
-              <div className="absolute bottom-0 left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full" />
+              <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
             </h4>
-            <p className="text-kic-green-100 text-sm leading-relaxed">
+            <p className="text-kic-green-100 text-sm leading-relaxed max-w-md mx-auto md:mx-0">
               Get the latest updates on events, projects, and opportunities delivered to your inbox.
             </p>
-            <form className="space-y-4">
+            <form className="space-y-4 max-w-md mx-auto md:mx-0">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-kic-green-800/50 border-kic-green-600/50 text-white placeholder:text-kic-green-300 focus:border-kic-green-400 focus:ring-2 focus:ring-kic-green-400/30 transition-all duration-300"
+                className="bg-kic-green-800/50 border-kic-green-600/50 text-white placeholder:text-kic-green-300 focus:border-kic-green-400 focus:ring-2 focus:ring-kic-green-400/30 transition-all duration-300 w-full"
                 required
               />
               <Button
@@ -282,24 +289,22 @@ const Footer = () => {
                 <FaArrowRight className="ml-2 h-3 w-3" />
               </Button>
             </form>
-            <p className="text-xs text-kic-green-200">
+            <p className="text-xs text-kic-green-200 max-w-md mx-auto md:mx-0">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </motion.div>
         </div>
 
-        {/* Divider with gradient */}
+        {/* Divider */}
         <motion.div variants={itemVariants} className="mt-16 pt-8">
           <div className="w-full h-px bg-gradient-to-r from-transparent via-kic-green-400/50 to-transparent mb-8" />
           
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            {/* Copyright */}
             <p className="text-sm text-kic-green-200 text-center md:text-left">
               © {currentYear} Karatina Innovation Club. Crafted by peter muraya.
             </p>
 
-            {/* Legal Links */}
-            <div className="flex flex-wrap gap-6 justify-center md:justify-end">
+            <div className="flex flex-wrap gap-6 justify-center">
               {legalLinks.map((link, index) => (
                 <Link
                   key={index}
@@ -314,7 +319,7 @@ const Footer = () => {
         </motion.div>
       </motion.div>
 
-      {/* Bottom glow effect */}
+      {/* Bottom Glow */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-kic-green-500 via-kic-green-400 to-kic-green-500" />
     </footer>
   );
