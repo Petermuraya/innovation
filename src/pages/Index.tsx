@@ -22,7 +22,7 @@ const Index = () => {
     <>
       <MetaHead 
         title="Home"
-        description="Welcome to Kabarak University Innovation Club - Where creativity meets technology. Join our community of innovators, developers, and tech enthusiasts."
+        description="Welcome to kararatina University Innovation Club - Where creativity meets technology. Join our community of innovators, developers, and tech enthusiasts."
         keywords="innovation, technology, university club, programming, development, students"
       />
       <StructuredData type="organization" />
