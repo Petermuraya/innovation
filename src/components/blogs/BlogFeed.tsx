@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import BlogPost from './BlogPost';
-import BlogCreateForm from './BlogCreateForm';
 import BlogFilters from './BlogFilters';
 import { useBlogData } from './useBlogData';
 
@@ -27,14 +26,17 @@ interface BlogItem {
 }
 
 const BlogFeed = () => {
-  const { blogs, loading, availableTags, likeBlog, fetchBlogs } = useBlogData();
+  const { blogs, loading, availableTags, likeBlog } = useBlogData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('all');
 
-  // Safely filter blogs with defensive checks
-  const filteredBlogs = Array.isArray(blogs) ? blogs.filter((blog: BlogItem) => {
-    if (!blog) return false;
-    
+  // Only show published and admin-verified blogs
+  const publishedBlogs = Array.isArray(blogs) ? blogs.filter((blog: BlogItem) => {
+    return blog && blog.status === 'published' && blog.admin_verified === true;
+  }) : [];
+
+  // Filter published blogs
+  const filteredBlogs = publishedBlogs.filter((blog: BlogItem) => {
     const titleMatch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
     const contentMatch = blog.content?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
     const authorMatch = blog.author_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
@@ -44,7 +46,7 @@ const BlogFeed = () => {
                       (blog.tags && Array.isArray(blog.tags) && blog.tags.includes(selectedTag));
     
     return matchesSearch && matchesTag;
-  }) : [];
+  });
 
   if (loading) {
     return <div className="text-center py-8">Loading blogs...</div>;
@@ -52,13 +54,10 @@ const BlogFeed = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-kic-gray">Innovation Blog</h1>
-          <p className="text-kic-gray/70">Share your insights and learn from the community</p>
-        </div>
-        <BlogCreateForm />
+      {/* Header - Read-only, no create button */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-kic-gray">Innovation Blog</h1>
+        <p className="text-kic-gray/70">Discover insights and stories from our community</p>
       </div>
 
       {/* Filters */}
@@ -70,7 +69,7 @@ const BlogFeed = () => {
         allTags={availableTags}
       />
 
-      {/* Blog Posts */}
+      {/* Blog Posts - Read-only */}
       <div className="grid gap-6">
         {filteredBlogs.map((blog: BlogItem) => (
           <BlogPost
@@ -91,7 +90,7 @@ const BlogFeed = () => {
         {filteredBlogs.length === 0 && (
           <Card>
             <CardContent className="text-center py-8">
-              <p className="text-gray-600">No blog posts match your search criteria.</p>
+              <p className="text-gray-600">No published blog posts available.</p>
             </CardContent>
           </Card>
         )}

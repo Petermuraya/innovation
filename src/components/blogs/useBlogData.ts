@@ -29,32 +29,32 @@ export const useBlogData = () => {
   const { toast } = useToast();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      let query = supabase
+      // Only fetch published and admin-verified blogs for public viewing
+      const { data, error } = await supabase
         .from('blogs')
-        .select(`*, author_name:members(name)`)
-        .order('created_at', { ascending: false });
-
-      if (selectedTags.length > 0) {
-        query = query.contains('tags', selectedTags);
-      }
-
-      if (searchTerm) {
-        query = query.ilike('title', `%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
+        .select(`
+          *,
+          author_name:members!blogs_user_id_fkey(name)
+        `)
+        .eq('status', 'published')
+        .eq('admin_verified', true)
+        .order('published_at', { ascending: false });
 
       if (error) {
         throw error;
       }
 
-      setBlogs(data || []);
+      // Process the data to handle the joined author name
+      const processedData = data?.map(blog => ({
+        ...blog,
+        author_name: blog.author_name?.name || 'Anonymous'
+      })) || [];
+
+      setBlogs(processedData);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       toast({
@@ -69,7 +69,7 @@ export const useBlogData = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, [selectedTags, searchTerm]);
+  }, []);
 
   const likeBlog = async (blogId: string) => {
     if (!member) {
@@ -127,10 +127,6 @@ export const useBlogData = () => {
   return {
     blogs,
     loading,
-    selectedTags,
-    setSelectedTags,
-    searchTerm,
-    setSearchTerm,
     fetchBlogs,
     likeBlog,
     availableTags: [...new Set(blogs.flatMap(blog => blog.tags || []))],

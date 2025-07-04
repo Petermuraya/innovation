@@ -1,122 +1,156 @@
 
-import Layout from '@/components/layout/Layout';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Github, Code } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Github, Calendar, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  github_url: string;
+  live_demo_url?: string;
+  thumbnail_url?: string;
+  tech_tags?: string[];
+  created_at: string;
+  user_id: string;
+  is_featured: boolean;
+  featured_order?: number;
+}
 
 const Projects = () => {
-  const featuredProjects = [
-    {
-      id: 1,
-      title: "Smart Campus System",
-      description: "An integrated IoT solution for campus management including attendance tracking, resource optimization, and security monitoring.",
-      technologies: ["React", "Node.js", "MongoDB", "IoT"],
-      status: "In Development",
-      githubUrl: "#",
-      liveUrl: "#"
-    },
-    {
-      id: 2,
-      title: "AI Study Assistant",
-      description: "Machine learning powered study companion that helps students with personalized learning recommendations and progress tracking.",
-      technologies: ["Python", "TensorFlow", "FastAPI", "React"],
-      status: "Completed",
-      githubUrl: "#",
-      liveUrl: "#"
-    },
-    {
-      id: 3,
-      title: "Community Health Tracker",
-      description: "Mobile application for tracking and managing community health metrics with data visualization and reporting features.",
-      technologies: ["React Native", "Firebase", "Chart.js"],
-      status: "Beta Testing",
-      githubUrl: "#",
-      liveUrl: "#"
-    }
-  ];
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  return (
-    <Layout>
+  useEffect(() => {
+    fetchApprovedProjects();
+  }, []);
+
+  const fetchApprovedProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('project_submissions')
+        .select('*')
+        .eq('status', 'approved')
+        .order('is_featured', { ascending: false })
+        .order('featured_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load projects",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
       <div className="min-h-screen bg-kic-lightGray py-12">
         <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <h1 className="text-4xl font-bold text-kic-gray mb-8 text-center">
-              Our Projects
-            </h1>
-            
-            <p className="text-lg text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-              Explore the innovative projects created by our club members. From web applications 
-              to mobile apps and IoT solutions, our projects showcase the creativity and technical 
-              skills of our community.
-            </p>
+          <div className="text-center">Loading projects...</div>
+        </div>
+      </div>
+    );
+  }
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {featuredProjects.map((project) => (
+  return (
+    <div className="min-h-screen bg-kic-lightGray py-12">
+      <div className="container mx-auto px-6">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-kic-gray mb-8 text-center">
+            Innovation Projects
+          </h1>
+          
+          <p className="text-lg text-gray-600 text-center mb-12 max-w-3xl mx-auto">
+            Explore the amazing projects created by our community members. These projects showcase
+            innovation, creativity, and technical excellence.
+          </p>
+
+          {projects.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Projects Available</h3>
+                <p className="text-gray-600">
+                  Check back soon for exciting projects from our community!
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => (
                 <Card key={project.id} className="hover:shadow-lg transition-shadow">
+                  {project.thumbnail_url && (
+                    <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                      <img 
+                        src={project.thumbnail_url} 
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex justify-between items-start">
-                      <CardTitle className="text-xl">{project.title}</CardTitle>
-                      <Badge variant={project.status === 'Completed' ? 'default' : 'secondary'}>
-                        {project.status}
-                      </Badge>
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        {project.title}
+                        {project.is_featured && (
+                          <Badge variant="default" className="text-xs">Featured</Badge>
+                        )}
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-gray-600 text-sm">
-                      {project.description}
-                    </p>
+                    <p className="text-gray-600">{project.description}</p>
                     
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech) => (
-                        <Badge key={tech} variant="outline" className="text-xs">
-                          {tech}
-                        </Badge>
-                      ))}
+                    {project.tech_tags && project.tech_tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {project.tech_tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Calendar className="w-4 h-4" />
+                      <span>{new Date(project.created_at).toLocaleDateString()}</span>
                     </div>
 
-                    <div className="flex gap-3 pt-4">
-                      <a
-                        href={project.githubUrl}
-                        className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                      >
-                        <Github className="w-4 h-4" />
-                        Code
-                      </a>
-                      <a
-                        href={project.liveUrl}
-                        className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Live Demo
-                      </a>
+                    <div className="flex gap-2 pt-4">
+                      <Button asChild className="flex-1">
+                        <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                          <Github className="w-4 h-4 mr-2" />
+                          GitHub
+                        </a>
+                      </Button>
+                      {project.live_demo_url && (
+                        <Button variant="outline" asChild className="flex-1">
+                          <a href={project.live_demo_url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Demo
+                          </a>
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="w-6 h-6" />
-                  Submit Your Project
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Have an innovative project to showcase? Join our club and submit your projects 
-                  to be featured on our platform and get recognition for your work.
-                </p>
-                <div className="text-sm text-gray-500">
-                  <strong>Requirements:</strong> All projects must include proper documentation, 
-                  source code, and demonstrate practical application or innovative approach.
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          )}
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
