@@ -31,7 +31,7 @@ const Login = () => {
       supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
           console.log('User signed in after email confirmation');
-          navigate('/member/user/dashboard');
+          navigate('/dashboard');
         }
       });
     };
@@ -58,8 +58,8 @@ const Login = () => {
         description: "You have been logged in successfully.",
       });
 
-      // Redirect to member dashboard
-      navigate("/member/user/dashboard");
+      // Redirect to dashboard
+      navigate("/dashboard");
     } catch (err: any) {
       if (err.message?.includes('Email not confirmed')) {
         setError("Please confirm your email address before signing in. Check your inbox for the confirmation link.");

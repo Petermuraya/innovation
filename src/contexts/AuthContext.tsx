@@ -8,6 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
+  userRole: string | null;
   signIn: (email: string) => Promise<void>;
   signUp: (email: string, password?: string, memberData?: any) => Promise<void>;
   signOut: () => Promise<void>;
@@ -24,6 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     // Get initial session
@@ -49,29 +51,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAdminStatus = async (user: User | null) => {
     if (!user) {
       setIsAdmin(false);
+      setUserRole(null);
       return;
     }
 
     try {
-      // Check if member has any admin role
-      const { data: userRole, error } = await supabase
+      console.log('Checking admin status for user:', user.id);
+      
+      // Get all roles for the user
+      const { data: userRoles, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user.id)
-        .single();
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
+        setUserRole('member');
         return;
       }
 
-      // Consider any role other than 'member' as admin access
+      console.log('User roles found:', userRoles);
+
+      if (!userRoles || userRoles.length === 0) {
+        // User has no roles yet, default to member
+        setIsAdmin(false);
+        setUserRole('member');
+        return;
+      }
+
+      // Find the highest role (prioritize admin roles)
       const adminRoles = ['super_admin', 'general_admin', 'community_admin', 'events_admin', 'projects_admin', 'finance_admin', 'content_admin', 'technical_admin', 'marketing_admin', 'chairman', 'vice_chairman'];
-      setIsAdmin(adminRoles.includes(userRole?.role || 'member'));
+      const roles = userRoles.map(r => r.role);
+      
+      // Check if user has any admin role
+      const hasAdminRole = roles.some(role => adminRoles.includes(role));
+      
+      if (hasAdminRole) {
+        setIsAdmin(true);
+        // Set the highest priority admin role
+        const highestRole = roles.find(role => ['super_admin', 'chairman', 'vice_chairman'].includes(role)) ||
+                           roles.find(role => adminRoles.includes(role)) ||
+                           'member';
+        setUserRole(highestRole);
+        console.log('User is admin with role:', highestRole);
+      } else {
+        setIsAdmin(false);
+        setUserRole('member');
+        console.log('User is regular member');
+      }
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
+      setUserRole('member');
     }
   };
 
@@ -117,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

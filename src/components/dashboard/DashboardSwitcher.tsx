@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardSwitcherIcon from './switcher/DashboardSwitcherIcon';
 import DashboardSwitcherInfo from './switcher/DashboardSwitcherInfo';
@@ -15,31 +14,22 @@ interface DashboardSwitcherProps {
 }
 
 const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps) => {
-  const { isAdmin } = useAuth();
-  const { roleInfo, loading, isAdmin: roleBasedAdmin } = useRolePermissions();
+  const { isAdmin, userRole, loading } = useAuth();
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Combined admin check - either from AuthContext or role permissions
-  const hasAdminAccess = isAdmin || roleBasedAdmin;
-
-  console.log('DashboardSwitcher - hasAdminAccess:', hasAdminAccess, 'isAdmin:', isAdmin, 'roleBasedAdmin:', roleBasedAdmin, 'loading:', loading);
+  console.log('DashboardSwitcher - isAdmin:', isAdmin, 'userRole:', userRole, 'loading:', loading);
 
   if (loading) {
-    console.log('DashboardSwitcher - still loading role permissions');
+    console.log('DashboardSwitcher - still loading auth');
     return null;
   }
 
-  if (!hasAdminAccess) {
+  if (!isAdmin || !userRole || userRole === 'member') {
     console.log('DashboardSwitcher - no admin access detected');
     return null;
   }
 
-  if (!roleInfo) {
-    console.log('DashboardSwitcher - no role info available');
-    return null;
-  }
-
-  console.log('DashboardSwitcher - rendering with roleInfo:', roleInfo);
+  console.log('DashboardSwitcher - rendering with role:', userRole);
 
   const handleToggle = async (checked: boolean) => {
     if (isAnimating) return;
@@ -67,8 +57,8 @@ const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps
     return roleNames[role] || role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const isHighRole = ['super_admin', 'chairman', 'vice_chairman'].includes(roleInfo.assignedRole);
-  const roleDisplayName = getRoleDisplayName(roleInfo.assignedRole);
+  const isHighRole = ['super_admin', 'chairman', 'vice_chairman'].includes(userRole);
+  const roleDisplayName = getRoleDisplayName(userRole);
 
   return (
     <motion.div
@@ -95,10 +85,17 @@ const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps
                 isHighRole={isHighRole}
               />
               
-              <DashboardSwitcherInfo 
-                currentView={currentView}
-                roleDisplayName={roleDisplayName}
-              />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {currentView === 'admin' ? 'Admin Dashboard' : 'Member Dashboard'}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {currentView === 'admin' 
+                    ? `${roleDisplayName} - Administrative controls and management`
+                    : 'Member view with personal dashboard and activities'
+                  }
+                </p>
+              </div>
             </div>
             
             <DashboardSwitcherToggle 
