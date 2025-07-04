@@ -40,41 +40,10 @@ const MagicLinkTest = () => {
         console.log('Magic link sent successfully!');
         setMessage('Magic link sent! Check your email.');
         
-        // Create basic profile if user exists and has an id
-        // Note: For magic links, the user might not be immediately available
-        const user = data?.user;
-        if (user && user.id) {
-          try {
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .upsert([
-                {
-                  user_id: user.id,
-                  email: email.toLowerCase().trim()
-                }
-              ], { 
-                onConflict: 'user_id',
-                ignoreDuplicates: true 
-              });
-
-            if (!profileError) {
-              await supabase
-                .from('user_roles')
-                .upsert([
-                  {
-                    user_id: user.id,
-                    role: 'member' as const
-                  }
-                ], { 
-                  onConflict: 'user_id',
-                  ignoreDuplicates: true 
-                });
-            }
-          } catch (profileErr) {
-            console.error('Profile creation error (non-blocking):', profileErr);
-          }
-        }
-
+        // For magic links, user data is not immediately available
+        // The user will be authenticated when they click the email link
+        // Profile creation should happen in the auth state change handler or after successful authentication
+        
         toast({
           title: "Magic Link Sent! 📧",
           description: "Check your email for the sign-in link.",
