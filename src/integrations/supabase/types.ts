@@ -104,7 +104,6 @@ export type Database = {
       admin_requests: {
         Row: {
           admin_code: string | null
-          admin_type: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id: string | null
           created_at: string
           email: string
@@ -119,7 +118,6 @@ export type Database = {
         }
         Insert: {
           admin_code?: string | null
-          admin_type?: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id?: string | null
           created_at?: string
           email: string
@@ -134,7 +132,6 @@ export type Database = {
         }
         Update: {
           admin_code?: string | null
-          admin_type?: Database["public"]["Enums"]["comprehensive_role"] | null
           community_id?: string | null
           created_at?: string
           email?: string
@@ -1885,19 +1882,16 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          role: Database["public"]["Enums"]["comprehensive_role"]
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: number
-          role?: Database["public"]["Enums"]["comprehensive_role"]
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: number
-          role?: Database["public"]["Enums"]["comprehensive_role"]
           user_id?: string | null
         }
         Relationships: []
@@ -2436,34 +2430,28 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          course: string | null
           created_at: string | null
+          email: string | null
+          full_name: string | null
           id: string
-          phone: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          course?: string | null
           created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string
-          phone?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          course?: string | null
           created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string
-          phone?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2720,22 +2708,16 @@ export type Database = {
       }
       role_hierarchy: {
         Row: {
-          child_role: Database["public"]["Enums"]["comprehensive_role"]
           created_at: string | null
           id: string
-          parent_role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Insert: {
-          child_role: Database["public"]["Enums"]["comprehensive_role"]
           created_at?: string | null
           id?: string
-          parent_role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Update: {
-          child_role?: Database["public"]["Enums"]["comprehensive_role"]
           created_at?: string | null
           id?: string
-          parent_role?: Database["public"]["Enums"]["comprehensive_role"]
         }
         Relationships: []
       }
@@ -2746,7 +2728,6 @@ export type Database = {
           id: string
           permission_key: string
           permission_name: string
-          role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Insert: {
           created_at?: string | null
@@ -2754,7 +2735,6 @@ export type Database = {
           id?: string
           permission_key: string
           permission_name: string
-          role: Database["public"]["Enums"]["comprehensive_role"]
         }
         Update: {
           created_at?: string | null
@@ -2762,7 +2742,6 @@ export type Database = {
           id?: string
           permission_key?: string
           permission_name?: string
-          role?: Database["public"]["Enums"]["comprehensive_role"]
         }
         Relationships: []
       }
@@ -2861,18 +2840,21 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          created_at: string | null
           id: string
-          role: Database["public"]["Enums"]["comprehensive_role"]
+          role: Database["public"]["Enums"]["simple_role"] | null
           user_id: string | null
         }
         Insert: {
+          created_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["comprehensive_role"]
+          role?: Database["public"]["Enums"]["simple_role"] | null
           user_id?: string | null
         }
         Update: {
+          created_at?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["comprehensive_role"]
+          role?: Database["public"]["Enums"]["simple_role"] | null
           user_id?: string | null
         }
         Relationships: []
@@ -3173,31 +3155,6 @@ export type Database = {
         }
         Relationships: []
       }
-      member_management_view: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          certificates_earned: number | null
-          course: string | null
-          created_at: string | null
-          email: string | null
-          events_attended: number | null
-          github_username: string | null
-          id: string | null
-          linkedin_url: string | null
-          name: string | null
-          phone: string | null
-          projects_submitted: number | null
-          registration_status: string | null
-          roles: Database["public"]["Enums"]["comprehensive_role"][] | null
-          skills: string[] | null
-          total_points: number | null
-          updated_at: string | null
-          user_id: string | null
-          year_of_study: string | null
-        }
-        Relationships: []
-      }
       project_leaderboard: {
         Row: {
           admin_notes: string | null
@@ -3267,19 +3224,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      user_roles_with_hierarchy: {
-        Row: {
-          assigned_role:
-            | Database["public"]["Enums"]["comprehensive_role"]
-            | null
-          inherited_roles:
-            | Database["public"]["Enums"]["comprehensive_role"][]
-            | null
-          permissions: string[] | null
-          user_id: string | null
-        }
-        Relationships: []
       }
     }
     Functions: {
@@ -3388,20 +3332,6 @@ export type Database = {
         Args: { _user_id: string; _permission_key: string }
         Returns: boolean
       }
-      has_role: {
-        Args: {
-          _user_id: string
-          _role: Database["public"]["Enums"]["comprehensive_role"]
-        }
-        Returns: boolean
-      }
-      has_role_or_higher: {
-        Args: {
-          _user_id: string
-          _required_role: Database["public"]["Enums"]["comprehensive_role"]
-        }
-        Returns: boolean
-      }
       increment_payment_reminder: {
         Args: { reminder_user_id: string; reminder_type_param: string }
         Returns: undefined
@@ -3486,19 +3416,6 @@ export type Database = {
         | "organizing_secretary"
         | "community_admin"
         | "general_admin"
-      comprehensive_role:
-        | "member"
-        | "super_admin"
-        | "general_admin"
-        | "community_admin"
-        | "events_admin"
-        | "projects_admin"
-        | "finance_admin"
-        | "content_admin"
-        | "technical_admin"
-        | "marketing_admin"
-        | "chairman"
-        | "vice_chairman"
       election_position:
         | "chairman"
         | "vice_chairman"
@@ -3513,6 +3430,7 @@ export type Database = {
         | "voting_open"
         | "completed"
         | "cancelled"
+      simple_role: "member" | "admin" | "super_admin"
       submission_status: "pending" | "in_progress" | "resolved" | "closed"
       submission_type: "complaint" | "recommendation" | "thought"
     }
@@ -3638,20 +3556,6 @@ export const Constants = {
         "community_admin",
         "general_admin",
       ],
-      comprehensive_role: [
-        "member",
-        "super_admin",
-        "general_admin",
-        "community_admin",
-        "events_admin",
-        "projects_admin",
-        "finance_admin",
-        "content_admin",
-        "technical_admin",
-        "marketing_admin",
-        "chairman",
-        "vice_chairman",
-      ],
       election_position: [
         "chairman",
         "vice_chairman",
@@ -3668,6 +3572,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      simple_role: ["member", "admin", "super_admin"],
       submission_status: ["pending", "in_progress", "resolved", "closed"],
       submission_type: ["complaint", "recommendation", "thought"],
     },

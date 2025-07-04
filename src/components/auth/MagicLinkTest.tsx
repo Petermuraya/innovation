@@ -25,7 +25,8 @@ const MagicLinkTest = () => {
       const { data, error } = await supabase.auth.signInWithOtp({
         email: email.toLowerCase().trim(),
         options: {
-          shouldCreateUser: true
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
@@ -38,6 +39,40 @@ const MagicLinkTest = () => {
       } else {
         console.log('Magic link sent successfully!');
         setMessage('Magic link sent! Check your email.');
+        
+        // Create basic profile if user doesn't exist
+        if (data.user) {
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .upsert([
+                {
+                  user_id: data.user.id,
+                  email: email.toLowerCase().trim()
+                }
+              ], { 
+                onConflict: 'user_id',
+                ignoreDuplicates: true 
+              });
+
+            if (!profileError) {
+              await supabase
+                .from('user_roles')
+                .upsert([
+                  {
+                    user_id: data.user.id,
+                    role: 'member'
+                  }
+                ], { 
+                  onConflict: 'user_id',
+                  ignoreDuplicates: true 
+                });
+            }
+          } catch (profileErr) {
+            console.error('Profile creation error (non-blocking):', profileErr);
+          }
+        }
+
         toast({
           title: "Magic Link Sent! 📧",
           description: "Check your email for the sign-in link.",
@@ -57,7 +92,7 @@ const MagicLinkTest = () => {
       <CardHeader>
         <CardTitle className="text-gray-900">Test Magic Link Authentication</CardTitle>
         <CardDescription className="text-gray-600">
-          This will test if basic Supabase auth is working
+          Quick sign-in without password (creates account if needed)
         </CardDescription>
       </CardHeader>
       <CardContent>
