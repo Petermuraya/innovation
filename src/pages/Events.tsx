@@ -11,13 +11,19 @@ interface Event {
   id: string;
   title: string;
   description: string;
-  event_date: string;
+  date: string;
   location: string;
-  max_participants?: number;
-  registration_required: boolean;
-  status: string;
+  max_attendees?: number;
+  is_published: boolean;
   image_url?: string;
-  registration_fee?: number;
+  price?: number;
+  created_at: string;
+  created_by: string;
+  registration_fields?: any;
+  slug?: string;
+  tags?: string[];
+  updated_at: string;
+  visibility: string;
 }
 
 const Events = () => {
@@ -34,9 +40,9 @@ const Events = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('status', 'published')
-        .gte('event_date', new Date().toISOString())
-        .order('event_date', { ascending: true });
+        .eq('is_published', true)
+        .gte('date', new Date().toISOString())
+        .order('date', { ascending: true });
 
       if (error) throw error;
       setEvents(data || []);
@@ -112,8 +118,8 @@ const Events = () => {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-xl">{event.title}</CardTitle>
-                      {event.registration_required && (
-                        <Badge variant="secondary">Registration Required</Badge>
+                      {event.price && event.price > 0 && (
+                        <Badge variant="secondary">KSH {event.price}</Badge>
                       )}
                     </div>
                   </CardHeader>
@@ -123,7 +129,7 @@ const Events = () => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Calendar className="w-4 h-4" />
-                        <span>{formatDate(event.event_date)}</span>
+                        <span>{formatDate(event.date)}</span>
                       </div>
                       
                       <div className="flex items-center gap-2 text-gray-600">
@@ -131,24 +137,24 @@ const Events = () => {
                         <span>{event.location}</span>
                       </div>
                       
-                      {event.max_participants && (
+                      {event.max_attendees && (
                         <div className="flex items-center gap-2 text-gray-600">
                           <Users className="w-4 h-4" />
-                          <span>Max {event.max_participants} participants</span>
+                          <span>Max {event.max_attendees} participants</span>
                         </div>
                       )}
 
-                      {event.registration_fee && event.registration_fee > 0 && (
+                      {event.price && event.price > 0 && (
                         <div className="flex items-center gap-2 text-gray-600">
                           <Clock className="w-4 h-4" />
-                          <span>Fee: KSH {event.registration_fee}</span>
+                          <span>Fee: KSH {event.price}</span>
                         </div>
                       )}
                     </div>
 
                     <div className="pt-4">
                       <Button className="w-full">
-                        {event.registration_required ? 'Register Now' : 'Learn More'}
+                        {event.price && event.price > 0 ? 'Register Now' : 'Learn More'}
                       </Button>
                     </div>
                   </CardContent>
