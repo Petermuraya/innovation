@@ -10,7 +10,7 @@ interface BlogItem {
   id: string;
   title: string;
   content: string;
-  excerpt?: string;
+  excerpt: string; // Make required to match Blog type
   featured_image?: string;
   video_url?: string;
   tags?: string[];

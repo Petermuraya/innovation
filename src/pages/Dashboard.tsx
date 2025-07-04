@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import SecureDashboard from '@/components/dashboard/SecureDashboard';
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { member, loading } = useAuth();
 
   if (loading) {
     return (
@@ -21,7 +21,7 @@ const Dashboard = () => {
     );
   }
 
-  if (!user) {
+  if (!member) {
     return <Navigate to="/login" replace />;
   }
 

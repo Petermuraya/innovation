@@ -44,7 +44,7 @@ const EventForm = ({ open, onOpenChange, editingEvent, onEventSaved }: EventForm
     resetForm,
     loadEventData,
     handleSubmit,
-  } = useEventForm(editingEvent, onEventSaved, () => onOpenChange(false));
+  } = useEventForm(editingEvent, onEventSaved);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen && editingEvent) {
@@ -55,10 +55,13 @@ const EventForm = ({ open, onOpenChange, editingEvent, onEventSaved }: EventForm
     onOpenChange(newOpen);
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(e);
+  };
+
   return (
-
     <Dialog open={open} onOpenChange={handleOpenChange}>
-
       <DialogContent className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6
        shadow-lg sm:max-w-lg max-h-[90vh] overflow-y-auto mt-14">
         <DialogHeader>
@@ -97,7 +100,7 @@ const EventForm = ({ open, onOpenChange, editingEvent, onEventSaved }: EventForm
           />
 
           <EventFormActions
-            onSubmit={handleSubmit}
+            onSubmit={handleFormSubmit}
             onCancel={() => handleOpenChange(false)}
             submitting={submitting}
             isEditing={!!editingEvent}

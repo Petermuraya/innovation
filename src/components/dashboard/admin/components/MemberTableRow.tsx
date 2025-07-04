@@ -7,8 +7,24 @@ import { Eye, Phone, Mail, Calendar } from 'lucide-react';
 import { Member } from '../types/members';
 import MemberDetailsDialog from './MemberDetailsDialog';
 import MemberStatusBadge from './MemberStatusBadge';
-import MemberActionsDropdown from './MemberActionsDropdown';
 import { getTimeAgo } from './utils/memberTableUtils';
+
+interface MemberActionsDropdownProps {
+  member: Member;
+  onStatusUpdate: (memberId: string, status: string) => Promise<void>;
+  onDeleteMember: (member: Member) => void;
+  isLoading: string | null;
+}
+
+const MemberActionsDropdown = ({ member, onStatusUpdate, onDeleteMember, isLoading }: MemberActionsDropdownProps) => {
+  return (
+    <div className="flex gap-2">
+      <Button size="sm" variant="outline">
+        Actions
+      </Button>
+    </div>
+  );
+};
 
 interface MemberTableRowProps {
   member: Member;

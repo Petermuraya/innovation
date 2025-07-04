@@ -3,8 +3,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Plus, Minus } from 'lucide-react';
-import { AppRole, Member, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
-import MemberActionsDropdown from './MemberActionsDropdown';
+import { AppRole, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
+
+interface Member {
+  id: string;
+  email: string;
+  name: string;
+  roles?: AppRole[];
+  registration_status: string;
+  phone?: string;
+  course?: string;
+  created_at: string;
+}
+
+interface MemberActionsDropdownProps {
+  member: Member;
+  onEditMember: (member: Member) => void;
+  onDeleteMember: (member: Member) => void;
+}
+
+const MemberActionsDropdown = ({ member, onEditMember, onDeleteMember }: MemberActionsDropdownProps) => {
+  return (
+    <div className="flex gap-2">
+      <Button size="sm" variant="outline" onClick={() => onEditMember(member)}>
+        Edit
+      </Button>
+      <Button size="sm" variant="destructive" onClick={() => onDeleteMember(member)}>
+        Delete
+      </Button>
+    </div>
+  );
+};
 
 interface MemberListProps {
   members: Member[];

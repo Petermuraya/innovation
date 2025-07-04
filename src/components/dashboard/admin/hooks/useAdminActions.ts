@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,11 +32,11 @@ export const useAdminActions = () => {
           success = true;
           break;
         case 'rejectBlog':
-          const { error: rejectError } = await supabase
+          const { error: blogRejectError } = await supabase
             .from('blogs')
             .update({ status: 'rejected' })
             .eq('id', targetId);
-          if (rejectError) throw rejectError;
+          if (blogRejectError) throw blogRejectError;
           success = true;
           break;
         case 'approveProject':
@@ -47,11 +48,11 @@ export const useAdminActions = () => {
           success = true;
           break;
         case 'rejectProject':
-          const { error: rejectError } = await supabase
+          const { error: projectRejectError } = await supabase
             .from('project_submissions')
             .update({ status: 'rejected' })
             .eq('id', targetId);
-          if (rejectError) throw rejectError;
+          if (projectRejectError) throw projectRejectError;
           success = true;
           break;
         // Add more cases as needed

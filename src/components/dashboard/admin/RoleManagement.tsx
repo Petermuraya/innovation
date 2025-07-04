@@ -4,7 +4,6 @@ import RoleAssignmentCard from './components/RoleAssignmentCard';
 import MemberRolesList from './components/MemberRolesList';
 import RoleManagementAccessDenied from './components/RoleManagementAccessDenied';
 import { useRoleManagement } from './hooks/useRoleManagement';
-import { convertMemberToMemberWithRole } from '@/types/roles';
 
 const RoleManagement = () => {
   const { isPatron, isChairperson } = useRolePermissions();
@@ -18,8 +17,11 @@ const RoleManagement = () => {
     return <RoleManagementAccessDenied />;
   }
 
-  // Convert Member[] to MemberWithRole[] for compatibility
-  const membersWithRole = members.map(convertMemberToMemberWithRole);
+  // Convert members to include default empty roles array if needed
+  const membersWithRole = members.map(member => ({
+    ...member,
+    roles: member.roles || []
+  }));
 
   return (
     <div className="space-y-6">
