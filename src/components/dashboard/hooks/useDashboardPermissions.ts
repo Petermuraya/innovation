@@ -18,7 +18,7 @@ export const useDashboardPermissions = () => {
   const adminCommunities = []; // This would come from a separate hook in a real implementation
 
   // Admin access is determined by having any admin role
-  const hasAdminAccess = isAdmin || hasRolePermission('manage_users');
+  const hasAdminAccess = isAdmin || (userRole ? hasRolePermission('manage_users') : false);
 
   const isLoading = authLoading || statusLoading || roleLoading;
 
@@ -29,7 +29,7 @@ export const useDashboardPermissions = () => {
     memberData,
     isApproved,
     adminCommunities,
-    roleInfo: roleInfo || { assignedRole: userRole, inheritedRoles: [userRole || 'member'], permissions: [] },
+    roleInfo: roleInfo || { assignedRole: userRole || 'member', inheritedRoles: [userRole || 'member'], permissions: [] },
     hasAdminAccess,
     isLoading,
     authLoading,

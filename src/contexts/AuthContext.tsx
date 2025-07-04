@@ -2,13 +2,14 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { AppRole } from '@/types/roles';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  userRole: string | null;
+  userRole: AppRole | null;
   signIn: (email: string) => Promise<void>;
   signUp: (email: string, password?: string, memberData?: any) => Promise<void>;
   signOut: () => Promise<void>;
@@ -25,7 +26,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
 
   useEffect(() => {
     // Get initial session
@@ -93,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // Define admin roles in hierarchy order (highest to lowest)
-      const adminRoles = [
+      const adminRoles: AppRole[] = [
         'super_admin', 
         'chairman', 
         'vice_chairman',
@@ -108,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'marketing_admin'
       ];
       
-      const roles = userRoles.map(r => r.role);
+      const roles = userRoles.map(r => r.role as AppRole);
       
       // Check if user has any admin role
       const hasAdminRole = roles.some(role => adminRoles.includes(role));
