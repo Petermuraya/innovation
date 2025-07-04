@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { getZIndexClass } from '@/lib/zIndexUtils';
 import NavbarLogo from './navbar/NavbarLogo';
 import NavbarDesktopMenu from './navbar/NavbarDesktopMenu';
 import NavbarUserActions from './navbar/NavbarUserActions';
@@ -24,7 +25,8 @@ const Navbar = () => {
   return (
     <nav 
       className={cn(
-        "bg-white/98 backdrop-blur-xl sticky top-0 z-[9990] transition-all duration-500 border-b-2 shadow-lg",
+        "bg-white/98 backdrop-blur-xl sticky top-0 transition-all duration-500 border-b-2 shadow-lg",
+        getZIndexClass('navbar'),
         isScrolled 
           ? "border-kic-green-200 py-2 shadow-xl shadow-kic-green-100/30 bg-white/99" 
           : "border-kic-green-100/50 py-3 shadow-lg shadow-kic-green-50/20"

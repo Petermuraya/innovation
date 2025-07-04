@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,14 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { validateRegistrationForm, type RegistrationFormData } from "./RegistrationFormValidation";
 
 const RegistrationForm = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegistrationFormData>({
     email: "",
     fullName: "",
     phone: "",
@@ -28,58 +30,28 @@ const RegistrationForm = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const handleCourseChange = (value: string) => {
     setFormData(prev => ({ ...prev, course: value }));
-  };
-
-  const validateKaratinaEmail = (email: string): boolean => {
-    const karatinaEmailPattern = /^[a-zA-Z0-9._%+-]+@(s\.karu\.ac\.ke|karu\.ac\.ke)$/;
-    return karatinaEmailPattern.test(email);
-  };
-
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 6;
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setErrors([]);
 
-    if (!validateKaratinaEmail(formData.email)) {
-      setError("Please use a valid Karatina University email (@s.karu.ac.ke or @karu.ac.ke)");
-      setLoading(false);
-      return;
-    }
-
-    if (!validatePassword(formData.password)) {
-      setError("Password must be at least 6 characters");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.fullName.trim()) {
-      setError("Full name is required");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.phone.trim()) {
-      setError("Phone number is required");
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.course) {
-      setError("Please select your course");
+    // Validate form
+    const validation = validateRegistrationForm(formData);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
       setLoading(false);
       return;
     }
@@ -120,11 +92,13 @@ const RegistrationForm = () => {
 
     } catch (err: any) {
       console.error("Registration error:", err);
-      setError(err.message || "Registration failed. Please try again.");
+      setErrors([err.message || "Registration failed. Please try again."]);
     } finally {
       setLoading(false);
     }
   };
+
+  const isFormValid = formData.email && formData.fullName && formData.phone && formData.course && formData.password && formData.confirmPassword;
 
   return (
     <Card className="bg-white border-gray-200">
@@ -135,9 +109,15 @@ const RegistrationForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {error && (
+        {errors.length > 0 && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>
+              <ul className="list-disc list-inside space-y-1">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
           </Alert>
         )}
         
@@ -177,7 +157,7 @@ const RegistrationForm = () => {
               id="phone"
               name="phone"
               type="tel" 
-              placeholder="Enter your phone number" 
+              placeholder="0712345678 or +254712345678" 
               value={formData.phone}
               onChange={handleInputChange}
               required
@@ -187,10 +167,10 @@ const RegistrationForm = () => {
           <div className="space-y-2">
             <Label htmlFor="course">Course</Label>
             <Select value={formData.course} onValueChange={handleCourseChange}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select your course" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
                 <SelectItem value="computer_science">Computer Science</SelectItem>
                 <SelectItem value="information_technology">Information Technology</SelectItem>
                 <SelectItem value="software_engineering">Software Engineering</SelectItem>
@@ -213,6 +193,9 @@ const RegistrationForm = () => {
               onChange={handleInputChange}
               required
             />
+            <p className="text-xs text-gray-500">
+              Must be at least 6 characters with uppercase and lowercase letters
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -231,7 +214,7 @@ const RegistrationForm = () => {
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={loading || !validatePassword(formData.password) || formData.password !== formData.confirmPassword || !formData.fullName.trim() || !formData.phone.trim() || !formData.course}
+            disabled={loading || !isFormValid}
           >
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
