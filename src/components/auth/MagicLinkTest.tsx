@@ -40,14 +40,15 @@ const MagicLinkTest = () => {
         console.log('Magic link sent successfully!');
         setMessage('Magic link sent! Check your email.');
         
-        // Create basic profile if user doesn't exist and data.user exists
+        // Create basic profile if user exists and has an id
         if (data?.user?.id) {
+          const userId = data.user.id;
           try {
             const { error: profileError } = await supabase
               .from('profiles')
               .upsert([
                 {
-                  user_id: data.user.id,
+                  user_id: userId,
                   email: email.toLowerCase().trim()
                 }
               ], { 
@@ -55,12 +56,12 @@ const MagicLinkTest = () => {
                 ignoreDuplicates: true 
               });
 
-            if (!profileError && data.user.id) {
+            if (!profileError) {
               await supabase
                 .from('user_roles')
                 .upsert([
                   {
-                    user_id: data.user.id,
+                    user_id: userId,
                     role: 'member' as const
                   }
                 ], { 
