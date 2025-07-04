@@ -5,30 +5,53 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppRole } from '@/types/roles';
 
+interface Member {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  registration_status: string;
+  created_at: string;
+  updated_at: string;
+  roles?: AppRole[];
+}
+
 interface UserRole {
   user_id: string;
   role: AppRole;
   created_at: string;
 }
 
-export const useRoleManagement = () => {
+export const useRoleManagement = (canManageRoles: boolean = false) => {
   const { member } = useAuth();
   const { toast } = useToast();
+  const [members, setMembers] = useState<Member[]>([]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserRoles = async () => {
+  const fetchMembers = async () => {
+    if (!canManageRoles) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      // Since user_roles table doesn't exist in current schema, 
-      // we'll use a placeholder implementation
-      setUserRoles([]);
-      console.log('Role management not fully implemented - user_roles table not available');
+      // Fetch members from the actual members table
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('*')
+        .eq('registration_status', 'approved');
+
+      if (membersError) throw membersError;
+
+      setMembers(membersData || []);
+      setUserRoles([]); // Since user_roles table doesn't exist, keep empty
     } catch (error) {
-      console.error('Error fetching user roles:', error);
+      console.error('Error fetching members:', error);
       toast({
         title: "Error",
-        description: "Failed to load user roles",
+        description: "Failed to load members",
         variant: "destructive",
       });
     } finally {
@@ -38,10 +61,9 @@ export const useRoleManagement = () => {
 
   const assignRole = async (userId: string, role: AppRole) => {
     try {
-      // Placeholder implementation
       toast({
         title: "Not Implemented",
-        description: "Role assignment not yet implemented",
+        description: "Role assignment not yet implemented - user_roles table not available",
         variant: "destructive",
       });
     } catch (error) {
@@ -56,10 +78,9 @@ export const useRoleManagement = () => {
 
   const removeRole = async (userId: string, role: AppRole) => {
     try {
-      // Placeholder implementation
       toast({
         title: "Not Implemented",
-        description: "Role removal not yet implemented",
+        description: "Role removal not yet implemented - user_roles table not available",
         variant: "destructive",
       });
     } catch (error) {
@@ -73,16 +94,17 @@ export const useRoleManagement = () => {
   };
 
   useEffect(() => {
-    if (member) {
-      fetchUserRoles();
+    if (member && canManageRoles) {
+      fetchMembers();
     }
-  }, [member]);
+  }, [member, canManageRoles]);
 
   return {
+    members,
     userRoles,
     loading,
     assignRole,
     removeRole,
-    refetch: fetchUserRoles,
+    refetch: fetchMembers,
   };
 };

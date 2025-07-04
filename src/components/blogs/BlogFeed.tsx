@@ -6,7 +6,7 @@ import BlogCreateForm from './BlogCreateForm';
 import BlogFilters from './BlogFilters';
 import { useBlogData } from './useBlogData';
 
-interface Blog {
+interface BlogItem {
   id: string;
   title: string;
   content: string;
@@ -32,7 +32,7 @@ const BlogFeed = () => {
   const [selectedTag, setSelectedTag] = useState('all');
 
   // Safely filter blogs with defensive checks
-  const filteredBlogs = Array.isArray(blogs) ? blogs.filter((blog: Blog) => {
+  const filteredBlogs = Array.isArray(blogs) ? blogs.filter((blog: BlogItem) => {
     if (!blog) return false;
     
     const titleMatch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
@@ -72,7 +72,7 @@ const BlogFeed = () => {
 
       {/* Blog Posts */}
       <div className="grid gap-6">
-        {filteredBlogs.map((blog: Blog) => (
+        {filteredBlogs.map((blog: BlogItem) => (
           <BlogPost
             key={blog.id}
             blog={blog}

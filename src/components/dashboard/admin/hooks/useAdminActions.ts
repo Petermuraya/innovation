@@ -1,89 +1,86 @@
-
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAdminActions = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
-  const updateMemberStatus = async (memberId: string, status: string) => {
-    console.log('Updating member status:', memberId, status);
+  const performAdminAction = async (action: string, targetId: string) => {
+    if (!member) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to perform admin actions",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
-      if (status === 'approved' && user?.id) {
-        // Use the approve_member function for approvals
-        const { error } = await supabase.rpc('approve_member', {
-          member_id: memberId,
-          approver_id: user.id
+      let success = false;
+      switch (action) {
+        case 'verifyBlog':
+          const { error: verifyError } = await supabase
+            .from('blogs')
+            .update({ admin_verified: true })
+            .eq('id', targetId);
+          if (verifyError) throw verifyError;
+          success = true;
+          break;
+        case 'rejectBlog':
+          const { error: rejectError } = await supabase
+            .from('blogs')
+            .update({ status: 'rejected' })
+            .eq('id', targetId);
+          if (rejectError) throw rejectError;
+          success = true;
+          break;
+        case 'approveProject':
+          const { error: approveError } = await supabase
+            .from('project_submissions')
+            .update({ status: 'approved' })
+            .eq('id', targetId);
+          if (approveError) throw approveError;
+          success = true;
+          break;
+        case 'rejectProject':
+          const { error: rejectError } = await supabase
+            .from('project_submissions')
+            .update({ status: 'rejected' })
+            .eq('id', targetId);
+          if (rejectError) throw rejectError;
+          success = true;
+          break;
+        // Add more cases as needed
+        default:
+          toast({
+            title: "Error",
+            description: "Invalid action",
+            variant: "destructive"
+          });
+          break;
+      }
+
+      if (success) {
+        toast({
+          title: "Success",
+          description: `Action "${action}" performed successfully`,
         });
-
-        if (error) throw error;
-      } else {
-        // Regular status update for rejections
-        const { error } = await supabase
-          .from('members')
-          .update({ 
-            registration_status: status,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', memberId);
-
-        if (error) throw error;
       }
-
-      toast({
-        title: "Success",
-        description: `Member status updated to ${status}`,
-      });
     } catch (error) {
-      console.error('Error updating member status:', error);
+      console.error(`Error performing action "${action}":`, error);
       toast({
         title: "Error",
-        description: "Failed to update member status",
-        variant: "destructive"
+        description: `Failed to perform action "${action}"`,
+        variant: "destructive",
       });
-      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateProjectStatus = async (projectId: string, status: string, feedback?: string) => {
-    console.log('Updating project status:', projectId, status);
-    try {
-      const updateData: any = {
-        status,
-        reviewed_by: user?.id,
-        reviewed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      if (feedback?.trim()) {
-        updateData.admin_feedback = feedback.trim();
-      }
-
-      const { error } = await supabase
-        .from('project_submissions')
-        .update(updateData)
-        .eq('id', projectId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: `Project ${status} successfully`,
-      });
-    } catch (error) {
-      console.error('Error updating project status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update project status",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
-
-  return {
-    updateMemberStatus,
-    updateProjectStatus
-  };
+  return { performAdminAction, loading };
 };

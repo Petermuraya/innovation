@@ -1,27 +1,10 @@
-
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  location: string;
-  price: number;
-  status: string;
-  visibility: string;
-  is_published: boolean;
-  max_attendees?: number;
-  requires_registration: boolean;
-  created_at: string;
-  image_url?: string;
-}
-
-export const useEventForm = (editingEvent: Event | null, onEventSaved: () => void, onClose: () => void) => {
-  const { user } = useAuth();
+export const useEventForm = (event?: any, onSuccess?: () => void) => {
+  const { member } = useAuth();
   const { toast } = useToast();
   
   const [title, setTitle] = useState('');
@@ -50,16 +33,16 @@ export const useEventForm = (editingEvent: Event | null, onEventSaved: () => voi
   };
 
   const loadEventData = () => {
-    if (editingEvent) {
-      setTitle(editingEvent.title);
-      setDescription(editingEvent.description);
-      setDate(new Date(editingEvent.date).toISOString().slice(0, 16));
-      setLocation(editingEvent.location);
-      setPrice(editingEvent.price);
-      setMaxAttendees(editingEvent.max_attendees);
-      setRequiresRegistration(editingEvent.requires_registration);
-      setVisibility(editingEvent.visibility);
-      setIsPublished(editingEvent.is_published);
+    if (event) {
+      setTitle(event.title);
+      setDescription(event.description);
+      setDate(new Date(event.date).toISOString().slice(0, 16));
+      setLocation(event.location);
+      setPrice(event.price);
+      setMaxAttendees(event.max_attendees);
+      setRequiresRegistration(event.requires_registration);
+      setVisibility(event.visibility);
+      setIsPublished(event.is_published);
       setSelectedImage(null);
     }
   };
@@ -90,19 +73,21 @@ export const useEventForm = (editingEvent: Event | null, onEventSaved: () => voi
     }
   };
 
-  const handleSubmit = async () => {
-    if (!user || !title.trim() || !description.trim() || !date || !location.trim()) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!member) {
       toast({
-        title: "Missing information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
+        title: "Authentication Required",
+        description: "You must be logged in to manage events",
+        variant: "destructive"
       });
       return;
     }
 
     setSubmitting(true);
     try {
-      let imageUrl = editingEvent?.image_url || null;
+      let imageUrl = event?.image_url || null;
 
       if (selectedImage) {
         const uploadedImageUrl = await uploadEventImage(selectedImage);
@@ -128,16 +113,16 @@ export const useEventForm = (editingEvent: Event | null, onEventSaved: () => voi
         visibility: visibility,
         is_published: isPublished,
         status: isPublished ? 'published' : 'draft',
-        created_by: user.id,
+        created_by: member.id,
         image_url: imageUrl,
       };
 
       let error;
-      if (editingEvent) {
+      if (event) {
         ({ error } = await supabase
           .from('events')
           .update(eventData)
-          .eq('id', editingEvent.id));
+          .eq('id', event.id));
       } else {
         ({ error } = await supabase
           .from('events')
@@ -147,13 +132,12 @@ export const useEventForm = (editingEvent: Event | null, onEventSaved: () => voi
       if (error) throw error;
 
       toast({
-        title: editingEvent ? "Event updated" : "Event created",
-        description: `Event has been ${editingEvent ? 'updated' : 'created'} successfully`,
+        title: event ? "Event updated" : "Event created",
+        description: `Event has been ${event ? 'updated' : 'created'} successfully`,
       });
 
       resetForm();
-      onClose();
-      onEventSaved();
+      onSuccess?.();
     } catch (error) {
       console.error('Error saving event:', error);
       toast({

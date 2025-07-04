@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
   fetchAllMembers,
@@ -12,7 +12,7 @@ import {
 } from './services/adminDataService';
 
 export const useAdminData = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
@@ -23,7 +23,7 @@ export const useAdminData = () => {
   const [adminRequests, setAdminRequests] = useState([]);
 
   const fetchAdminData = async () => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       console.log('Fetching admin data...');
@@ -75,8 +75,10 @@ export const useAdminData = () => {
   };
 
   useEffect(() => {
-    fetchAdminData();
-  }, [user]);
+    if (member) {
+      fetchAdminData();
+    }
+  }, [member]);
 
   const stats = {
     totalMembers: members.length,
