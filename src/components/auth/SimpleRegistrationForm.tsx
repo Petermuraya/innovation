@@ -44,9 +44,9 @@ const SimpleRegistrationForm = () => {
     }
 
     try {
-      console.log('Starting bulletproof registration with email:', email);
+      console.log('Starting ultra-simple registration with email:', email);
 
-      // Simple registration without metadata to avoid trigger issues
+      // Ultra-simple registration with NO metadata to avoid any database complications
       const { data, error: authError } = await supabase.auth.signUp({
         email: email.toLowerCase().trim(),
         password: password,
