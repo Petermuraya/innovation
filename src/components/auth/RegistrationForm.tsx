@@ -57,7 +57,12 @@ const RegistrationForm = () => {
     }
 
     try {
-      console.log('Starting user registration...');
+      console.log('Starting user registration with data:', {
+        email: formData.email,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        course: formData.course
+      });
 
       // Create the user account with email verification and complete profile data
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -67,19 +72,26 @@ const RegistrationForm = () => {
           emailRedirectTo: `${window.location.origin}/login`,
           data: {
             full_name: formData.fullName.trim(),
+            fullName: formData.fullName.trim(), // Include both formats for compatibility
             phone: formData.phone.trim(),
-            course: formData.course,
-            department: "School of Computing and Information Technology", // Default for KU
+            course: formData.course, // This will be stored as text (e.g., "computer_science")
+            department: "School of Computing and Information Technology",
           },
         },
       });
 
       if (authError) {
         console.error('Auth error:', authError);
-        throw authError;
+        if (authError.message.includes('User already registered')) {
+          setErrors(['An account with this email already exists. Please try logging in instead.']);
+        } else {
+          setErrors([authError.message]);
+        }
+        setLoading(false);
+        return;
       }
 
-      console.log('User created successfully:', authData);
+      console.log('User registration successful:', authData);
 
       // Show success message with email verification info
       toast({
@@ -171,6 +183,7 @@ const RegistrationForm = () => {
                 <SelectValue placeholder="Select your course" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                {/* These values match the database TEXT field expectations */}
                 <SelectItem value="computer_science">Computer Science</SelectItem>
                 <SelectItem value="information_technology">Information Technology</SelectItem>
                 <SelectItem value="software_engineering">Software Engineering</SelectItem>
