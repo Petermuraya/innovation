@@ -1,66 +1,148 @@
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import SubmissionForm from './submissions/SubmissionForm';
-import SubmissionsList from './submissions/SubmissionsList';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Plus, ExternalLink, Eye } from 'lucide-react';
+import ProjectSubmissionForm from './ProjectSubmissionForm';
 
-const DashboardSubmissions = () => {
-  const [activeTab, setActiveTab] = useState('all');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+interface Submission {
+  id: string;
+  title: string;
+  description: string;
+  github_url: string;
+  demo_url?: string;
+  status: string;
+  created_at: string;
+  technologies?: string[];
+}
 
-  const handleSubmissionCreated = () => {
-    setShowCreateForm(false);
-    setRefreshKey(prev => prev + 1);
+const DashboardSubmissions: React.FC = () => {
+  const { member } = useAuth();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    if (member) {
+      fetchSubmissions();
+    }
+  }, [member]);
+
+  const fetchSubmissions = async () => {
+    if (!member) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('project_submissions')
+        .select('*')
+        .eq('user_id', member.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSubmissions(data || []);
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    fetchSubmissions();
+  };
+
+  if (loading) {
+    return <div>Loading submissions...</div>;
+  }
+
+  if (showForm) {
+    return <ProjectSubmissionForm onSuccess={handleFormSuccess} />;
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Submissions</h2>
-          <p className="text-gray-600">Submit complaints, recommendations, or share your thoughts</p>
+          <h3 className="text-lg font-semibold">Project Submissions</h3>
+          <p className="text-muted-foreground">Submit and track your project submissions</p>
         </div>
-        <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Submission
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Submission</DialogTitle>
-            </DialogHeader>
-            <SubmissionForm onSuccess={handleSubmissionCreated} />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          New Submission
+        </Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="complaint">Complaints</TabsTrigger>
-          <TabsTrigger value="recommendation">Recommendations</TabsTrigger>
-          <TabsTrigger value="thought">Thoughts</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="mt-6">
-          <SubmissionsList key={refreshKey} filterType={null} />
-        </TabsContent>
-        <TabsContent value="complaint" className="mt-6">
-          <SubmissionsList key={refreshKey} filterType="complaint" />
-        </TabsContent>
-        <TabsContent value="recommendation" className="mt-6">
-          <SubmissionsList key={refreshKey} filterType="recommendation" />
-        </TabsContent>
-        <TabsContent value="thought" className="mt-6">
-          <SubmissionsList key={refreshKey} filterType="thought" />
-        </TabsContent>
-      </Tabs>
+      <div className="grid gap-6">
+        {submissions.map((submission) => (
+          <Card key={submission.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>{submission.title}</CardTitle>
+                  <CardDescription>
+                    Submitted on {new Date(submission.created_at).toLocaleDateString()}
+                  </CardDescription>
+                </div>
+                <Badge variant={
+                  submission.status === 'approved' ? 'default' :
+                  submission.status === 'rejected' ? 'destructive' : 'secondary'
+                }>
+                  {submission.status}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                {submission.description}
+              </p>
+              
+              {submission.technologies && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium mb-2">Technologies:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {submission.technologies.map((tech, index) => (
+                      <Badge key={index} variant="outline">{tech}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-4">
+                <Button variant="outline" size="sm" asChild>
+                  <a href={submission.github_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    GitHub
+                  </a>
+                </Button>
+                {submission.demo_url && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={submission.demo_url} target="_blank" rel="noopener noreferrer">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Demo
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {submissions.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground mb-4">No submissions yet</p>
+              <Button onClick={() => setShowForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Submit Your First Project
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

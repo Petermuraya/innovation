@@ -1,217 +1,127 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CreditCard, Smartphone, CheckCircle, XCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import PaymentForm from '@/components/payments/PaymentForm';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CreditCard, Receipt, AlertCircle } from 'lucide-react';
 
-interface DashboardPaymentsProps {
-  payments: any[];
+interface Payment {
+  id: string;
+  amount: number;
+  purpose: string;
+  status: string;
+  created_at: string;
+  phone_number?: string;
 }
 
-const DashboardPayments = ({ payments }: DashboardPaymentsProps) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [paymentStatus, setPaymentStatus] = useState({
-    registration: false,
-    subscription: false,
-    loading: true
-  });
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<'membership'>('membership');
+const DashboardPayments: React.FC = () => {
+  const { member } = useAuth();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPaymentStatus();
-  }, [user]);
+    if (member) {
+      fetchPayments();
+    }
+  }, [member]);
 
-  const fetchPaymentStatus = async () => {
-    if (!user) return;
+  const fetchPayments = async () => {
+    if (!member) return;
 
     try {
-      const { data: completedPayments, error } = await supabase
+      const { data, error } = await supabase
         .from('mpesa_payments')
-        .select('payment_type, status')
-        .eq('user_id', user.id)
-        .eq('status', 'completed');
+        .select('*')
+        .eq('user_id', member.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      const registrationPaid = completedPayments?.some(p => 
-        p.payment_type === 'membership' || p.payment_type === 'registration'
-      ) || false;
-      
-      const subscriptionPaid = completedPayments?.some(p => 
-        p.payment_type === 'subscription'
-      ) || false;
-
-      setPaymentStatus({
-        registration: registrationPaid,
-        subscription: subscriptionPaid,
-        loading: false
-      });
+      setPayments(data || []);
     } catch (error) {
-      console.error('Error fetching payment status:', error);
-      setPaymentStatus(prev => ({ ...prev, loading: false }));
+      console.error('Error fetching payments:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePaymentSuccess = () => {
-    setShowPaymentForm(false);
-    fetchPaymentStatus(); // Refresh payment status
-    toast({
-      title: "Payment Successful!",
-      description: "Your payment has been processed successfully",
-    });
-  };
-
-  const initiatePayment = (type: 'registration' | 'subscription') => {
-    setSelectedPaymentType('membership'); // Always use 'membership' as the payment type
-    setShowPaymentForm(true);
-  };
-
-  if (showPaymentForm) {
-    return (
-      <div className="space-y-4">
-        <Button 
-          variant="outline" 
-          onClick={() => setShowPaymentForm(false)}
-          className="mb-4"
-        >
-          ← Back to Payments
-        </Button>
-        <PaymentForm
-          amount={100}
-          paymentType="membership"
-          onSuccess={handlePaymentSuccess}
-          onError={(error) => toast({
-            title: "Payment Error",
-            description: error,
-            variant: "destructive"
-          })}
-        />
-      </div>
-    );
+  if (loading) {
+    return <div>Loading payments...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Payment Status Overview */}
-      <Card>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold">Payment History</h3>
+          <p className="text-muted-foreground">Track your payments and dues</p>
+        </div>
+        <Button>
+          <CreditCard className="w-4 h-4 mr-2" />
+          Make Payment
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
+        {payments.map((payment) => (
+          <Card key={payment.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Receipt className="w-5 h-5" />
+                    KES {payment.amount}
+                  </CardTitle>
+                  <CardDescription>
+                    {payment.purpose} • {new Date(payment.created_at).toLocaleDateString()}
+                  </CardDescription>
+                </div>
+                <Badge variant={
+                  payment.status === 'completed' ? 'default' :
+                  payment.status === 'failed' ? 'destructive' : 'secondary'
+                }>
+                  {payment.status}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {payment.phone_number && (
+                <p className="text-sm text-muted-foreground">
+                  Phone: {payment.phone_number}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+
+        {payments.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Receipt className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">
+                No payment history found
+              </p>
+              <Button>
+                <CreditCard className="w-4 h-4 mr-2" />
+                Make Your First Payment
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <Card className="border-orange-200 bg-orange-50">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <CreditCard className="h-5 w-5" />
-            <span>Payment Status</span>
+          <CardTitle className="flex items-center gap-2 text-orange-800">
+            <AlertCircle className="w-5 h-5" />
+            Payment Reminder
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Registration Payment */}
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-kic-gray">Registration Fee</h3>
-                <Badge variant={paymentStatus.registration ? 'default' : 'destructive'}>
-                  {paymentStatus.registration ? (
-                    <><CheckCircle className="w-3 h-3 mr-1" /> Paid</>
-                  ) : (
-                    <><XCircle className="w-3 h-3 mr-1" /> Unpaid</>
-                  )}
-                </Badge>
-              </div>
-              <p className="text-sm text-kic-gray/70 mb-3">
-                One-time registration fee to join KIC community
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-lg">KSh 100</span>
-                {!paymentStatus.registration && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => initiatePayment('registration')}
-                    className="bg-kic-green-500 hover:bg-kic-green-600"
-                  >
-                    <Smartphone className="w-4 h-4 mr-2" />
-                    Pay Now
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Subscription Payment */}
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-kic-gray">Semester Subscription</h3>
-                <Badge variant={paymentStatus.subscription ? 'default' : 'destructive'}>
-                  {paymentStatus.subscription ? (
-                    <><CheckCircle className="w-3 h-3 mr-1" /> Active</>
-                  ) : (
-                    <><XCircle className="w-3 h-3 mr-1" /> Inactive</>
-                  )}
-                </Badge>
-              </div>
-              <p className="text-sm text-kic-gray/70 mb-3">
-                Current semester access to premium features
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-lg">KSh 100</span>
-                {!paymentStatus.subscription && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => initiatePayment('subscription')}
-                    className="bg-kic-green-500 hover:bg-kic-green-600"
-                  >
-                    <Smartphone className="w-4 h-4 mr-2" />
-                    Subscribe
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {!paymentStatus.registration && (
-            <Alert className="mt-4 border-orange-200 bg-orange-50">
-              <AlertDescription className="text-orange-800">
-                Complete your registration payment to access all KIC features and events.
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Payment History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {payments.map((payment) => (
-              <div key={payment.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium text-kic-gray">KSh {payment.amount}</h4>
-                    <p className="text-sm text-kic-gray/70 capitalize">{payment.payment_type}</p>
-                    <p className="text-sm text-kic-gray/70">{new Date(payment.created_at).toLocaleDateString()}</p>
-                    {payment.mpesa_receipt_number && (
-                      <p className="text-xs text-kic-gray/60">Receipt: {payment.mpesa_receipt_number}</p>
-                    )}
-                  </div>
-                  <Badge variant={
-                    payment.status === 'completed' ? 'default' : 
-                    payment.status === 'failed' ? 'destructive' : 'secondary'
-                  }>
-                    {payment.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-            {payments.length === 0 && (
-              <p className="text-kic-gray/70 text-center py-8">No payment history</p>
-            )}
-          </div>
+          <p className="text-orange-700 text-sm">
+            Don't forget to pay your semester subscription to maintain your membership status.
+          </p>
         </CardContent>
       </Card>
     </div>

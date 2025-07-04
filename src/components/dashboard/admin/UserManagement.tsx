@@ -1,264 +1,177 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useRolePermissions } from '@/hooks/useRolePermissions';
-import { Shield, Crown } from 'lucide-react';
-import QuickRoleAssignment from './components/QuickRoleAssignment';
-import MemberSearchAndFilters from './components/MemberSearchAndFilters';
-import MemberList from './components/MemberList';
-import AdminRegistrationShare from './components/AdminRegistrationShare';
-import { useMemberDeletion } from './hooks/useMemberDeletion';
-import { useOptimizedMemberManagement } from './hooks/useOptimizedUserManagement';
-import { AppRole, Member, ROLE_LABELS, ROLE_COLORS, mapAppRoleToDatabase } from '@/types/roles';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, User, Mail, Phone, BookOpen } from 'lucide-react';
 
-const MemberManagement = () => {
+interface Member {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  course?: string;
+  registration_status: string;
+  created_at: string;
+  roles?: string[];
+}
+
+const UserManagement = () => {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { isPatron, isChairperson, roleInfo } = useRolePermissions();
-  const { members, loading, fetchMembers, removeMemberFromState } = useOptimizedMemberManagement();
-  const { deleteMemberCompletely, loading: deletionLoading } = useMemberDeletion();
-  
-  const [searchEmail, setSearchEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('general_admin');
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
-  const [memberToEdit, setMemberToEdit] = useState<Member | null>(null);
 
-  const grantRole = async (email: string, role: AppRole) => {
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
     try {
-      const member = members.find(m => m.email === email);
-      if (!member) {
-        toast({
-          title: "Error",
-          description: "Member not found",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Map AppRole to database role
-      const dbRole = mapAppRoleToDatabase(role);
-
-      // Assign the role using type assertion for user_roles table
-      const { error: roleError } = await supabase
-        .from('user_roles' as any)
-        .upsert({
-          user_id: member.id,
-          role: dbRole
-        });
-
-      if (roleError) throw roleError;
-
-      // Update member registration status to approved if not already
-      if (member.registration_status !== 'approved') {
-        const { error: memberError } = await supabase
-          .from('members')
-          .update({ 
-            registration_status: 'approved',
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', member.id);
-
-        if (memberError) throw memberError;
-      }
-
-      toast({
-        title: "Success",
-        description: `${ROLE_LABELS[role]} role granted to ${email}`,
-      });
-
-      // Force refresh to get latest data
-      await fetchMembers(true);
-    } catch (error) {
-      console.error('Error granting role:', error);
-      toast({
-        title: "Error",
-        description: "Failed to grant role",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const removeRole = async (memberId: string, roleToRemove: AppRole) => {
-    try {
-      // Map AppRole to database role
-      const dbRole = mapAppRoleToDatabase(roleToRemove);
-
-      const { error } = await supabase
-        .from('user_roles' as any)
-        .delete()
-        .eq('user_id', memberId)
-        .eq('role', dbRole);
+      const { data, error } = await supabase
+        .from('members')
+        .select(`
+          *,
+          member_roles!inner(role)
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `${ROLE_LABELS[roleToRemove]} role removed successfully`,
-      });
+      const membersWithRoles = data?.map(member => ({
+        ...member,
+        roles: member.member_roles?.map((r: any) => r.role) || []
+      })) || [];
 
-      // Force refresh to get latest data
-      await fetchMembers(true);
+      setMembers(membersWithRoles);
     } catch (error) {
-      console.error('Error removing role:', error);
+      console.error('Error fetching members:', error);
       toast({
-        title: "Error",
-        description: "Failed to remove role",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to fetch members',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateMemberStatus = async (memberId: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('members')
+        .update({ registration_status: status })
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      const updatedMembers = members.map(member =>
+        member.id === memberId ? { ...member, registration_status: status } : member
+      );
+      setMembers(updatedMembers);
+
+      toast({
+        title: 'Success',
+        description: `Member ${status} successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating member status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update member status',
+        variant: 'destructive',
       });
     }
   };
 
-  const deleteMember = async (member: Member) => {
-    const success = await deleteMemberCompletely(member);
-    
-    if (success) {
-      // Immediately remove from local state
-      removeMemberFromState(member.id);
-      setMemberToDelete(null);
-      
-      // Force refresh after a short delay to ensure database consistency
-      setTimeout(() => {
-        fetchMembers(true);
-      }, 1000);
-    }
-  };
-
-  const canManageMembers = isPatron || isChairperson;
+  if (loading) {
+    return <div>Loading members...</div>;
+  }
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" />
-            Enhanced Member Management
-            {isPatron && <Crown className="w-4 h-4 text-yellow-500" />}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {isPatron && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Crown className="w-4 h-4 text-yellow-600" />
-                  <span className="font-medium text-yellow-800">Super Admin Mode</span>
+      <div>
+        <h2 className="text-2xl font-bold">Member Management</h2>
+        <p className="text-muted-foreground">Review and manage member registrations</p>
+      </div>
+
+      <div className="grid gap-6">
+        {members.map((member) => (
+          <Card key={member.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5" />
+                    {member.name}
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    {member.email}
+                  </CardDescription>
                 </div>
-                <p className="text-sm text-yellow-700">
-                  Full system access - manage all members, roles, and perform administrative actions.
-                </p>
+                <Badge variant={
+                  member.registration_status === 'approved' ? 'default' :
+                  member.registration_status === 'rejected' ? 'destructive' : 'secondary'
+                }>
+                  {member.registration_status}
+                </Badge>
               </div>
-            )}
-
-            <MemberSearchAndFilters
-              searchEmail={searchEmail}
-              onSearchChange={setSearchEmail}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {isPatron && <AdminRegistrationShare />}
-
-      {canManageMembers && (
-        <QuickRoleAssignment
-          selectedRole={selectedRole}
-          onRoleChange={setSelectedRole}
-        />
-      )}
-
-      <MemberList
-        members={members}
-        loading={loading || deletionLoading}
-        canManageMembers={canManageMembers}
-        selectedRole={selectedRole}
-        searchEmail={searchEmail}
-        onGrantRole={grantRole}
-        onRemoveRole={removeRole}
-        onEditMember={setMemberToEdit}
-        onDeleteMember={setMemberToDelete}
-      />
-
-      {/* Delete Member Dialog */}
-      <AlertDialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Member</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to permanently delete <strong>{memberToDelete?.name}</strong>? 
-              This action cannot be undone and will remove all member data including:
-              <div className="mt-2 space-y-1 text-sm">
-                <div>• All assigned roles</div>
-                <div>• Member registration data</div>
-                <div>• Member profile information</div>
-                <div>• All activity history and points</div>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deletionLoading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => memberToDelete && deleteMember(memberToDelete)}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={deletionLoading}
-            >
-              {deletionLoading ? 'Deleting...' : 'Delete Member'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Edit Member Dialog */}
-      <Dialog open={!!memberToEdit} onOpenChange={(open) => !open && setMemberToEdit(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Member: {memberToEdit?.name}</DialogTitle>
-            <DialogDescription>
-              View and manage member information and roles.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Name</Label>
-                <p className="text-sm">{memberToEdit?.name}</p>
-              </div>
-              <div>
-                <Label>Email</Label>
-                <p className="text-sm">{memberToEdit?.email}</p>
-              </div>
-              <div>
-                <Label>Phone</Label>
-                <p className="text-sm">{memberToEdit?.phone || 'Not provided'}</p>
-              </div>
-              <div>
-                <Label>Course</Label>
-                <p className="text-sm">{memberToEdit?.course || 'Not specified'}</p>
-              </div>
-            </div>
-            <div>
-              <Label>Current Roles</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {memberToEdit?.roles && memberToEdit.roles.length > 0 ? (
-                  memberToEdit.roles.map((role) => (
-                    <Badge key={role} variant={ROLE_COLORS[role]}>
-                      {ROLE_LABELS[role]}
-                    </Badge>
-                  ))
-                ) : (
-                  <Badge variant="outline">Member</Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 mb-4">
+                {member.phone && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Phone className="w-4 h-4" />
+                    {member.phone}
+                  </div>
+                )}
+                {member.course && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <BookOpen className="w-4 h-4" />
+                    {member.course}
+                  </div>
+                )}
+                {member.roles && member.roles.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Roles:</span>
+                    <div className="flex gap-1">
+                      {member.roles.map((role, index) => (
+                        <Badge key={index} variant="outline">{role}</Badge>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+              {member.registration_status === 'pending' && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => updateMemberStatus(member.id, 'approved')}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => updateMemberStatus(member.id, 'rejected')}
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Reject
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default MemberManagement;
+export default UserManagement;

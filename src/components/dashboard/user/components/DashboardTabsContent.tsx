@@ -1,78 +1,56 @@
 
+import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import DashboardOverview from '../DashboardOverview';
-import DashboardProfile from '../DashboardProfile';
-import DashboardEvents from '../DashboardEvents';
-import EnhancedDashboardProjects from '../EnhancedDashboardProjects';
-import DashboardCertificates from '../DashboardCertificates';
-import DashboardPayments from '../DashboardPayments';
+import DashboardStats from '../DashboardStats';
 import DashboardSubmissions from '../DashboardSubmissions';
-import DashboardConstitution from '../DashboardConstitution';
-import DashboardCommunities from '../DashboardCommunities';
-import DashboardElections from '../DashboardElections';
+import DashboardEvents from '../DashboardEvents';
+import DashboardPayments from '../DashboardPayments';
 import DashboardBlogging from '../DashboardBlogging';
-import DashboardCareers from '../DashboardCareers';
-import { DashboardTabsProps } from '../types/dashboardTabs';
+import DashboardBadges from '../DashboardBadges';
+import ProfileEditor from '../ProfileEditor';
 
-interface DashboardTabsContentProps extends DashboardTabsProps {}
+interface DashboardTabsContentProps {
+  memberProfile: any;
+  loading: boolean;
+}
 
-const DashboardTabsContent = ({ 
-  memberData, 
-  notifications, 
-  upcomingEvents, 
-  projects, 
-  certificates, 
-  payments, 
-  onDataUpdate 
-}: DashboardTabsContentProps) => {
+const DashboardTabsContent: React.FC<DashboardTabsContentProps> = ({ 
+  memberProfile, 
+  loading 
+}) => {
   return (
     <>
       <TabsContent value="overview">
-        <DashboardOverview />
+        <DashboardOverview memberProfile={memberProfile} loading={loading} />
       </TabsContent>
 
-      <TabsContent value="profile">
-        <DashboardProfile memberData={memberData} onDataUpdate={onDataUpdate} />
-      </TabsContent>
-
-      <TabsContent value="events">
-        <DashboardEvents />
-      </TabsContent>
-
-      <TabsContent value="projects">
-        <EnhancedDashboardProjects projects={projects} onSuccess={onDataUpdate} />
-      </TabsContent>
-
-      <TabsContent value="certificates">
-        <DashboardCertificates certificates={certificates} />
-      </TabsContent>
-
-      <TabsContent value="payments">
-        <DashboardPayments payments={payments} />
+      <TabsContent value="stats">
+        <DashboardStats />
       </TabsContent>
 
       <TabsContent value="submissions">
         <DashboardSubmissions />
       </TabsContent>
 
-      <TabsContent value="constitution">
-        <DashboardConstitution />
+      <TabsContent value="events">
+        <DashboardEvents />
       </TabsContent>
 
-      <TabsContent value="communities">
-        <DashboardCommunities />
-      </TabsContent>
-
-      <TabsContent value="elections">
-        <DashboardElections />
+      <TabsContent value="payments">
+        <DashboardPayments />
       </TabsContent>
 
       <TabsContent value="blogging">
         <DashboardBlogging />
       </TabsContent>
 
-      <TabsContent value="careers">
-        <DashboardCareers />
+      <TabsContent value="badges">
+        <DashboardBadges />
+      </TabsContent>
+
+      <TabsContent value="profile">
+        <ProfileEditor />
       </TabsContent>
     </>
   );

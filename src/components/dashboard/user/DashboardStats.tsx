@@ -1,139 +1,175 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Bell, Calendar, FileText, GitBranch, Trophy, CreditCard } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, Award, Calendar, Code, TrendingUp } from 'lucide-react';
 
-interface DashboardStatsProps {
-  notifications: any[];
-  projects: any[];
-  certificates: any[];
-  upcomingEvents: any[];
+interface Stats {
+  totalPoints: number;
+  projectsSubmitted: number;
+  eventsAttended: number;
+  certificatesEarned: number;
+  dailyVisits: number;
 }
 
-const DashboardStats = ({
-  notifications,
-  projects,
-  certificates,
-  upcomingEvents
-}: DashboardStatsProps) => {
-  const { user } = useAuth();
-  const [userRanking, setUserRanking] = useState<{
-    rank: number;
-    total_points: number;
-  } | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState({
-    registration: false,
-    subscription: false,
-    loading: true
+const DashboardStats: React.FC = () => {
+  const { member } = useAuth();
+  const [stats, setStats] = useState<Stats>({
+    totalPoints: 0,
+    projectsSubmitted: 0,
+    eventsAttended: 0,
+    certificatesEarned: 0,
+    dailyVisits: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchUserRanking();
-      fetchPaymentStatus();
+    if (member) {
+      fetchStats();
     }
-  }, [user]);
+  }, [member]);
 
-  const fetchUserRanking = async () => {
-    if (!user) return;
+  const fetchStats = async () => {
+    if (!member) return;
 
     try {
-      const { data, error } = await supabase.rpc('calculate_detailed_member_ranking');
-      if (error) throw error;
+      // Fetch total points
+      const { data: pointsData } = await supabase
+        .from('member_points')
+        .select('points')
+        .eq('user_id', member.id);
 
-      const userRank = data?.find((member: any) => member.user_id === user.id);
-      if (userRank) {
-        setUserRanking({
-          rank: userRank.rank,
-          total_points: userRank.total_points
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching user ranking:', error);
-    }
-  };
+      const totalPoints = pointsData?.reduce((sum, point) => sum + (point.points || 0), 0) || 0;
 
-  const fetchPaymentStatus = async () => {
-    if (!user) return;
+      // Fetch project submissions count
+      const { count: projectsCount } = await supabase
+        .from('project_submissions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', member.id);
 
-    try {
-      // Check for completed payments
-      const { data: payments, error } = await supabase
-        .from('mpesa_payments')
-        .select('payment_type, status')
-        .eq('user_id', user.id)
-        .eq('status', 'completed');
+      // Fetch events attended count
+      const { count: eventsCount } = await supabase
+        .from('event_attendance')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', member.id);
 
-      if (error) throw error;
+      // Fetch certificates count
+      const { count: certificatesCount } = await supabase
+        .from('certificates')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', member.id);
 
-      const registrationPaid = payments?.some(p => p.payment_type === 'membership' || p.payment_type === 'registration') || false;
-      const subscriptionPaid = payments?.some(p => p.payment_type === 'subscription') || false;
+      // Fetch website visits count
+      const { count: visitsCount } = await supabase
+        .from('member_website_visits')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', member.id);
 
-      setPaymentStatus({
-        registration: registrationPaid,
-        subscription: subscriptionPaid,
-        loading: false
+      setStats({
+        totalPoints,
+        projectsSubmitted: projectsCount || 0,
+        eventsAttended: eventsCount || 0,
+        certificatesEarned: certificatesCount || 0,
+        dailyVisits: visitsCount || 0,
       });
     } catch (error) {
-      console.error('Error fetching payment status:', error);
-      setPaymentStatus(prev => ({
-        ...prev,
-        loading: false
-      }));
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return <div>Loading statistics...</div>;
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Notifications</p>
-              <p className="text-3xl font-bold">{notifications.length}</p>
-            </div>
-            <Bell className="h-8 w-8 text-blue-200" />
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Your Statistics</h3>
+        <p className="text-muted-foreground">Track your progress and achievements</p>
+      </div>
 
-      <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Projects</p>
-              <p className="text-3xl font-bold">{projects.length}</p>
-            </div>
-            <GitBranch className="h-8 w-8 text-green-200" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Points</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">{stats.totalPoints}</div>
+            <p className="text-xs text-muted-foreground">
+              Earned through activities
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Certificates</p>
-              <p className="text-3xl font-bold">{certificates.length}</p>
-            </div>
-            <Trophy className="h-8 w-8 text-purple-200" />
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Projects Submitted</CardTitle>
+            <Code className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">{stats.projectsSubmitted}</div>
+            <p className="text-xs text-muted-foreground">
+              Showcase your work
+            </p>
+          </CardContent>
+        </Card>
 
-      <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm font-medium">Upcoming Events</p>
-              <p className="text-3xl font-bold">{upcomingEvents.length}</p>
-            </div>
-            <Calendar className="h-8 w-8 text-orange-200" />
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Events Attended</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">{stats.eventsAttended}</div>
+            <p className="text-xs text-muted-foreground">
+              Active participation
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Certificates Earned</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">{stats.certificatesEarned}</div>
+            <p className="text-xs text-muted-foreground">
+              Skills and achievements
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Daily Visits</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">{stats.dailyVisits}</div>
+            <p className="text-xs text-muted-foreground">
+              Platform engagement
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Growth</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-kic-green-600">+12%</div>
+            <p className="text-xs text-muted-foreground">
+              This month vs last month
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
