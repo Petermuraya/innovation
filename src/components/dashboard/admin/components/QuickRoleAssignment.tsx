@@ -3,30 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus } from 'lucide-react';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
-
-const ROLE_LABELS: Record<ComprehensiveRole, string> = {
-  member: 'Member',
-  super_admin: 'Super Admin',
-  general_admin: 'General Admin',
-  community_admin: 'Community Admin',
-  events_admin: 'Events Admin',
-  projects_admin: 'Projects Admin',
-  finance_admin: 'Finance Admin',
-  content_admin: 'Content Admin',
-  technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin',
-  chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
-};
+import { AppRole, ROLE_LABELS } from '@/types/roles';
 
 interface QuickRoleAssignmentProps {
-  selectedRole: ComprehensiveRole;
-  onRoleChange: (role: ComprehensiveRole) => void;
+  selectedRole: AppRole;
+  onRoleChange: (role: AppRole) => void;
 }
 
 const QuickRoleAssignment = ({ selectedRole, onRoleChange }: QuickRoleAssignmentProps) => {
+  // Only show roles that actually exist in the database
+  const availableRoles: AppRole[] = ['super_admin', 'general_admin', 'community_admin', 'admin'];
+
   return (
     <Card>
       <CardHeader>
@@ -39,14 +26,14 @@ const QuickRoleAssignment = ({ selectedRole, onRoleChange }: QuickRoleAssignment
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <Label>Select Role</Label>
-            <Select value={selectedRole} onValueChange={(value) => onRoleChange(value as ComprehensiveRole)}>
+            <Select value={selectedRole} onValueChange={(value) => onRoleChange(value as AppRole)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(ROLE_LABELS).filter(([key]) => key !== 'member').map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
+                {availableRoles.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {ROLE_LABELS[role]}
                   </SelectItem>
                 ))}
               </SelectContent>

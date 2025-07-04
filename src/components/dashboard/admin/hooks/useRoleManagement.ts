@@ -4,6 +4,41 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { AppRole, UserWithRole } from '@/types/roles';
 
+// Database role type - matches what's actually in the database
+type DatabaseRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
+
+// Mapping from AppRole to DatabaseRole
+const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
+  switch (role) {
+    case 'super_admin':
+      return 'super_admin';
+    case 'general_admin':
+      return 'general_admin';
+    case 'community_admin':
+      return 'community_admin';
+    case 'admin':
+      return 'admin';
+    default:
+      return 'member';
+  }
+};
+
+// Mapping from DatabaseRole to AppRole
+const mapDatabaseToAppRole = (role: DatabaseRole): AppRole => {
+  switch (role) {
+    case 'super_admin':
+      return 'super_admin';
+    case 'general_admin':
+      return 'general_admin';
+    case 'community_admin':
+      return 'community_admin';
+    case 'admin':
+      return 'admin';
+    default:
+      return 'member';
+  }
+};
+
 export const useRoleManagement = (canManageRoles: boolean) => {
   const { toast } = useToast();
   const [users, setUsers] = useState<UserWithRole[]>([]);
@@ -71,7 +106,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       const validUsers = memberData
         .filter(member => member.user_id)
         .map(member => {
-          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
+          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => mapDatabaseToAppRole(r.role as DatabaseRole)) || [];
           
           return {
             user_id: member.user_id!,
@@ -101,11 +136,14 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     try {
       setLoading(true);
       
+      // Map AppRole to database role
+      const dbRole = mapAppRoleToDatabase(role);
+      
       const { error } = await supabase
         .from('user_roles')
         .upsert({
           user_id: userId,
-          role: role
+          role: dbRole
         });
 
       if (error) throw error;
@@ -133,11 +171,14 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     try {
       setLoading(true);
       
+      // Map AppRole to database role
+      const dbRole = mapAppRoleToDatabase(role);
+      
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role);
+        .eq('role', dbRole);
 
       if (error) {
         console.error('Error removing role:', error);

@@ -17,6 +17,25 @@ import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
 import { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
 
+// Database role type - matches what's actually in the database
+type DatabaseRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
+
+// Mapping from AppRole to DatabaseRole
+const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
+  switch (role) {
+    case 'super_admin':
+      return 'super_admin';
+    case 'general_admin':
+      return 'general_admin';
+    case 'community_admin':
+      return 'community_admin';
+    case 'admin':
+      return 'admin';
+    default:
+      return 'member';
+  }
+};
+
 const UserManagement = () => {
   const { toast } = useToast();
   const { isPatron, isChairperson, roleInfo } = useRolePermissions();
@@ -40,12 +59,15 @@ const UserManagement = () => {
         return;
       }
 
+      // Map AppRole to database role
+      const dbRole = mapAppRoleToDatabase(role);
+
       // Assign the role
       const { error: roleError } = await supabase
         .from('user_roles')
         .upsert({
           user_id: user.id,
-          role: role
+          role: dbRole
         });
 
       if (roleError) throw roleError;
@@ -82,11 +104,14 @@ const UserManagement = () => {
 
   const removeRole = async (userId: string, roleToRemove: AppRole) => {
     try {
+      // Map AppRole to database role
+      const dbRole = mapAppRoleToDatabase(roleToRemove);
+
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', roleToRemove);
+        .eq('role', dbRole);
 
       if (error) throw error;
 

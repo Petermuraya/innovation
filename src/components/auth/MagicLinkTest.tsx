@@ -61,7 +61,7 @@ const MagicLinkTest = () => {
                 .upsert([
                   {
                     user_id: data.user.id,
-                    role: 'member'
+                    role: 'member' as const
                   }
                 ], { 
                   onConflict: 'user_id',
