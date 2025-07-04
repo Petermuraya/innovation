@@ -84,15 +84,15 @@ const DashboardSidebar = () => {
     {
       title: 'Events',
       icon: Calendar,
-      href: '/dashboard/events',
+      href: '/events',
       badge: 'New',
       description: 'Upcoming events'
     },
     {
       title: 'Blog Posts',
       icon: FileText,
-      href: '/dashboard/blogging',
-      description: 'Write and manage articles'
+      href: '/blog',
+      description: 'Read latest articles'
     },
     {
       title: 'Communities',
@@ -112,19 +112,19 @@ const DashboardSidebar = () => {
     {
       title: 'Constitution',
       icon: BookOpen,
-      href: '/dashboard/constitution',
+      href: '/constitution',
       description: 'Club governance'
     },
     {
-      title: 'Careers',
+      title: 'Projects',
       icon: Briefcase,
-      href: '/careers',
-      description: 'Job opportunities'
+      href: '/projects',
+      description: 'Innovation projects'
     },
     {
       title: 'Payments',
       icon: CreditCard,
-      href: '/dashboard/payments',
+      href: '/payments',
       description: 'Membership fees'
     },
   ];

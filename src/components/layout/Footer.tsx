@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,16 +63,16 @@ const Footer = () => {
     { label: "About Us", path: "/about" },
     { label: "Projects", path: "/projects" },
     { label: "Events", path: "/events" },
-    { label: "Blog", path: "/blogs" },
-    { label: "Careers", path: "/careers" },
+    { label: "Blog", path: "/blog" },
+    { label: "Contact", path: "/contact" },
   ];
 
   const memberLinks: NavLink[] = [
     { label: "Join Us", path: "/register" },
     { label: "Member Login", path: "/login" },
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Communities", path: "/communities" },
-    { label: "Leaderboard", path: "/leaderboard" },
+    { label: "Elections", path: "/elections" },
+    { label: "Constitution", path: "/constitution" },
   ];
 
   const legalLinks: NavLink[] = [

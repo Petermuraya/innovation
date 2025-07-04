@@ -58,10 +58,10 @@ const NavbarDesktopMenu = () => {
           icon: <BookOpen className="w-4 h-4 text-kic-green-600" />
         },
         { 
-          name: 'Careers', 
-          href: '/careers', 
-          description: 'Explore opportunities',
-          icon: <Briefcase className="w-4 h-4 text-kic-green-600" />
+          name: 'Constitution', 
+          href: '/constitution', 
+          description: 'Our governance document',
+          icon: <BookOpen className="w-4 h-4 text-kic-green-600" />
         }
       ]
     },
@@ -77,12 +77,12 @@ const NavbarDesktopMenu = () => {
     },
     { 
       name: 'Blog', 
-      href: '/blogs',
+      href: '/blog',
       icon: <BookOpen className="w-4 h-4" />
     },
     { 
-      name: 'Leaderboard', 
-      href: '/leaderboard',
+      name: 'Contact', 
+      href: '/contact',
       icon: <Users className="w-4 h-4" />
     }
   ];
@@ -136,6 +136,7 @@ const NavbarDesktopMenu = () => {
                         <Link
                           key={subItem.name}
                           to={subItem.href}
+                          onClick={() => setActiveDropdown(null)}
                           className="block px-4 py-3 hover:bg-kic-green-50 group transition-all duration-200 relative"
                         >
                           <div className="flex items-start">
