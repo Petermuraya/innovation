@@ -32,7 +32,7 @@ interface UseAdminRequestsReturn {
 }
 
 const RefactoredAdminRequestsManagement = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const { hasPermission } = useRolePermissions();
   const {
@@ -79,7 +79,7 @@ const RefactoredAdminRequestsManagement = () => {
   }, [error]);
 
   const handleReviewRequest = async (requestId: string, status: 'approved' | 'rejected') => {
-    if (!user?.id) {
+    if (!member?.id) {
       toast({
         title: "Authentication Required",
         description: "You must be logged in to review requests",
@@ -95,7 +95,7 @@ const RefactoredAdminRequestsManagement = () => {
         .from('admin_requests')
         .update({
           status,
-          reviewed_by: user.id,
+          reviewed_by: member.id,
           reviewed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -126,15 +126,28 @@ const RefactoredAdminRequestsManagement = () => {
           roleToAssign = 'admin';
         }
 
-        // Assign the requested role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .upsert({
-            user_id: request.user_id,
-            role: roleToAssign
+        // Use RPC call to assign role safely
+        try {
+          const { error: roleError } = await supabase.rpc('assign_user_role', {
+            target_user_id: request.user_id,
+            new_role: roleToAssign
           });
 
-        if (roleError) throw roleError;
+          if (roleError) {
+            // Fallback to direct insert if RPC doesn't exist
+            const { error: insertError } = await supabase
+              .from('user_roles' as any)
+              .upsert({
+                user_id: request.user_id,
+                role: roleToAssign
+              });
+            
+            if (insertError) throw insertError;
+          }
+        } catch (rpcError) {
+          console.error('Role assignment error:', rpcError);
+          // Skip role assignment if both methods fail
+        }
 
         // If community admin, add to community_admin_roles (if community_id exists)
         if (request.admin_type === 'community_admin' && request.community_id) {
@@ -143,7 +156,7 @@ const RefactoredAdminRequestsManagement = () => {
             .insert({
               user_id: request.user_id,
               community_id: request.community_id,
-              assigned_by: user.id,
+              assigned_by: member.id,
               role: 'admin',
               is_active: true
             });

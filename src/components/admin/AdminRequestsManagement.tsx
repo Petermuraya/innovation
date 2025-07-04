@@ -1,15 +1,15 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CheckCircle, XCircle, Clock, Eye, Users, Shield } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Check, X, Clock, Loader2 } from 'lucide-react';
-import { Database } from '@/integrations/supabase/types';
-import * as Dialog from '@radix-ui/react-dialog';
 
-type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
+type SimpleRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
 
 interface AdminRequest {
   id: string;
@@ -24,398 +24,340 @@ interface AdminRequest {
   created_at: string;
   reviewed_at?: string;
   reviewed_by?: string;
-  reviewed_by_name?: string | null;
-  community_name?: string | null;
+  community_groups?: {
+    name: string;
+  };
 }
 
-const AdminRequestsManagement = () => {
-  const [requests, setRequests] = useState<AdminRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState<Record<string, boolean>>({});
-  const [selectedRequest, setSelectedRequest] = useState<AdminRequest | null>(null);
+interface Community {
+  id: string;
+  name: string;
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  member: 'Member',
+  super_admin: 'Super Admin',
+  general_admin: 'General Admin',
+  community_admin: 'Community Admin',
+  admin: 'Admin'
+};
+
+const EnhancedAdminRequestsManagement = () => {
+  const { member } = useAuth();
   const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState<{
-    requestId: string;
-    action: 'approve' | 'reject';
-  } | null>(null);
+  const [requests, setRequests] = useState<AdminRequest[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRequest, setSelectedRequest] = useState<AdminRequest | null>(null);
+  const [reviewing, setReviewing] = useState(false);
 
   useEffect(() => {
-    fetchAdminRequests();
+    fetchRequests();
+    fetchCommunities();
   }, []);
 
-  const fetchAdminRequests = async () => {
+  const fetchRequests = async () => {
     try {
       setLoading(true);
-      console.log('Fetching admin requests...');
-      
       const { data, error } = await supabase
         .from('admin_requests')
         .select(`
           *,
-          reviewed_by_name:members!admin_requests_reviewed_by_fkey(name),
-          community_name:community_groups(name)
+          community_groups:community_groups(name)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching admin requests:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('Admin requests fetched:', data);
-      
-      // Transform the data to handle the nested objects
-      const transformedData: AdminRequest[] = (data || []).map(request => ({
+      // Transform the data to ensure admin_type is a string
+      const transformedData = (data || []).map(request => ({
         ...request,
-        reviewed_by_name: request.reviewed_by_name ? (request.reviewed_by_name as any)?.name : null,
-        community_name: request.community_name ? (request.community_name as any)?.name : null,
+        admin_type: request.admin_type || 'general_admin'
       }));
-      
+
       setRequests(transformedData);
     } catch (error) {
       console.error('Error fetching admin requests:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch admin requests',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load admin requests",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRequestReview = async (requestId: string, action: 'approve' | 'reject') => {
-    if (!pendingAction) return;
-    
+  const fetchCommunities = async () => {
     try {
-      setProcessing((prev) => ({ ...prev, [requestId]: true }));
-      const request = requests.find((r) => r.id === requestId);
-      if (!request) {
-        throw new Error('Request not found');
-      }
+      const { data, error } = await supabase
+        .from('community_groups')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
 
-      console.log(`Processing ${action} for request:`, request);
-
-      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-      if (authError || !currentUser?.id) {
-        throw new Error('User not authenticated');
-      }
-
-      // Update the admin request status
-      const { error: updateError } = await supabase
-        .from('admin_requests')
-        .update({
-          status: action === 'approve' ? 'approved' : 'rejected',
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: currentUser.id,
-        })
-        .eq('id', requestId);
-
-      if (updateError) {
-        console.error('Error updating admin request:', updateError);
-        throw updateError;
-      }
-
-      console.log('Admin request status updated successfully');
-
-      if (action === 'approve' && request.user_id) {
-        console.log('Processing approval for user:', request.user_id);
-        
-        // Update member status to approved
-        const { error: memberError } = await supabase
-          .from('members')
-          .update({ 
-            registration_status: 'approved',
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', request.user_id);
-
-        if (memberError) {
-          console.error('Error updating member status:', memberError);
-        } else {
-          console.log('Member status updated to approved');
-        }
-
-        // Assign the appropriate role based on admin type - mapping to simple_role enum
-        let roleToAssign: SimpleRole = 'member';
-        if (request.admin_type === 'general_admin') {
-          roleToAssign = 'general_admin';
-        } else if (request.admin_type === 'community_admin') {
-          roleToAssign = 'community_admin';
-        } else {
-          roleToAssign = 'admin'; // fallback for legacy requests
-        }
-        
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .upsert({ 
-            user_id: request.user_id, 
-            role: roleToAssign 
-          });
-
-        if (roleError) {
-          console.error('Error assigning role:', roleError);
-          throw new Error(`Failed to assign role: ${roleError.message}`);
-        }
-
-        console.log(`Role ${roleToAssign} assigned successfully`);
-
-        // If community admin, add to community_admin_roles (if community_id exists)
-        if (request.admin_type === 'community_admin' && request.community_id) {
-          const { error: communityRoleError } = await supabase
-            .from('community_admin_roles')
-            .insert({
-              user_id: request.user_id,
-              community_id: request.community_id,
-              assigned_by: currentUser.id,
-              role: 'admin',
-              is_active: true
-            });
-
-          if (communityRoleError) {
-            console.error('Error assigning community role:', communityRoleError);
-          } else {
-            console.log('Community admin role assigned successfully');
-          }
-
-          // Set default permissions for community admin
-          const { error: permissionsError } = await supabase
-            .from('community_dashboard_permissions')
-            .upsert({
-              community_id: request.community_id,
-              admin_user_id: request.user_id,
-              permissions: {
-                add_users: true,
-                add_events: true,
-                upload_blogs: true,
-                view_members: true,
-                send_reminders: true,
-                mark_attendance: true,
-                upload_projects: true
-              }
-            });
-
-          if (permissionsError) {
-            console.error('Error setting community permissions:', permissionsError);
-          } else {
-            console.log('Community permissions set successfully');
-          }
-        }
-      }
-
-      toast({
-        title: `Request ${action === 'approve' ? 'Approved' : 'Rejected'}`,
-        description: `Admin request has been ${action === 'approve' ? 'approved' : 'rejected'} successfully.`,
-      });
-
-      setSelectedRequest(null);
-      await fetchAdminRequests();
+      if (error) throw error;
+      setCommunities(data || []);
     } catch (error) {
-      console.error(`Error ${action}ing request:`, error);
+      console.error('Error fetching communities:', error);
       toast({
-        title: 'Error',
-        description: `Failed to ${action} request: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load communities",
+        variant: "destructive",
       });
-    } finally {
-      setProcessing((prev) => ({ ...prev, [requestId]: false }));
     }
   };
 
-  const confirmAction = (requestId: string, action: 'approve' | 'reject') => {
-    setPendingAction({ requestId, action });
-    setDialogOpen(true);
-  };
+  const handleReviewRequest = async (requestId: string, status: 'approved' | 'rejected') => {
+    if (!member?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to review requests",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const executeAction = async () => {
-    if (!pendingAction) return;
-    await handleRequestReview(pendingAction.requestId, pendingAction.action);
-    setDialogOpen(false);
-    setPendingAction(null);
+    setReviewing(true);
+    try {
+      // Update the request status
+      const { error: updateError } = await supabase
+        .from('admin_requests')
+        .update({
+          status,
+          reviewed_by: member.id,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', requestId);
+
+      if (updateError) throw updateError;
+
+      // If approved, assign the appropriate role
+      if (status === 'approved') {
+        const request = requests.find(r => r.id === requestId);
+        if (!request) throw new Error("Request not found");
+
+        if (request.user_id) {
+          // Map admin_type to SimpleRole
+          let roleToAssign: SimpleRole = 'member';
+          if (request.admin_type === 'general_admin') {
+            roleToAssign = 'general_admin';
+          } else if (request.admin_type === 'community_admin') {
+            roleToAssign = 'community_admin';
+          } else if (request.admin_type === 'super_admin') {
+            roleToAssign = 'super_admin';
+          } else {
+            roleToAssign = 'admin';
+          }
+
+          // Use RPC call to assign role safely
+          const { error: roleError } = await supabase.rpc('assign_user_role', {
+            target_user_id: request.user_id,
+            new_role: roleToAssign
+          });
+
+          if (roleError) {
+            // Fallback to direct insert if RPC doesn't exist
+            const { error: insertError } = await supabase
+              .from('user_roles' as any)
+              .upsert({
+                user_id: request.user_id,
+                role: roleToAssign
+              });
+            
+            if (insertError) throw insertError;
+          }
+
+          // Update member status to approved if exists
+          await supabase
+            .from('members')
+            .update({ registration_status: 'approved' })
+            .eq('user_id', request.user_id);
+
+          // If community admin, also add to community_admin_roles
+          if (request.admin_type === 'community_admin' && request.community_id) {
+            const { error: communityAdminError } = await supabase
+              .from('community_admin_roles')
+              .upsert({
+                user_id: request.user_id,
+                community_id: request.community_id,
+                role: 'admin',
+                assigned_by: member.id,
+                is_active: true,
+              });
+
+            if (communityAdminError) throw communityAdminError;
+          }
+        }
+      }
+
+      toast({
+        title: status === 'approved' ? "Request approved" : "Request rejected",
+        description: `Admin request has been ${status}`,
+      });
+
+      setSelectedRequest(null);
+      await fetchRequests();
+    } catch (error) {
+      console.error('Error reviewing request:', error);
+      toast({
+        title: "Error",
+        description: `Failed to ${status} request: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setReviewing(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
-    const variants = {
-      pending: {
-        className: 'text-yellow-600 border-yellow-600',
-        icon: <Clock className="w-3 h-3 mr-1" />,
-        text: 'Pending'
-      },
-      approved: {
-        className: 'text-green-600 border-green-600',
-        icon: <Check className="w-3 h-3 mr-1" />,
-        text: 'Approved'
-      },
-      rejected: {
-        className: 'text-red-600 border-red-600',
-        icon: <X className="w-3 h-3 mr-1" />,
-        text: 'Rejected'
-      }
-    };
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary" className="flex items-center gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
+      case 'approved':
+        return <Badge className="flex items-center gap-1 bg-green-500 hover:bg-green-600"><CheckCircle className="h-3 w-3" />Approved</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive" className="flex items-center gap-1"><XCircle className="h-3 w-3" />Rejected</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
 
-    const variant = variants[status as keyof typeof variants] || {
-      className: '',
-      icon: null,
-      text: status
-    };
-
-    return (
-      <Badge variant="outline" className={variant.className}>
-        {variant.icon}
-        {variant.text}
-      </Badge>
-    );
+  const getAdminTypeBadge = (adminType: string) => {
+    return <Badge variant="outline" className="flex items-center gap-1">
+      <Shield className="h-3 w-3" />
+      {ROLE_LABELS[adminType] || adminType}
+    </Badge>;
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
-      </div>
-    );
+    return <div className="text-center py-8">Loading admin requests...</div>;
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            Admin Registration Requests
-          </CardTitle>
-          <CardDescription>
-            Review and manage admin access requests. {requests.length} request(s) found.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {requests.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No admin requests found</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
+    <Card>
+      <CardHeader>
+        <CardTitle>Admin Requests Management</CardTitle>
+        <CardDescription>Review and manage admin access requests</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
           {requests.map((request) => (
-            <Card 
-              key={request.id} 
-              className={`border-l-4 ${
-                request.status === 'approved' 
-                  ? 'border-l-green-500' 
-                  : request.status === 'rejected' 
-                    ? 'border-l-red-500' 
-                    : 'border-l-yellow-500'
-              }`}
-            >
-              <CardContent className="p-6 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-lg">{request.name}</h3>
-                    <p className="text-gray-600">{request.email}</p>
-                    <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-                      <span>
-                        Requested: {new Date(request.created_at).toLocaleDateString()}
-                      </span>
-                      {request.admin_type && (
-                        <span>• Type: {request.admin_type}</span>
-                      )}
-                      {request.admin_code && (
-                        <span>• Has Admin Code</span>
-                      )}
-                      {request.community_name && (
-                        <span>• Community: {request.community_name}</span>
-                      )}
-                    </div>
+            <div key={request.id} className="border rounded-lg p-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium">{request.name}</h4>
+                    {getStatusBadge(request.status)}
+                    {getAdminTypeBadge(request.admin_type)}
                   </div>
-                  {getStatusBadge(request.status)}
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-medium">Justification:</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded border">
-                    {request.justification}
+                  
+                  <p className="text-sm text-muted-foreground mb-2">{request.email}</p>
+                  
+                  {request.community_groups?.name && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <strong>Community:</strong> {request.community_groups.name}
+                    </p>
+                  )}
+                  
+                  {request.admin_code && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <strong>Admin Code:</strong> {request.admin_code}
+                    </p>
+                  )}
+                  
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
                   </p>
+                  
+                  {request.reviewed_at && (
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Reviewed:</strong> {new Date(request.reviewed_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
-
-                {request.status === 'pending' && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <Button 
-                      onClick={() => confirmAction(request.id, 'approve')} 
-                      className="bg-green-600 hover:bg-green-700" 
-                      disabled={processing[request.id]}
-                    >
-                      {processing[request.id] ? (
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                      ) : (
-                        <Check className="w-4 h-4 mr-1" />
-                      )} 
-                      Approve
-                    </Button>
-                    <Button 
-                      onClick={() => confirmAction(request.id, 'reject')} 
-                      variant="destructive" 
-                      disabled={processing[request.id]}
-                    >
-                      {processing[request.id] ? (
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                      ) : (
-                        <X className="w-4 h-4 mr-1" />
-                      )} 
-                      Reject
-                    </Button>
-                  </div>
-                )}
-
-                {request.status !== 'pending' && request.reviewed_at && (
-                  <div className="text-sm text-gray-500 space-y-1">
-                    <p>Reviewed: {new Date(request.reviewed_at).toLocaleString()}</p>
-                    {request.reviewed_by_name && (
-                      <p>Reviewed by: {request.reviewed_by_name}</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                
+                <div className="flex items-center gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setSelectedRequest(request)}
+                        disabled={request.status !== 'pending'}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        {request.status === 'pending' ? 'Review' : 'View'}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Admin Request Details</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <strong>Name:</strong> {request.name}
+                        </div>
+                        <div>
+                          <strong>Email:</strong> {request.email}
+                        </div>
+                        <div>
+                          <strong>Admin Type:</strong> {ROLE_LABELS[request.admin_type] || request.admin_type}
+                        </div>
+                        {request.community_groups?.name && (
+                          <div>
+                            <strong>Community:</strong> {request.community_groups.name}
+                          </div>
+                        )}
+                        {request.admin_code && (
+                          <div>
+                            <strong>Admin Code:</strong> {request.admin_code}
+                          </div>
+                        )}
+                        <div>
+                          <strong>Justification:</strong>
+                          <p className="mt-1 p-3 bg-muted rounded-md text-sm">
+                            {request.justification}
+                          </p>
+                        </div>
+                        
+                        {request.status === 'pending' && (
+                          <div className="flex gap-2 pt-4">
+                            <Button
+                              onClick={() => handleReviewRequest(request.id, 'approved')}
+                              disabled={reviewing}
+                              className="flex-1 bg-green-600 hover:bg-green-700"
+                            >
+                              {reviewing ? 'Processing...' : 'Approve'}
+                            </Button>
+                            <Button
+                              onClick={() => handleReviewRequest(request.id, 'rejected')}
+                              disabled={reviewing}
+                              variant="destructive"
+                              className="flex-1"
+                            >
+                              {reviewing ? 'Processing...' : 'Reject'}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </div>
           ))}
+          
+          {requests.length === 0 && (
+            <div className="text-center py-8">
+              <Clock className="h-12 w-12 mx-auto mb-4 text-muted" />
+              <p className="text-muted-foreground">No admin requests found.</p>
+            </div>
+          )}
         </div>
-      )}
-
-      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" />
-          <Dialog.Content className="fixed z-50 bg-white p-6 rounded-lg max-w-md w-[calc(100%-2rem)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-lg focus:outline-none">
-            <div className="flex justify-between items-center mb-4">
-              <Dialog.Title className="text-lg font-semibold">
-                Confirm {pendingAction?.action === 'approve' ? 'Approval' : 'Rejection'}
-              </Dialog.Title>
-              <Dialog.Close asChild>
-                <button className="text-gray-500 hover:text-gray-700">
-                  <X className="w-5 h-5" />
-                </button>
-              </Dialog.Close>
-            </div>
-            <Dialog.Description className="text-gray-600 mb-6">
-              Are you sure you want to {pendingAction?.action} this admin request? 
-              This action cannot be undone.
-            </Dialog.Description>
-            <div className="flex gap-2 justify-end">
-              <Dialog.Close asChild>
-                <Button variant="outline">Cancel</Button>
-              </Dialog.Close>
-              <Button 
-                onClick={executeAction}
-                variant={pendingAction?.action === 'approve' ? 'default' : 'destructive'}
-              >
-                Confirm {pendingAction?.action}
-              </Button>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export default AdminRequestsManagement;
+export default EnhancedAdminRequestsManagement;
