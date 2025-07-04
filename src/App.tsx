@@ -21,6 +21,7 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Elections from '@/pages/Elections';
 import Constitution from '@/pages/Constitution';
+import Payments from '@/pages/Payments';
 
 // Providers
 import { NotificationProvider } from '@/components/notifications/NotificationProvider';
@@ -54,6 +55,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/elections" element={<Elections />} />
                 <Route path="/constitution" element={<Constitution />} />
+                <Route path="/payments" element={<Payments />} />
 
                 {/* Protected routes */}
                 <Route

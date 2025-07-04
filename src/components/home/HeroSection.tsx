@@ -6,7 +6,6 @@ import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import Image1 from "@/assets/hero-2.png";
 import Image2 from "@/assets/hero-3.png";
 import Image3 from "@/assets/image1.jpg";
-import { useWindowSize } from "@/hooks/useWindowSize";
 
 const heroImages = [
   {
@@ -39,8 +38,22 @@ export default function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const { width: windowWidth, height: windowHeight } = useWindowSize();
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 768);
+
   const isMobile = windowWidth < 640;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setWindowHeight(window.innerHeight);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   useEffect(() => {
     setIsVisible(true);
@@ -61,7 +74,7 @@ export default function HeroSection() {
   };
 
   const calculateHeight = () => {
-    if (isMobile) return `min(80vh, ${windowHeight ? windowHeight * 0.8 : 500}px)`;
+    if (isMobile) return `min(80vh, ${windowHeight * 0.8}px)`;
     return "600px";
   };
 
