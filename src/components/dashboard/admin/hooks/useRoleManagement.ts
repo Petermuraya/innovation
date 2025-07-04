@@ -1,124 +1,67 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { AppRole, UserWithRole } from '@/types/roles';
+import { AppRole } from '@/types/roles';
 
-// Database role type - matches what's actually in the database
-type DatabaseRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
-
-// Mapping from AppRole to DatabaseRole
-const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
-  switch (role) {
-    case 'super_admin':
-      return 'super_admin';
-    case 'general_admin':
-      return 'general_admin';
-    case 'community_admin':
-      return 'community_admin';
-    case 'admin':
-      return 'admin';
-    default:
-      return 'member';
-  }
-};
-
-// Mapping from DatabaseRole to AppRole
-const mapDatabaseToAppRole = (role: DatabaseRole): AppRole => {
-  switch (role) {
-    case 'super_admin':
-      return 'super_admin';
-    case 'general_admin':
-      return 'general_admin';
-    case 'community_admin':
-      return 'community_admin';
-    case 'admin':
-      return 'admin';
-    default:
-      return 'member';
-  }
-};
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  roles: AppRole[];
+  registration_status: string;
+}
 
 export const useRoleManagement = (canManageRoles: boolean) => {
   const { toast } = useToast();
-  const [users, setUsers] = useState<UserWithRole[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
-  const fetchingRef = useRef(false);
-  const channelRef = useRef<any>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchUsers = useCallback(async (force = false) => {
-    if (!canManageRoles) return;
-    
-    // Prevent concurrent fetches
-    if (fetchingRef.current && !force) {
-      console.log('Skipping role management fetch - already in progress');
+  const fetchUsers = async () => {
+    if (!canManageRoles) {
+      setLoading(false);
       return;
     }
-    
-    // Debounce rapid fetches unless forced
-    const now = Date.now();
-    if (!force && now - lastFetchTime < 2000) {
-      console.log('Skipping role management fetch due to debounce');
-      return;
-    }
-    
+
     try {
-      fetchingRef.current = true;
-      setLoading(true);
-      console.log('Fetching users for role management with optimized query...');
-      
-      // Use the members table directly since member_management_view might not be available
-      const { data: memberData, error: memberError } = await supabase
+      // Fetch members data
+      const { data: membersData, error: membersError } = await supabase
         .from('members')
-        .select(`
-          user_id,
-          name,
-          email
-        `)
-        .not('user_id', 'is', null)
-        .order('name');
+        .select('user_id, name, email, registration_status')
+        .eq('registration_status', 'approved');
 
-      if (memberError) {
-        console.error('Error fetching members for role management:', memberError);
-        throw memberError;
-      }
+      if (membersError) throw membersError;
 
-      if (!memberData || memberData.length === 0) {
-        console.log('No members found for role management');
+      if (!membersData || membersData.length === 0) {
         setUsers([]);
-        setLastFetchTime(now);
+        setLoading(false);
         return;
       }
 
-      // Get user roles for all members
-      const userIds = memberData.map(m => m.user_id).filter(Boolean);
-      const { data: roleData, error: roleError } = await supabase
+      // Fetch roles for all users
+      const userIds = membersData.map(m => m.user_id).filter(Boolean);
+      const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role')
         .in('user_id', userIds);
 
-      if (roleError) {
-        console.error('Error fetching roles for role management:', roleError);
-      }
+      if (rolesError) throw rolesError;
 
-      // Format users with roles
-      const validUsers = memberData
+      // Combine data
+      const usersWithRoles: User[] = membersData
         .filter(member => member.user_id)
         .map(member => {
-          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => mapDatabaseToAppRole(r.role as DatabaseRole)) || [];
-          
+          const userRoles = rolesData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           return {
-            user_id: member.user_id!,
-            name: member.name,
+            id: member.user_id!,
             email: member.email,
-            roles: userRoles.length > 0 ? userRoles : ['member' as AppRole]
+            name: member.name,
+            roles: userRoles.length > 0 ? userRoles : ['member'],
+            registration_status: member.registration_status,
           };
         });
-      
-      console.log('Fetched users for role management:', validUsers.length);
-      setUsers(validUsers);
-      setLastFetchTime(now);
+
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users for role management:', error);
       toast({
@@ -128,125 +71,63 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       });
     } finally {
       setLoading(false);
-      fetchingRef.current = false;
     }
-  }, [canManageRoles, toast, lastFetchTime]);
+  };
 
   const assignRole = async (userId: string, role: AppRole) => {
     try {
-      setLoading(true);
-      
-      // Map AppRole to database role
-      const dbRole = mapAppRoleToDatabase(role);
-      
       const { error } = await supabase
         .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: dbRole
-        });
+        .insert({ user_id: userId, role });
 
       if (error) throw error;
 
+      // Refresh users list
+      await fetchUsers();
+
       toast({
         title: "Success",
-        description: "Role assigned successfully",
+        description: `Role ${role} assigned successfully`,
       });
-
-      // Force immediate refresh
-      await fetchUsers(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error assigning role:', error);
       toast({
         title: "Error",
-        description: "Failed to assign role",
+        description: error.message || "Failed to assign role",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const removeRole = async (userId: string, role: AppRole) => {
     try {
-      setLoading(true);
-      
-      // Map AppRole to database role
-      const dbRole = mapAppRoleToDatabase(role);
-      
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', dbRole);
+        .eq('role', role);
 
-      if (error) {
-        console.error('Error removing role:', error);
-        throw error;
-      }
+      if (error) throw error;
+
+      // Refresh users list
+      await fetchUsers();
 
       toast({
         title: "Success",
-        description: "Role removed successfully",
+        description: `Role ${role} removed successfully`,
       });
-
-      // Force immediate refresh
-      await fetchUsers(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error removing role:', error);
       toast({
         title: "Error",
-        description: "Failed to remove role",
+        description: error.message || "Failed to remove role",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (canManageRoles) {
-      fetchUsers(true);
-
-      // Clean up any existing channel
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
-
-      // Set up real-time subscription with optimized handling
-      const channel = supabase
-        .channel('role-mgmt-realtime-optimized')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'user_roles'
-          },
-          (payload) => {
-            console.log('User roles changed (role management):', payload.eventType);
-            // Delay refresh to allow database to settle
-            setTimeout(() => {
-              if (!fetchingRef.current) {
-                fetchUsers(true);
-              }
-            }, 1000);
-          }
-        )
-        .subscribe((status) => {
-          console.log('Role management subscription status:', status);
-        });
-
-      channelRef.current = channel;
-
-      return () => {
-        console.log('Cleaning up role management subscriptions');
-        if (channelRef.current) {
-          supabase.removeChannel(channelRef.current);
-          channelRef.current = null;
-        }
-      };
-    }
+    fetchUsers();
   }, [canManageRoles]);
 
   return {
@@ -254,6 +135,5 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     loading,
     assignRole,
     removeRole,
-    fetchUsers: () => fetchUsers(true)
   };
 };

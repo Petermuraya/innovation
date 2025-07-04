@@ -42,7 +42,7 @@ export const useOptimizedUserManagement = () => {
       setLoading(true);
       console.log('Fetching users with optimized query...');
       
-      // Use the members table directly since member_management_view might not be available
+      // Use the members table directly with all required fields
       const { data: memberData, error: memberError } = await supabase
         .from('members')
         .select(`
@@ -80,14 +80,14 @@ export const useOptimizedUserManagement = () => {
         console.error('Error fetching roles:', roleError);
       }
 
-      // Format the data
+      // Format the data using user_id as the primary key
       const formattedUsers: User[] = memberData
         .filter(member => member.user_id) // Only include members with valid user_id
         .map(member => {
           const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           
           return {
-            id: member.user_id!,
+            id: member.user_id!, // Use user_id as the primary identifier
             email: member.email,
             name: member.name,
             roles: userRoles.length > 0 ? userRoles : ['member'],
@@ -206,12 +206,87 @@ export const useOptimizedUserManagement = () => {
     };
   }, []);
 
+  const assignRole = useCallback(async (userId: string, role: AppRole) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role })
+        .select();
+
+      if (error) {
+        console.error('Error assigning role:', error);
+        throw error;
+      }
+
+      // Update local state
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId 
+            ? { ...user, roles: [...user.roles, role] }
+            : user
+        )
+      );
+
+      toast({
+        title: "Role Assigned",
+        description: `Successfully assigned ${role} role`,
+      });
+
+    } catch (error: any) {
+      console.error('Error assigning role:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign role",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const removeRole = useCallback(async (userId: string, role: AppRole) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', role);
+
+      if (error) {
+        console.error('Error removing role:', error);
+        throw error;
+      }
+
+      // Update local state
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId 
+            ? { ...user, roles: user.roles.filter(r => r !== role) }
+            : user
+        )
+      );
+
+      toast({
+        title: "Role Removed",
+        description: `Successfully removed ${role} role`,
+      });
+
+    } catch (error: any) {
+      console.error('Error removing role:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove role",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
   return {
     users,
     loading,
     fetchUsers,
+    assignRole,
+    removeRole,
     removeUserFromState,
     addUserToState,
-    updateUserInState
+    updateUserInState,
   };
 };

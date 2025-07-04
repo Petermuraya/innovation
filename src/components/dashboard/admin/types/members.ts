@@ -6,22 +6,27 @@ export interface Member {
   email: string;
   phone?: string;
   course?: string;
-  registration_status: string;
-  avatar_url?: string;
+  department?: string;
+  full_name?: string;
   bio?: string;
-  year_of_study?: string;
-  skills?: string[];
-  github_username?: string;
+  avatar_url?: string;
   linkedin_url?: string;
+  github_url?: string;
+  github_username?: string;
+  portfolio_url?: string;
+  skills?: string[];
+  interests?: string[];
+  year_of_study?: string;
   registration_number?: string;
-  created_at: string;
-  updated_at: string;
-  approved_by?: string;
-  approved_at?: string;
-  membership_expires_at?: string;
   current_academic_year?: number;
   registration_year?: number;
   is_alumni?: boolean;
+  membership_expires_at?: string;
+  registration_status: string;
+  approved_by?: string;
+  approved_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface MemberStats {
