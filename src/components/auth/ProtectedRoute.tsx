@@ -1,32 +1,41 @@
 
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMemberStatus } from '@/hooks/useMemberStatus';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, UserX, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AppRole } from '@/types/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireApproval?: boolean;
-  requiredRole?: string;
+  requiredRole?: AppRole;
+  requiredRoles?: AppRole[];
+  requiredPermission?: string;
   redirectTo?: string;
 }
 
 const ProtectedRoute = ({ 
   children, 
-  requireApproval = true,
+  requireApproval = true, 
   requiredRole,
+  requiredRoles,
+  requiredPermission,
   redirectTo = '/login'
 }: ProtectedRouteProps) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { member, loading: authLoading } = useAuth();
+  const { loading: statusLoading, isApproved } = useMemberStatus();
+  const { isAdmin, hasRolePermission, loading: roleLoading, roleInfo } = useRolePermissions();
   const location = useLocation();
 
-  // Show loading state while checking authentication
-  if (loading) {
+  if (authLoading || statusLoading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
+        <Card>
+          <CardContent className="p-6">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-kic-green-500" />
             <p className="text-gray-600">Verifying authentication...</p>
           </CardContent>
@@ -36,7 +45,7 @@ const ProtectedRoute = ({
   }
 
   // Redirect to login if user is not authenticated
-  if (!user) {
+  if (!member) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 

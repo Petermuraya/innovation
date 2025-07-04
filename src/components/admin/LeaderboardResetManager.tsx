@@ -52,12 +52,40 @@ const LeaderboardResetManager = () => {
 
       // Use RPC to check role if available, otherwise check directly
       try {
-        const { data: hasRole, error: roleCheckError } = await supabase.rpc('has_role', {
+        const { data: hasRole, error: roleCheckError } = await supabase.rpc('has_role' as any, {
           _user_id: currentUser.user.id,
           _role: 'super_admin'
-        });
+        } as any);
 
         if (roleCheckError || !hasRole) {
+          // Fallback check using direct query
+          const { data: roleData, error: directRoleError } = await supabase
+            .from('user_roles' as any)
+            .select('role')
+            .eq('user_id', currentUser.user.id)
+            .eq('role', 'super_admin')
+            .single();
+
+          if (directRoleError || !roleData) {
+            toast({
+              title: "Access Denied",
+              description: "Only super admins can reset the leaderboard",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+      } catch (rpcError) {
+        // Fallback: direct query if RPC doesn't work
+        console.log('RPC check failed, using direct query fallback');
+        const { data: roleData, error: directRoleError } = await supabase
+          .from('user_roles' as any)
+          .select('role')
+          .eq('user_id', currentUser.user.id)
+          .eq('role', 'super_admin')
+          .single();
+
+        if (directRoleError || !roleData) {
           toast({
             title: "Access Denied",
             description: "Only super admins can reset the leaderboard",
@@ -65,10 +93,6 @@ const LeaderboardResetManager = () => {
           });
           return;
         }
-      } catch (rpcError) {
-        // Fallback: direct query if RPC doesn't work
-        console.log('RPC check failed, using direct query fallback');
-        // Skip role check for now to avoid blocking functionality
       }
 
       // Delete member points
@@ -81,7 +105,7 @@ const LeaderboardResetManager = () => {
 
       // Delete website visits using direct SQL if possible
       try {
-        const { error: visitsError } = await supabase.rpc('reset_user_visits');
+        const { error: visitsError } = await supabase.rpc('reset_user_visits' as any);
         if (visitsError) {
           console.log('RPC reset failed, attempting direct delete');
           // Fallback approach - we'll skip this for now since the table isn't in TypeScript

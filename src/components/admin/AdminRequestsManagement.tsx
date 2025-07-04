@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -150,14 +149,26 @@ const EnhancedAdminRequestsManagement = () => {
             roleToAssign = 'admin';
           }
 
-          // Use RPC call to assign role safely
-          const { error: roleError } = await supabase.rpc('assign_user_role', {
-            target_user_id: request.user_id,
-            new_role: roleToAssign
-          });
+          // Try to use RPC call to assign role safely, with fallback
+          try {
+            const { error: roleError } = await supabase.rpc('assign_user_role' as any, {
+              target_user_id: request.user_id,
+              new_role: roleToAssign
+            } as any);
 
-          if (roleError) {
-            // Fallback to direct insert if RPC doesn't exist
+            if (roleError) {
+              // Fallback to direct insert if RPC doesn't exist
+              const { error: insertError } = await supabase
+                .from('user_roles' as any)
+                .upsert({
+                  user_id: request.user_id,
+                  role: roleToAssign
+                });
+              
+              if (insertError) throw insertError;
+            }
+          } catch (rpcError) {
+            // Fallback to direct insert
             const { error: insertError } = await supabase
               .from('user_roles' as any)
               .upsert({

@@ -1,133 +1,103 @@
 
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import DashboardSwitcherIcon from './switcher/DashboardSwitcherIcon';
-import DashboardSwitcherInfo from './switcher/DashboardSwitcherInfo';
-import DashboardSwitcherToggle from './switcher/DashboardSwitcherToggle';
-import DashboardSwitcherProgressBar from './switcher/DashboardSwitcherProgressBar';
+import { Crown, Shield, Users, User, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface DashboardSwitcherProps {
-  currentView: 'admin' | 'user';
-  onViewChange: (view: 'admin' | 'user') => void;
-}
+const DashboardSwitcher = () => {
+  const { memberRole, isAdmin } = useAuth();
 
-const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps) => {
-  const { isAdmin, userRole, loading } = useAuth();
-  const [isAnimating, setIsAnimating] = useState(false);
+  const dashboards = [
+    {
+      title: 'Member Dashboard',
+      description: 'View your profile, activities, and achievements',
+      icon: User,
+      path: '/dashboard/member',
+      color: 'bg-blue-500',
+      available: true,
+    },
+    {
+      title: 'Admin Dashboard',
+      description: 'Manage users, content, and system settings',
+      icon: Shield,
+      path: '/dashboard/admin',
+      color: 'bg-red-500',
+      available: isAdmin,
+      badge: memberRole === 'super_admin' ? 'Super Admin' : 'Admin'
+    },
+    {
+      title: 'Community Dashboard',
+      description: 'Manage community groups and activities',
+      icon: Users,
+      path: '/dashboard/community',
+      color: 'bg-green-500',
+      available: memberRole === 'community_admin' || isAdmin,
+    }
+  ];
 
-  console.log('DashboardSwitcher - isAdmin:', isAdmin, 'userRole:', userRole, 'loading:', loading);
-
-  if (loading) {
-    console.log('DashboardSwitcher - still loading auth');
-    return null;
-  }
-
-  // Show switcher for any admin user
-  if (!isAdmin || !userRole || userRole === 'member') {
-    console.log('DashboardSwitcher - no admin access detected, userRole:', userRole);
-    return null;
-  }
-
-  console.log('DashboardSwitcher - rendering with admin role:', userRole);
-
-  const handleToggle = async (checked: boolean) => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    onViewChange(checked ? 'admin' : 'user');
-    setIsAnimating(false);
-  };
-
-  const getRoleDisplayName = (role: string) => {
-    const roleNames: Record<string, string> = {
-      'super_admin': 'Super Admin',
-      'general_admin': 'General Admin',
-      'community_admin': 'Community Admin',
-      'events_admin': 'Events Admin',
-      'projects_admin': 'Projects Admin',
-      'finance_admin': 'Finance Admin',
-      'content_admin': 'Content Admin',
-      'technical_admin': 'Technical Admin',
-      'marketing_admin': 'Marketing Admin',
-      'chairman': 'Chairman',
-      'vice_chairman': 'Vice Chairman'
-    };
-    return roleNames[role] || role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  };
-
-  const isHighRole = ['super_admin', 'chairman', 'vice_chairman'].includes(userRole);
-  const roleDisplayName = getRoleDisplayName(userRole);
+  const availableDashboards = dashboards.filter(dashboard => dashboard.available);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
-      <Card className="mb-6 border-2 overflow-hidden relative">
-        <motion.div
-          className="absolute inset-0 opacity-20"
-          animate={{
-            background: currentView === 'admin' 
-              ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
-              : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-          }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-        />
-        
-        <CardContent className="p-6 relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <DashboardSwitcherIcon 
-                currentView={currentView}
-                isHighRole={isHighRole}
-              />
-              
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {currentView === 'admin' ? 'Admin Dashboard' : 'Member Dashboard'}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {currentView === 'admin' 
-                    ? `${roleDisplayName} - Administrative controls and management`
-                    : 'Member view with personal dashboard and activities'
-                  }
-                </p>
-              </div>
-            </div>
-            
-            <DashboardSwitcherToggle 
-              currentView={currentView}
-              isAnimating={isAnimating}
-              onToggle={handleToggle}
-            />
-          </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold">Select Dashboard</h1>
+        <p className="text-muted-foreground">
+          Choose the dashboard you want to access based on your role
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {availableDashboards.map((dashboard) => {
+          const IconComponent = dashboard.icon;
           
-          <DashboardSwitcherProgressBar currentView={currentView} />
-        </CardContent>
-        
-        {/* Loading overlay */}
-        <AnimatePresence>
-          {isAnimating && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-    </motion.div>
+          return (
+            <Link key={dashboard.path} to={dashboard.path}>
+              <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer h-full">
+                <CardHeader className="text-center">
+                  <div className={`w-16 h-16 rounded-full ${dashboard.color} flex items-center justify-center mx-auto mb-4`}>
+                    <IconComponent className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    {dashboard.title}
+                    {dashboard.badge && (
+                      <Badge variant="secondary" className="text-xs">
+                        {dashboard.badge}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    {dashboard.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full" variant="outline">
+                    Access Dashboard
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
+      </div>
+
+      {memberRole === 'super_admin' && (
+        <div className="text-center">
+          <Card className="max-w-md mx-auto border-yellow-200 bg-yellow-50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-center gap-2 text-yellow-700">
+                <Crown className="w-5 h-5" />
+                <span className="font-medium">Super Admin Access</span>
+              </div>
+              <p className="text-sm text-yellow-600 mt-1">
+                You have full access to all dashboards and system controls
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 };
 

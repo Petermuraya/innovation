@@ -128,10 +128,10 @@ const RefactoredAdminRequestsManagement = () => {
 
         // Use RPC call to assign role safely
         try {
-          const { error: roleError } = await supabase.rpc('assign_user_role', {
+          const { error: roleError } = await supabase.rpc('assign_user_role' as any, {
             target_user_id: request.user_id,
             new_role: roleToAssign
-          });
+          } as any);
 
           if (roleError) {
             // Fallback to direct insert if RPC doesn't exist
@@ -146,7 +146,15 @@ const RefactoredAdminRequestsManagement = () => {
           }
         } catch (rpcError) {
           console.error('Role assignment error:', rpcError);
-          // Skip role assignment if both methods fail
+          // Fallback to direct insert
+          const { error: insertError } = await supabase
+            .from('user_roles' as any)
+            .upsert({
+              user_id: request.user_id,
+              role: roleToAssign
+            });
+          
+          if (insertError) throw insertError;
         }
 
         // If community admin, add to community_admin_roles (if community_id exists)

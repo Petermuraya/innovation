@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +42,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const EnhancedAdminRequestsManagement = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -109,7 +108,7 @@ const EnhancedAdminRequestsManagement = () => {
   };
 
   const handleReviewRequest = async (requestId: string, status: 'approved' | 'rejected') => {
-    if (!user?.id) {
+    if (!member?.id) {
       toast({
         title: "Error",
         description: "You must be logged in to review requests",
@@ -125,7 +124,7 @@ const EnhancedAdminRequestsManagement = () => {
         .from('admin_requests')
         .update({
           status,
-          reviewed_by: user.id,
+          reviewed_by: member.id,
           reviewed_at: new Date().toISOString(),
         })
         .eq('id', requestId);
@@ -150,9 +149,9 @@ const EnhancedAdminRequestsManagement = () => {
             roleToAssign = 'admin';
           }
 
-          // Assign the requested role
+          // Assign the requested role using type assertion
           const { error: roleError } = await supabase
-            .from('user_roles')
+            .from('user_roles' as any)
             .upsert({
               user_id: request.user_id,
               role: roleToAssign
@@ -174,7 +173,7 @@ const EnhancedAdminRequestsManagement = () => {
                 user_id: request.user_id,
                 community_id: request.community_id,
                 role: 'admin',
-                assigned_by: user.id,
+                assigned_by: member.id,
                 is_active: true,
               });
 

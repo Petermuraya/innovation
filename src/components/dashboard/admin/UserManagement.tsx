@@ -14,7 +14,7 @@ import MemberSearchAndFilters from './components/MemberSearchAndFilters';
 import MemberList from './components/MemberList';
 import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useMemberDeletion } from './hooks/useMemberDeletion';
-import { useOptimizedMemberManagement } from './hooks/useOptimizedMemberManagement';
+import { useOptimizedMemberManagement } from './hooks/useOptimizedUserManagement';
 import { AppRole, Member, ROLE_LABELS, ROLE_COLORS, mapAppRoleToDatabase } from '@/types/roles';
 
 const MemberManagement = () => {
@@ -43,9 +43,9 @@ const MemberManagement = () => {
       // Map AppRole to database role
       const dbRole = mapAppRoleToDatabase(role);
 
-      // Assign the role
+      // Assign the role using type assertion for user_roles table
       const { error: roleError } = await supabase
-        .from('user_roles')
+        .from('user_roles' as any)
         .upsert({
           user_id: member.id,
           role: dbRole
@@ -89,7 +89,7 @@ const MemberManagement = () => {
       const dbRole = mapAppRoleToDatabase(roleToRemove);
 
       const { error } = await supabase
-        .from('user_roles')
+        .from('user_roles' as any)
         .delete()
         .eq('user_id', memberId)
         .eq('role', dbRole);
