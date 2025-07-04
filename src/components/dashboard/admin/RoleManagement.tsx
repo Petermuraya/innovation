@@ -6,10 +6,10 @@ import RoleManagementAccessDenied from './components/RoleManagementAccessDenied'
 import { useRoleManagement } from './hooks/useRoleManagement';
 
 const RoleManagement = () => {
-  const { isSuperAdmin, isChairman } = useRolePermissions();
+  const { isPatron, isChairperson } = useRolePermissions();
   
-  // Only super admins and chairman can manage roles
-  const canManageRoles = isSuperAdmin || isChairman;
+  // Only patrons and chairpersons can manage roles per the permission matrix
+  const canManageRoles = isPatron || isChairperson;
   
   const { users, loading, assignRole, removeRole } = useRoleManagement(canManageRoles);
 

@@ -59,7 +59,7 @@ export const useMemberStatus = () => {
         
         // User is approved if their registration is approved OR they have admin roles
         const isApproved = registrationStatus === 'approved' || 
-          roles.some(role => ['super_admin', 'general_admin', 'community_admin', 'admin', 'chairman', 'vice_chairman'].includes(role));
+          roles.some(role => ['patron', 'chairperson', 'vice-chairperson', 'treasurer', 'auditor', 'secretary', 'vice-secretary', 'organizing-secretary'].includes(role));
 
         setStatus({
           isApproved,

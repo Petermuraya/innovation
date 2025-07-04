@@ -4,16 +4,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
-import type { AppRole } from '@/types/roles';
+import type { AppRole, hasPermission } from '@/types/roles';
 
 interface RoleGuardProps {
   children: ReactNode;
   requiredRole?: AppRole;
+  requiredPermission?: string;
+  requiredRoles?: AppRole[];
   fallback?: ReactNode;
-  requirePermission?: string;
 }
 
-const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: RoleGuardProps) => {
+const RoleGuard = ({ 
+  children, 
+  requiredRole, 
+  requiredPermission, 
+  requiredRoles,
+  fallback 
+}: RoleGuardProps) => {
   const { user } = useAuth();
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,41 +34,29 @@ const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: Role
       }
 
       try {
-        if (requirePermission) {
-          // Check specific permission - simplified approach
-          // For now, super admins have all permissions
-          const { data, error } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id)
-            .eq('role', 'super_admin')
-            .single();
-          
-          if (error && error.code !== 'PGRST116') {
-            console.error('Error checking permission:', error);
-            setHasAccess(false);
-          } else {
-            setHasAccess(!!data);
-          }
-        } else if (requiredRole) {
-          // Check role
-          const { data, error } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id);
-          
-          if (error) {
-            console.error('Error checking role:', error);
-            setHasAccess(false);
-          } else {
-            const userRoles = data?.map(r => r.role) || [];
-            // Super admin has access to everything
-            const hasRole = userRoles.includes('super_admin') || userRoles.includes(requiredRole);
-            setHasAccess(hasRole);
-          }
-        } else {
-          // No permission or role check specified, default to false
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Error checking role:', error);
           setHasAccess(false);
+        } else {
+          const userRoles = data?.map(r => r.role as AppRole) || ['member'];
+          
+          // Patron has access to everything
+          if (userRoles.includes('patron')) {
+            setHasAccess(true);
+          } else if (requiredPermission) {
+            setHasAccess(hasPermission(userRoles, requiredPermission));
+          } else if (requiredRole) {
+            setHasAccess(userRoles.includes(requiredRole));
+          } else if (requiredRoles) {
+            setHasAccess(requiredRoles.some(role => userRoles.includes(role)));
+          } else {
+            setHasAccess(true);
+          }
         }
       } catch (error) {
         console.error('Access check failed:', error);
@@ -72,7 +67,7 @@ const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: Role
     };
 
     checkAccess();
-  }, [user, requiredRole, requirePermission]);
+  }, [user, requiredRole, requiredPermission, requiredRoles]);
 
   if (loading) {
     return <div className="text-center py-8">Verifying permissions...</div>;

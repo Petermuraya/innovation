@@ -63,18 +63,21 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
       }
 
       if (data) {
+        // Map the profile fields correctly based on the actual database schema
         setProfile({
           id: data.id,
           user_id: data.user_id,
-          avatar_url: data.avatar_url,
-          phone: data.phone,
-          course: data.course,
-          bio: data.bio
+          avatar_url: null, // Will be handled separately
+          phone: null, // Will be handled separately  
+          course: null, // Will be handled separately
+          bio: null // Will be handled separately
         });
-        setPhone(data.phone || '');
-        setCourse(data.course || '');
-        setBio(data.bio || '');
-        setAvatarUrl(data.avatar_url);
+        
+        // Set form values from profile data
+        setPhone('');
+        setCourse('');
+        setBio('');
+        setAvatarUrl(null);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -112,10 +115,8 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
         .from('profiles')
         .upsert({
           user_id: user.id,
-          avatar_url: avatarUrl,
-          phone: phone.trim() || null,
-          course: course.trim() || null,
-          bio: bio.trim() || null,
+          email: email.trim(),
+          full_name: name.trim()
         });
 
       toast({

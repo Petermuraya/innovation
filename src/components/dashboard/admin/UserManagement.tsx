@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +19,12 @@ import type { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
 
 const UserManagement = () => {
   const { toast } = useToast();
-  const { isSuperAdmin, roleInfo } = useRolePermissions();
+  const { isPatron, isChairperson, roleInfo } = useRolePermissions();
   const { users, loading, fetchUsers, removeUserFromState } = useOptimizedUserManagement();
   const { deleteUserCompletely, loading: deletionLoading } = useUserDeletion();
   
   const [searchEmail, setSearchEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('general_admin');
+  const [selectedRole, setSelectedRole] = useState<AppRole>('chairperson');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
@@ -121,7 +122,7 @@ const UserManagement = () => {
     }
   };
 
-  const canManageUsers = isSuperAdmin || roleInfo?.assignedRole === 'super_admin';
+  const canManageUsers = isPatron || isChairperson;
 
   return (
     <div className="space-y-6">
@@ -130,16 +131,16 @@ const UserManagement = () => {
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
             Enhanced User Management
-            {isSuperAdmin && <Crown className="w-4 h-4 text-yellow-500" />}
+            {isPatron && <Crown className="w-4 h-4 text-yellow-500" />}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {isSuperAdmin && (
+            {isPatron && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="w-4 h-4 text-yellow-600" />
-                  <span className="font-medium text-yellow-800">Super Admin Mode</span>
+                  <span className="font-medium text-yellow-800">Patron Mode</span>
                 </div>
                 <p className="text-sm text-yellow-700">
                   Full system access - manage all users, roles, and perform administrative actions.
@@ -155,7 +156,7 @@ const UserManagement = () => {
         </CardContent>
       </Card>
 
-      {isSuperAdmin && <AdminRegistrationShare />}
+      {isPatron && <AdminRegistrationShare />}
 
       {canManageUsers && (
         <QuickRoleAssignment
