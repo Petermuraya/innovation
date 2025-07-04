@@ -20,14 +20,14 @@ export type AppRole =
   | 'chairman'
   | 'vice_chairman';
 
-export interface UserWithRole {
-  user_id: string;
+export interface MemberWithRole {
+  member_id: string;
   name: string;
   email: string;
   roles: AppRole[];
 }
 
-export interface User {
+export interface Member {
   id: string;
   email: string;
   name: string;
@@ -63,12 +63,12 @@ export const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
   }
 };
 
-// Helper function to convert User to UserWithRole
-export const convertUserToUserWithRole = (user: User): UserWithRole => ({
-  user_id: user.id,
-  name: user.name,
-  email: user.email,
-  roles: user.roles,
+// Helper function to convert Member to MemberWithRole
+export const convertMemberToMemberWithRole = (member: Member): MemberWithRole => ({
+  member_id: member.id,
+  name: member.name,
+  email: member.email,
+  roles: member.roles,
 });
 
 export const ROLE_LABELS: Record<AppRole, string> = {
@@ -107,7 +107,7 @@ export const ROLE_COLORS: Record<AppRole, 'default' | 'destructive' | 'secondary
 export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   super_admin: [
     'view_dashboard',
-    'manage_users',
+    'manage_members',
     'approve_registrations',
     'manage_financial_records',
     'manage_payments',
@@ -122,7 +122,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   ],
   chairman: [
     'view_dashboard',
-    'manage_users',
+    'manage_members',
     'approve_registrations',
     'manage_financial_records',
     'manage_payments',
@@ -136,7 +136,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   ],
   vice_chairman: [
     'view_dashboard',
-    'manage_users',
+    'manage_members',
     'approve_registrations',
     'create_events',
     'post_announcements',
@@ -148,7 +148,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   ],
   general_admin: [
     'view_dashboard',
-    'manage_users',
+    'manage_members',
     'approve_registrations',
     'create_events',
     'post_announcements',
@@ -158,7 +158,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   ],
   admin: [
     'view_dashboard',
-    'manage_users',
+    'manage_members',
     'approve_registrations',
     'create_events',
     'post_announcements',
@@ -226,18 +226,18 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
 };
 
 // Helper functions for permission checking
-export const hasPermission = (userRoles: AppRole[], permission: string): boolean => {
-  return userRoles.some(role => ROLE_PERMISSIONS[role]?.includes(permission) || role === 'super_admin');
+export const hasPermission = (memberRoles: AppRole[], permission: string): boolean => {
+  return memberRoles.some(role => ROLE_PERMISSIONS[role]?.includes(permission) || role === 'super_admin');
 };
 
 export const isHighLevelRole = (role: AppRole): boolean => {
   return ['super_admin', 'chairman', 'vice_chairman'].includes(role);
 };
 
-export const canManageUsers = (userRoles: AppRole[]): boolean => {
-  return hasPermission(userRoles, 'manage_users');
+export const canManageMembers = (memberRoles: AppRole[]): boolean => {
+  return hasPermission(memberRoles, 'manage_members');
 };
 
-export const canManageFinances = (userRoles: AppRole[]): boolean => {
-  return hasPermission(userRoles, 'manage_financial_records');
+export const canManageFinances = (memberRoles: AppRole[]): boolean => {
+  return hasPermission(memberRoles, 'manage_financial_records');
 };

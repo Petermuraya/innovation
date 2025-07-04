@@ -5,11 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { AppRole } from '@/types/roles';
 
 interface AuthContextType {
-  user: User | null;
+  member: User | null;
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  userRole: AppRole | null;
+  memberRole: AppRole | null;
   signIn: (email: string) => Promise<void>;
   signUp: (email: string, password?: string, memberData?: any) => Promise<void>;
   signOut: () => Promise<void>;
@@ -22,17 +22,17 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [member, setMember] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userRole, setUserRole] = useState<AppRole | null>(null);
+  const [memberRole, setMemberRole] = useState<AppRole | null>(null);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      setMember(session?.user ?? null);
       if (session?.user) {
         checkAdminStatus(session.user);
       } else {
@@ -45,12 +45,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      setMember(session?.user ?? null);
       if (session?.user) {
         checkAdminStatus(session.user);
       } else {
         setIsAdmin(false);
-        setUserRole(null);
+        setMemberRole(null);
         setLoading(false);
       }
     });
@@ -58,37 +58,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkAdminStatus = async (user: User | null) => {
-    if (!user) {
+  const checkAdminStatus = async (member: User | null) => {
+    if (!member) {
       setIsAdmin(false);
-      setUserRole(null);
+      setMemberRole(null);
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Checking admin status for user:', user.id);
+      console.log('Checking admin status for member:', member.id);
       
-      // Get all roles for the user from user_roles table
-      const { data: userRoles, error } = await supabase
+      // Get all roles for the member from user_roles table
+      const { data: memberRoles, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user.id);
+        .eq('user_id', member.id);
 
       if (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
-        setUserRole('member');
+        setMemberRole('member');
         setLoading(false);
         return;
       }
 
-      console.log('User roles found:', userRoles);
+      console.log('Member roles found:', memberRoles);
 
-      if (!userRoles || userRoles.length === 0) {
-        // User has no roles yet, default to member
+      if (!memberRoles || memberRoles.length === 0) {
+        // Member has no roles yet, default to member
         setIsAdmin(false);
-        setUserRole('member');
+        setMemberRole('member');
         setLoading(false);
         return;
       }
@@ -109,26 +109,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'marketing_admin'
       ];
       
-      const roles = userRoles.map(r => r.role as AppRole);
+      const roles = memberRoles.map(r => r.role as AppRole);
       
-      // Check if user has any admin role
+      // Check if member has any admin role
       const hasAdminRole = roles.some(role => adminRoles.includes(role));
       
       if (hasAdminRole) {
         setIsAdmin(true);
         // Set the highest priority admin role
         const highestRole = adminRoles.find(role => roles.includes(role)) || 'member';
-        setUserRole(highestRole);
-        console.log('User is admin with role:', highestRole);
+        setMemberRole(highestRole);
+        console.log('Member is admin with role:', highestRole);
       } else {
         setIsAdmin(false);
-        setUserRole('member');
-        console.log('User is regular member');
+        setMemberRole('member');
+        console.log('Member is regular member');
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
-      setUserRole('member');
+      setMemberRole('member');
     } finally {
       setLoading(false);
     }
@@ -176,7 +176,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, isAdmin, userRole, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ member, session, loading, isAdmin, memberRole, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

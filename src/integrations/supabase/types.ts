@@ -1899,6 +1899,81 @@ export type Database = {
         }
         Relationships: []
       }
+      member_submissions: {
+        Row: {
+          content: string
+          created_at: string
+          directed_to: Database["public"]["Enums"]["admin_category"]
+          id: string
+          is_anonymous: boolean
+          priority: number
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submission_type: Database["public"]["Enums"]["submission_type"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          directed_to?: Database["public"]["Enums"]["admin_category"]
+          id?: string
+          is_anonymous?: boolean
+          priority?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_type: Database["public"]["Enums"]["submission_type"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          directed_to?: Database["public"]["Enums"]["admin_category"]
+          id?: string
+          is_anonymous?: boolean
+          priority?: number
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_type?: Database["public"]["Enums"]["submission_type"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      member_website_visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          visit_count: number | null
+          visit_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           approved_at: string | null
@@ -2784,14 +2859,14 @@ export type Database = {
             foreignKeyName: "submission_attachments_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "submissions_with_stats"
+            referencedRelation: "member_submissions"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "submission_attachments_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "user_submissions"
+            referencedRelation: "submissions_with_stats"
             referencedColumns: ["id"]
           },
         ]
@@ -2829,140 +2904,17 @@ export type Database = {
             foreignKeyName: "submission_responses_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "submissions_with_stats"
+            referencedRelation: "member_submissions"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "submission_responses_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "user_submissions"
+            referencedRelation: "submissions_with_stats"
             referencedColumns: ["id"]
           },
         ]
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["simple_role"] | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["simple_role"] | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["simple_role"] | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_submissions: {
-        Row: {
-          content: string
-          created_at: string
-          directed_to: Database["public"]["Enums"]["admin_category"]
-          id: string
-          is_anonymous: boolean
-          priority: number
-          resolved_at: string | null
-          resolved_by: string | null
-          status: Database["public"]["Enums"]["submission_status"]
-          submission_type: Database["public"]["Enums"]["submission_type"]
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          directed_to?: Database["public"]["Enums"]["admin_category"]
-          id?: string
-          is_anonymous?: boolean
-          priority?: number
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: Database["public"]["Enums"]["submission_status"]
-          submission_type: Database["public"]["Enums"]["submission_type"]
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          directed_to?: Database["public"]["Enums"]["admin_category"]
-          id?: string
-          is_anonymous?: boolean
-          priority?: number
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: Database["public"]["Enums"]["submission_status"]
-          submission_type?: Database["public"]["Enums"]["submission_type"]
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_website_visits: {
-        Row: {
-          created_at: string | null
-          id: string
-          updated_at: string | null
-          user_id: string
-          visit_count: number | null
-          visit_date: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id: string
-          visit_count?: number | null
-          visit_date?: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id?: string
-          visit_count?: number | null
-          visit_date?: string
-        }
-        Relationships: []
-      }
-      users: {
-        Row: {
-          course: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          name: string | null
-          phone: string | null
-        }
-        Insert: {
-          course?: string | null
-          created_at?: string | null
-          email?: string | null
-          id: string
-          name?: string | null
-          phone?: string | null
-        }
-        Update: {
-          course?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          name?: string | null
-          phone?: string | null
-        }
-        Relationships: []
       }
       weekly_meetings: {
         Row: {
@@ -3155,31 +3107,6 @@ export type Database = {
           projects_created: number | null
           total_points: number | null
           user_id: string | null
-        }
-        Relationships: []
-      }
-      member_management_view: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          certificates_earned: number | null
-          course: string | null
-          created_at: string | null
-          email: string | null
-          events_attended: number | null
-          github_username: string | null
-          id: string | null
-          linkedin_url: string | null
-          name: string | null
-          phone: string | null
-          projects_submitted: number | null
-          registration_status: string | null
-          roles: Database["public"]["Enums"]["simple_role"][] | null
-          skills: string[] | null
-          total_points: number | null
-          updated_at: string | null
-          user_id: string | null
-          year_of_study: string | null
         }
         Relationships: []
       }

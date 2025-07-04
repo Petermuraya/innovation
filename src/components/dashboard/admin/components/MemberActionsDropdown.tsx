@@ -1,56 +1,46 @@
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { CheckCircle, XCircle, Trash2, MoreHorizontal } from 'lucide-react';
-import { Member } from '../types/members';
+import { Edit, MoreVertical, Trash2 } from 'lucide-react';
+
+type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+
+interface Member {
+  id: string;
+  email: string;
+  name: string;
+  roles: ComprehensiveRole[];
+  registration_status: string;
+  phone?: string;
+  course?: string;
+  created_at: string;
+}
 
 interface MemberActionsDropdownProps {
   member: Member;
-  onStatusUpdate: (memberId: string, status: string) => Promise<void>;
+  onEditMember: (member: Member) => void;
   onDeleteMember: (member: Member) => void;
-  isLoading: string | null;
 }
 
-const MemberActionsDropdown = ({
-  member,
-  onStatusUpdate,
-  onDeleteMember,
-  isLoading
-}: MemberActionsDropdownProps) => {
+const MemberActionsDropdown = ({ member, onEditMember, onDeleteMember }: MemberActionsDropdownProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="border-kic-green-200 hover:bg-kic-green-50">
-          <MoreHorizontal className="h-4 w-4" />
+        <Button variant="outline" size="sm">
+          <MoreVertical className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {member.registration_status === 'pending' && (
-          <>
-            <DropdownMenuItem
-              onClick={() => onStatusUpdate(member.id, 'approved')}
-              disabled={isLoading === member.id}
-              className="text-green-600"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Approve
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onStatusUpdate(member.id, 'rejected')}
-              disabled={isLoading === member.id}
-              className="text-red-600"
-            >
-              <XCircle className="h-4 w-4 mr-2" />
-              Reject
-            </DropdownMenuItem>
-          </>
-        )}
-        <DropdownMenuItem
+        <DropdownMenuItem onClick={() => onEditMember(member)}>
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Member
+        </DropdownMenuItem>
+        <DropdownMenuItem 
           onClick={() => onDeleteMember(member)}
-          className="text-red-600"
+          className="text-red-600 focus:text-red-600"
         >
           <Trash2 className="h-4 w-4 mr-2" />
-          Delete
+          Delete Member
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

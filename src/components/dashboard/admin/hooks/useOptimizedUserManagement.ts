@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppRole, DatabaseRole, mapAppRoleToDatabase } from '@/types/roles';
 
-interface User {
+interface Member {
   id: string;
   email: string;
   name: string;
@@ -15,15 +15,15 @@ interface User {
   created_at: string;
 }
 
-export const useOptimizedUserManagement = () => {
+export const useOptimizedMemberManagement = () => {
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const fetchingRef = useRef(false);
   const channelRef = useRef<any>(null);
 
-  const fetchUsers = useCallback(async (force = false) => {
+  const fetchMembers = useCallback(async (force = false) => {
     // Prevent concurrent fetches
     if (fetchingRef.current && !force) {
       console.log('Skipping fetch - already in progress');
@@ -40,7 +40,7 @@ export const useOptimizedUserManagement = () => {
     try {
       fetchingRef.current = true;
       setLoading(true);
-      console.log('Fetching users with optimized query...');
+      console.log('Fetching members with optimized query...');
       
       // Use the members table directly with all required fields
       const { data: memberData, error: memberError } = await supabase
@@ -64,33 +64,33 @@ export const useOptimizedUserManagement = () => {
 
       if (!memberData || memberData.length === 0) {
         console.log('No members found');
-        setUsers([]);
+        setMembers([]);
         setLastFetchTime(now);
         return;
       }
 
-      // Get user roles for all members
-      const userIds = memberData.map(m => m.user_id).filter(Boolean);
+      // Get member roles for all members
+      const memberIds = memberData.map(m => m.user_id).filter(Boolean);
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('user_id, role')
-        .in('user_id', userIds);
+        .in('user_id', memberIds);
 
       if (roleError) {
         console.error('Error fetching roles:', roleError);
       }
 
       // Format the data using user_id as the primary key
-      const formattedUsers: User[] = memberData
+      const formattedMembers: Member[] = memberData
         .filter(member => member.user_id) // Only include members with valid user_id
         .map(member => {
-          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
+          const memberRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           
           return {
             id: member.user_id!, // Use user_id as the primary identifier
             email: member.email,
             name: member.name,
-            roles: userRoles.length > 0 ? userRoles : ['member'],
+            roles: memberRoles.length > 0 ? memberRoles : ['member'],
             registration_status: member.registration_status,
             phone: member.phone,
             course: member.course,
@@ -98,15 +98,15 @@ export const useOptimizedUserManagement = () => {
           };
         });
 
-      console.log('Successfully fetched and formatted users:', formattedUsers.length);
-      setUsers(formattedUsers);
+      console.log('Successfully fetched and formatted members:', formattedMembers.length);
+      setMembers(formattedMembers);
       setLastFetchTime(now);
 
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching members:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch users",
+        description: "Failed to fetch members",
         variant: "destructive",
       });
     } finally {
@@ -115,39 +115,39 @@ export const useOptimizedUserManagement = () => {
     }
   }, [toast, lastFetchTime]);
 
-  const removeUserFromState = useCallback((userId: string) => {
-    console.log('Removing user from local state:', userId);
-    setUsers(prevUsers => {
-      const newUsers = prevUsers.filter(u => u.id !== userId);
-      console.log('Updated local state, new count:', newUsers.length);
-      return newUsers;
+  const removeMemberFromState = useCallback((memberId: string) => {
+    console.log('Removing member from local state:', memberId);
+    setMembers(prevMembers => {
+      const newMembers = prevMembers.filter(m => m.id !== memberId);
+      console.log('Updated local state, new count:', newMembers.length);
+      return newMembers;
     });
   }, []);
 
-  const addUserToState = useCallback((user: User) => {
-    console.log('Adding user to local state:', user.name);
-    setUsers(prevUsers => {
-      const userExists = prevUsers.some(u => u.id === user.id);
-      if (userExists) {
-        console.log('User already exists, updating:', user.name);
-        return prevUsers.map(u => u.id === user.id ? user : u);
+  const addMemberToState = useCallback((member: Member) => {
+    console.log('Adding member to local state:', member.name);
+    setMembers(prevMembers => {
+      const memberExists = prevMembers.some(m => m.id === member.id);
+      if (memberExists) {
+        console.log('Member already exists, updating:', member.name);
+        return prevMembers.map(m => m.id === member.id ? member : m);
       } else {
-        console.log('Adding new user:', user.name);
-        return [...prevUsers, user];
+        console.log('Adding new member:', member.name);
+        return [...prevMembers, member];
       }
     });
   }, []);
 
-  const updateUserInState = useCallback((updatedUser: User) => {
-    console.log('Updating user in local state:', updatedUser.name);
-    setUsers(prevUsers => 
-      prevUsers.map(u => u.id === updatedUser.id ? updatedUser : u)
+  const updateMemberInState = useCallback((updatedMember: Member) => {
+    console.log('Updating member in local state:', updatedMember.name);
+    setMembers(prevMembers => 
+      prevMembers.map(m => m.id === updatedMember.id ? updatedMember : m)
     );
   }, []);
 
   // Set up real-time subscriptions with better optimization
   useEffect(() => {
-    fetchUsers(true);
+    fetchMembers(true);
 
     // Clean up any existing channel
     if (channelRef.current) {
@@ -156,7 +156,7 @@ export const useOptimizedUserManagement = () => {
 
     // Create a single channel for all changes
     const channel = supabase
-      .channel('user-management-optimized')
+      .channel('member-management-optimized')
       .on(
         'postgres_changes',
         {
@@ -169,7 +169,7 @@ export const useOptimizedUserManagement = () => {
           // Delay refresh to allow database to settle
           setTimeout(() => {
             if (!fetchingRef.current) {
-              fetchUsers(true);
+              fetchMembers(true);
             }
           }, 1000);
         }
@@ -182,23 +182,23 @@ export const useOptimizedUserManagement = () => {
           table: 'user_roles'
         },
         (payload) => {
-          console.log('User roles changed:', payload.eventType);
+          console.log('Member roles changed:', payload.eventType);
           // Delay refresh to allow database to settle
           setTimeout(() => {
             if (!fetchingRef.current) {
-              fetchUsers(true);
+              fetchMembers(true);
             }
           }, 1000);
         }
       )
       .subscribe((status) => {
-        console.log('User management subscription status:', status);
+        console.log('Member management subscription status:', status);
       });
 
     channelRef.current = channel;
 
     return () => {
-      console.log('Cleaning up user management subscriptions');
+      console.log('Cleaning up member management subscriptions');
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
@@ -206,14 +206,14 @@ export const useOptimizedUserManagement = () => {
     };
   }, []);
 
-  const assignRole = useCallback(async (userId: string, role: AppRole) => {
+  const assignRole = useCallback(async (memberId: string, role: AppRole) => {
     try {
       // Map AppRole to DatabaseRole for database storage
       const dbRole = mapAppRoleToDatabase(role);
       
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: dbRole })
+        .insert({ user_id: memberId, role: dbRole })
         .select();
 
       if (error) {
@@ -222,11 +222,11 @@ export const useOptimizedUserManagement = () => {
       }
 
       // Update local state
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? { ...user, roles: [...user.roles, role] }
-            : user
+      setMembers(prevMembers => 
+        prevMembers.map(member => 
+          member.id === memberId 
+            ? { ...member, roles: [...member.roles, role] }
+            : member
         )
       );
 
@@ -245,7 +245,7 @@ export const useOptimizedUserManagement = () => {
     }
   }, [toast]);
 
-  const removeRole = useCallback(async (userId: string, role: AppRole) => {
+  const removeRole = useCallback(async (memberId: string, role: AppRole) => {
     try {
       // Map AppRole to DatabaseRole for database operations
       const dbRole = mapAppRoleToDatabase(role);
@@ -253,7 +253,7 @@ export const useOptimizedUserManagement = () => {
       const { error } = await supabase
         .from('user_roles')
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', memberId)
         .eq('role', dbRole);
 
       if (error) {
@@ -262,11 +262,11 @@ export const useOptimizedUserManagement = () => {
       }
 
       // Update local state
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.id === userId 
-            ? { ...user, roles: user.roles.filter(r => r !== role) }
-            : user
+      setMembers(prevMembers => 
+        prevMembers.map(member => 
+          member.id === memberId 
+            ? { ...member, roles: member.roles.filter(r => r !== role) }
+            : member
         )
       );
 
@@ -286,13 +286,13 @@ export const useOptimizedUserManagement = () => {
   }, [toast]);
 
   return {
-    users,
+    members,
     loading,
-    fetchUsers,
+    fetchMembers,
     assignRole,
     removeRole,
-    removeUserFromState,
-    addUserToState,
-    updateUserInState,
+    removeMemberFromState,
+    addMemberToState,
+    updateMemberInState,
   };
 };

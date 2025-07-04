@@ -4,32 +4,32 @@ import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 export const useDashboardPermissions = () => {
-  const { user, loading: authLoading, isAdmin, userRole } = useAuth();
+  const { member, loading: authLoading, isAdmin, memberRole } = useAuth();
   const { isApproved, loading: statusLoading } = useMemberStatus();
   const { roleInfo, loading: roleLoading, hasRolePermission } = useRolePermissions();
 
-  const memberData = user ? {
-    name: user.email?.split('@')[0] || 'User',
-    email: user.email || '',
-    user_id: user.id,
+  const memberData = member ? {
+    name: member.email?.split('@')[0] || 'Member',
+    email: member.email || '',
+    user_id: member.id,
     avatar_url: null
   } : null;
 
   const adminCommunities = []; // This would come from a separate hook in a real implementation
 
   // Admin access is determined by having any admin role
-  const hasAdminAccess = isAdmin || (userRole ? hasRolePermission('manage_users') : false);
+  const hasAdminAccess = isAdmin || (memberRole ? hasRolePermission('manage_members') : false);
 
   const isLoading = authLoading || statusLoading || roleLoading;
 
-  console.log('Dashboard permissions - isAdmin:', isAdmin, 'userRole:', userRole, 'hasAdminAccess:', hasAdminAccess);
+  console.log('Dashboard permissions - isAdmin:', isAdmin, 'memberRole:', memberRole, 'hasAdminAccess:', hasAdminAccess);
 
   return {
-    user,
+    member,
     memberData,
     isApproved,
     adminCommunities,
-    roleInfo: roleInfo || { assignedRole: userRole || 'member', inheritedRoles: [userRole || 'member'], permissions: [] },
+    roleInfo: roleInfo || { assignedRole: memberRole || 'member', inheritedRoles: [memberRole || 'member'], permissions: [] },
     hasAdminAccess,
     isLoading,
     authLoading,

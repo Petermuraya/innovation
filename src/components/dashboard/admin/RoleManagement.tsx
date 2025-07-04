@@ -1,10 +1,10 @@
 
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import RoleAssignmentCard from './components/RoleAssignmentCard';
-import UserRolesList from './components/UserRolesList';
+import MemberRolesList from './components/MemberRolesList';
 import RoleManagementAccessDenied from './components/RoleManagementAccessDenied';
 import { useRoleManagement } from './hooks/useRoleManagement';
-import { convertUserToUserWithRole } from '@/types/roles';
+import { convertMemberToMemberWithRole } from '@/types/roles';
 
 const RoleManagement = () => {
   const { isPatron, isChairperson } = useRolePermissions();
@@ -12,25 +12,25 @@ const RoleManagement = () => {
   // Only patrons and chairpersons can manage roles per the permission matrix
   const canManageRoles = isPatron || isChairperson;
   
-  const { users, loading, assignRole, removeRole } = useRoleManagement(canManageRoles);
+  const { members, loading, assignRole, removeRole } = useRoleManagement(canManageRoles);
 
   if (!canManageRoles) {
     return <RoleManagementAccessDenied />;
   }
 
-  // Convert User[] to UserWithRole[] for compatibility
-  const usersWithRole = users.map(convertUserToUserWithRole);
+  // Convert Member[] to MemberWithRole[] for compatibility
+  const membersWithRole = members.map(convertMemberToMemberWithRole);
 
   return (
     <div className="space-y-6">
       <RoleAssignmentCard 
-        users={usersWithRole}
+        members={membersWithRole}
         loading={loading}
         onAssignRole={assignRole}
       />
       
-      <UserRolesList 
-        users={usersWithRole}
+      <MemberRolesList 
+        members={membersWithRole}
         loading={loading}
         onRemoveRole={removeRole}
       />

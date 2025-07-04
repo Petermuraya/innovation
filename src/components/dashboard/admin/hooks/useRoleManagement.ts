@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppRole, DatabaseRole, mapAppRoleToDatabase } from '@/types/roles';
 
-interface User {
+interface Member {
   id: string;
   email: string;
   name: string;
@@ -14,10 +14,10 @@ interface User {
 
 export const useRoleManagement = (canManageRoles: boolean) => {
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  const fetchMembers = async () => {
     if (!canManageRoles) {
       setLoading(false);
       return;
@@ -33,40 +33,40 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       if (membersError) throw membersError;
 
       if (!membersData || membersData.length === 0) {
-        setUsers([]);
+        setMembers([]);
         setLoading(false);
         return;
       }
 
-      // Fetch roles for all users
-      const userIds = membersData.map(m => m.user_id).filter(Boolean);
+      // Fetch roles for all members
+      const memberIds = membersData.map(m => m.user_id).filter(Boolean);
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role')
-        .in('user_id', userIds);
+        .in('user_id', memberIds);
 
       if (rolesError) throw rolesError;
 
       // Combine data
-      const usersWithRoles: User[] = membersData
+      const membersWithRoles: Member[] = membersData
         .filter(member => member.user_id)
         .map(member => {
-          const userRoles = rolesData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
+          const memberRoles = rolesData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           return {
             id: member.user_id!,
             email: member.email,
             name: member.name,
-            roles: userRoles.length > 0 ? userRoles : ['member'],
+            roles: memberRoles.length > 0 ? memberRoles : ['member'],
             registration_status: member.registration_status,
           };
         });
 
-      setUsers(usersWithRoles);
+      setMembers(membersWithRoles);
     } catch (error) {
-      console.error('Error fetching users for role management:', error);
+      console.error('Error fetching members for role management:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch users",
+        description: "Failed to fetch members",
         variant: "destructive",
       });
     } finally {
@@ -74,19 +74,19 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   };
 
-  const assignRole = async (userId: string, role: AppRole) => {
+  const assignRole = async (memberId: string, role: AppRole) => {
     try {
       // Map AppRole to DatabaseRole for database storage
       const dbRole = mapAppRoleToDatabase(role);
       
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: dbRole });
+        .insert({ user_id: memberId, role: dbRole });
 
       if (error) throw error;
 
-      // Refresh users list
-      await fetchUsers();
+      // Refresh members list
+      await fetchMembers();
 
       toast({
         title: "Success",
@@ -102,7 +102,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   };
 
-  const removeRole = async (userId: string, role: AppRole) => {
+  const removeRole = async (memberId: string, role: AppRole) => {
     try {
       // Map AppRole to DatabaseRole for database operations
       const dbRole = mapAppRoleToDatabase(role);
@@ -110,13 +110,13 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       const { error } = await supabase
         .from('user_roles')
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', memberId)
         .eq('role', dbRole);
 
       if (error) throw error;
 
-      // Refresh users list
-      await fetchUsers();
+      // Refresh members list
+      await fetchMembers();
 
       toast({
         title: "Success",
@@ -133,11 +133,11 @@ export const useRoleManagement = (canManageRoles: boolean) => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchMembers();
   }, [canManageRoles]);
 
   return {
-    users,
+    members,
     loading,
     assignRole,
     removeRole,
