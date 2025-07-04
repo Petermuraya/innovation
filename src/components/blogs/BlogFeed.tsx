@@ -6,13 +6,33 @@ import BlogCreateForm from './BlogCreateForm';
 import BlogFilters from './BlogFilters';
 import { useBlogData } from './useBlogData';
 
+interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  featured_image?: string;
+  video_url?: string;
+  tags?: string[];
+  status: string;
+  admin_verified: boolean;
+  view_count: number;
+  created_at: string;
+  published_at?: string;
+  user_id: string;
+  author_name?: string;
+  likes_count?: number;
+  comments_count?: number;
+  user_has_liked?: boolean;
+}
+
 const BlogFeed = () => {
   const { blogs, loading, availableTags, likeBlog, fetchBlogs } = useBlogData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('all');
 
   // Safely filter blogs with defensive checks
-  const filteredBlogs = Array.isArray(blogs) ? blogs.filter(blog => {
+  const filteredBlogs = Array.isArray(blogs) ? blogs.filter((blog: Blog) => {
     if (!blog) return false;
     
     const titleMatch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
@@ -52,7 +72,7 @@ const BlogFeed = () => {
 
       {/* Blog Posts */}
       <div className="grid gap-6">
-        {filteredBlogs.map((blog) => (
+        {filteredBlogs.map((blog: Blog) => (
           <BlogPost
             key={blog.id}
             blog={blog}

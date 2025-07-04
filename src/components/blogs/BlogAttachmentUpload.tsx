@@ -7,23 +7,15 @@ import { Upload, X, Image, Video } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface BlogAttachment {
-  id: string;
-  file_url: string;
-  file_type: 'image' | 'video';
-  file_name: string;
-  file_size: number;
-}
-
 interface BlogAttachmentUploadProps {
-  attachments: BlogAttachment[];
-  onAttachmentsChange: (attachments: BlogAttachment[]) => void;
+  onAttachmentsChange: (files: File[]) => void;
   disabled?: boolean;
 }
 
-const BlogAttachmentUpload = ({ attachments, onAttachmentsChange, disabled }: BlogAttachmentUploadProps) => {
+const BlogAttachmentUpload = ({ onAttachmentsChange, disabled }: BlogAttachmentUploadProps) => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,51 +44,20 @@ const BlogAttachmentUpload = ({ attachments, onAttachmentsChange, disabled }: Bl
       return;
     }
 
-    try {
-      setUploading(true);
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('blog-attachments')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('blog-attachments')
-        .getPublicUrl(filePath);
-
-      const newAttachment: BlogAttachment = {
-        id: Date.now().toString(),
-        file_url: data.publicUrl,
-        file_type: isImage ? 'image' : 'video',
-        file_name: file.name,
-        file_size: file.size,
-      };
-
-      onAttachmentsChange([...attachments, newAttachment]);
-      
-      toast({
-        title: "File uploaded",
-        description: "Your file has been uploaded successfully",
-      });
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload file. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-    }
+    const newAttachments = [...attachments, file];
+    setAttachments(newAttachments);
+    onAttachmentsChange(newAttachments);
+    
+    toast({
+      title: "File added",
+      description: "Your file has been added successfully",
+    });
   };
 
-  const removeAttachment = (attachmentId: string) => {
-    onAttachmentsChange(attachments.filter(att => att.id !== attachmentId));
+  const removeAttachment = (indexToRemove: number) => {
+    const newAttachments = attachments.filter((_, index) => index !== indexToRemove);
+    setAttachments(newAttachments);
+    onAttachmentsChange(newAttachments);
   };
 
   return (
@@ -118,23 +79,23 @@ const BlogAttachmentUpload = ({ attachments, onAttachmentsChange, disabled }: Bl
 
       {attachments.length > 0 && (
         <div className="space-y-2">
-          <Label>Uploaded Files</Label>
+          <Label>Selected Files</Label>
           <div className="space-y-2">
-            {attachments.map((attachment) => (
-              <div key={attachment.id} className="flex items-center gap-3 p-2 border rounded-lg">
-                {attachment.file_type === 'image' ? (
+            {attachments.map((attachment, index) => (
+              <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
+                {attachment.type.startsWith('image/') ? (
                   <Image className="h-4 w-4 text-blue-500" />
                 ) : (
                   <Video className="h-4 w-4 text-green-500" />
                 )}
-                <span className="flex-1 text-sm truncate">{attachment.file_name}</span>
+                <span className="flex-1 text-sm truncate">{attachment.name}</span>
                 <span className="text-xs text-gray-500">
-                  {(attachment.file_size / 1024 / 1024).toFixed(1)}MB
+                  {(attachment.size / 1024 / 1024).toFixed(1)}MB
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeAttachment(attachment.id)}
+                  onClick={() => removeAttachment(index)}
                   disabled={disabled}
                 >
                   <X className="h-4 w-4" />

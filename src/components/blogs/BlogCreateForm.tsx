@@ -135,7 +135,6 @@ const BlogCreateForm = () => {
           status: 'draft',
           admin_verified: false,
           user_id: member.id,
-          attachment_paths: attachmentPaths,
         });
 
       if (blogError) throw blogError;
