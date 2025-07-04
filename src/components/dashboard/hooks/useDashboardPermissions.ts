@@ -4,9 +4,9 @@ import { useMemberStatus } from '@/hooks/useMemberStatus';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
 export const useDashboardPermissions = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin, userRole } = useAuth();
   const { isApproved, loading: statusLoading } = useMemberStatus();
-  const { roleInfo, loading: roleLoading, isAdmin, hasRolePermission } = useRolePermissions();
+  const { roleInfo, loading: roleLoading, hasRolePermission } = useRolePermissions();
 
   const memberData = user ? {
     name: user.email?.split('@')[0] || 'User',
@@ -17,16 +17,19 @@ export const useDashboardPermissions = () => {
 
   const adminCommunities = []; // This would come from a separate hook in a real implementation
 
+  // Admin access is determined by having any admin role
   const hasAdminAccess = isAdmin || hasRolePermission('manage_users');
 
   const isLoading = authLoading || statusLoading || roleLoading;
+
+  console.log('Dashboard permissions - isAdmin:', isAdmin, 'userRole:', userRole, 'hasAdminAccess:', hasAdminAccess);
 
   return {
     user,
     memberData,
     isApproved,
     adminCommunities,
-    roleInfo,
+    roleInfo: roleInfo || { assignedRole: userRole, inheritedRoles: [userRole || 'member'], permissions: [] },
     hasAdminAccess,
     isLoading,
     authLoading,

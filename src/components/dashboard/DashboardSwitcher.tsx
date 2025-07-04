@@ -24,12 +24,13 @@ const DashboardSwitcher = ({ currentView, onViewChange }: DashboardSwitcherProps
     return null;
   }
 
+  // Show switcher for any admin user
   if (!isAdmin || !userRole || userRole === 'member') {
-    console.log('DashboardSwitcher - no admin access detected');
+    console.log('DashboardSwitcher - no admin access detected, userRole:', userRole);
     return null;
   }
 
-  console.log('DashboardSwitcher - rendering with role:', userRole);
+  console.log('DashboardSwitcher - rendering with admin role:', userRole);
 
   const handleToggle = async (checked: boolean) => {
     if (isAnimating) return;

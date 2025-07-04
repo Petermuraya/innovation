@@ -50,14 +50,16 @@ const SecureDashboard = () => {
   return (
     <div className="min-h-screen bg-kic-lightGray">
       <div className="container mx-auto p-4 sm:p-6">
-        {/* Show dashboard switcher for all admin users */}
+        {/* Show dashboard switcher for admin users */}
         {hasAdminAccess && (
           <>
-            <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
-              <p className="text-sm text-blue-800">
-                Debug: Admin access detected. Role: {roleInfo?.assignedRole || 'unknown'}, 
-                isAdmin: {hasAdminAccess.toString()}
-              </p>
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <p className="text-sm text-blue-800 font-medium">
+                  Admin Access Detected: {roleInfo?.assignedRole || 'Admin'} - You can switch between dashboards
+                </p>
+              </div>
             </div>
             <DashboardSwitcher 
               currentView={dashboardView}

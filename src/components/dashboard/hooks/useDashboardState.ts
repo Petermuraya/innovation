@@ -15,7 +15,7 @@ export const useDashboardState = ({ hasAdminAccess, authLoading, roleLoading }: 
   useEffect(() => {
     if (!authLoading && !roleLoading) {
       if (hasAdminAccess) {
-        console.log('User has admin access, setting admin view');
+        console.log('User has admin access, defaulting to admin view');
         setDashboardView('admin');
       } else {
         console.log('User does not have admin access, setting user view');
@@ -28,7 +28,7 @@ export const useDashboardState = ({ hasAdminAccess, authLoading, roleLoading }: 
     if (newView !== dashboardView) {
       setDirection(newView === 'admin' ? 1 : -1);
       setDashboardView(newView);
-      console.log('Dashboard view changed to:', newView);
+      console.log('Dashboard view changed to:', newView, 'by admin user');
     }
   };
 
