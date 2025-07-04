@@ -7,13 +7,12 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, UserX } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin';
+import type { AppRole } from '@/types/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireApproval?: boolean;
-  requiredRole?: ComprehensiveRole;
+  requiredRole?: AppRole;
   requirePermission?: string;
   redirectTo?: string;
 }

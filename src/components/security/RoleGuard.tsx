@@ -4,12 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+import type { AppRole } from '@/types/roles';
 
 interface RoleGuardProps {
   children: ReactNode;
-  requiredRole?: ComprehensiveRole;
+  requiredRole?: AppRole;
   fallback?: ReactNode;
   requirePermission?: string;
 }
@@ -29,30 +28,36 @@ const RoleGuard = ({ children, requiredRole, fallback, requirePermission }: Role
 
       try {
         if (requirePermission) {
-          // Check specific permission
-          const { data, error } = await supabase.rpc('has_permission', {
-            _user_id: user.id,
-            _permission_key: requirePermission
-          });
+          // Check specific permission - simplified approach
+          // For now, super admins have all permissions
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'super_admin')
+            .single();
           
-          if (error) {
+          if (error && error.code !== 'PGRST116') {
             console.error('Error checking permission:', error);
             setHasAccess(false);
           } else {
-            setHasAccess(data);
+            setHasAccess(!!data);
           }
         } else if (requiredRole) {
-          // Check role hierarchy
-          const { data, error } = await supabase.rpc('has_role_or_higher', {
-            _user_id: user.id,
-            _required_role: requiredRole
-          });
+          // Check role
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id);
           
           if (error) {
             console.error('Error checking role:', error);
             setHasAccess(false);
           } else {
-            setHasAccess(data);
+            const userRoles = data?.map(r => r.role) || [];
+            // Super admin has access to everything
+            const hasRole = userRoles.includes('super_admin') || userRoles.includes(requiredRole);
+            setHasAccess(hasRole);
           }
         } else {
           // No permission or role check specified, default to false

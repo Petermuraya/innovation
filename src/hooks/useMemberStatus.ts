@@ -2,95 +2,85 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import type { AppRole } from '@/types/roles';
 
-interface MemberData {
-  id: string;
-  user_id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  course?: string;
+interface MemberStatus {
+  isApproved: boolean;
   registration_status: string;
-  avatar_url?: string;
-  bio?: string;
-  year_of_study?: string;
-  skills?: string[];
-  github_url?: string;
-  linkedin_url?: string;
-  created_at: string;
-  updated_at: string;
+  roles: AppRole[];
+  loading: boolean;
 }
 
 export const useMemberStatus = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [isApproved, setIsApproved] = useState(false);
-  const [memberData, setMemberData] = useState<MemberData | null>(null);
+  const [status, setStatus] = useState<MemberStatus>({
+    isApproved: false,
+    registration_status: 'pending',
+    roles: [],
+    loading: true
+  });
 
   useEffect(() => {
-    const checkMemberStatus = async () => {
+    const fetchMemberStatus = async () => {
       if (!user) {
-        setLoading(false);
+        setStatus({
+          isApproved: false,
+          registration_status: 'pending',
+          roles: [],
+          loading: false
+        });
         return;
       }
 
       try {
-        // Check if user has any admin role
-        const { data: roles, error: rolesError } = await supabase
+        // Get member status
+        const { data: memberData, error: memberError } = await supabase
+          .from('members')
+          .select('registration_status')
+          .eq('user_id', user.id)
+          .single();
+
+        // Get user roles
+        const { data: rolesData, error: rolesError } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 
-        if (rolesError) throw rolesError;
-
-        const hasAdminRole = roles?.some(r => 
-          r.role === 'super_admin' || 
-          r.role === 'general_admin' ||
-          r.role === 'community_admin' ||
-          r.role === 'events_admin' ||
-          r.role === 'projects_admin' ||
-          r.role === 'finance_admin' ||
-          r.role === 'content_admin' ||
-          r.role === 'technical_admin' ||
-          r.role === 'marketing_admin'
-        );
-
-        // Fetch member data
-        const { data: member, error: memberError } = await supabase
-          .from('members')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
         if (memberError && memberError.code !== 'PGRST116') {
-          throw memberError;
+          console.error('Error fetching member status:', memberError);
         }
 
-        setMemberData(member);
-
-        // Admins are always approved, or check member registration status
-        if (hasAdminRole) {
-          setIsApproved(true);
-        } else if (member) {
-          setIsApproved(member.registration_status === 'approved');
-        } else {
-          setIsApproved(false);
+        if (rolesError) {
+          console.error('Error fetching user roles:', rolesError);
         }
+
+        const roles = rolesData?.map(r => r.role as AppRole) || [];
+        const registrationStatus = memberData?.registration_status || 'pending';
+        
+        // User is approved if their registration is approved OR they have admin roles
+        const isApproved = registrationStatus === 'approved' || 
+          roles.some(role => ['super_admin', 'general_admin', 'community_admin', 'admin', 'chairman', 'vice_chairman'].includes(role));
+
+        setStatus({
+          isApproved,
+          registration_status: registrationStatus,
+          roles,
+          loading: false
+        });
+
       } catch (error) {
-        console.error('Error checking member status:', error);
-        setIsApproved(false);
-        setMemberData(null);
-      } finally {
-        setLoading(false);
+        console.error('Error in useMemberStatus:', error);
+        setStatus({
+          isApproved: false,
+          registration_status: 'pending',
+          roles: [],
+          loading: false
+        });
       }
     };
 
-    checkMemberStatus();
+    fetchMemberStatus();
   }, [user]);
 
-  return {
-    loading,
-    isApproved,
-    memberData
-  };
+  return status;
 };

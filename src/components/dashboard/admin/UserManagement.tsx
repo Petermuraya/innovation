@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,35 +14,7 @@ import UserList from './components/UserList';
 import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
-
-type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  roles: SimpleRole[];
-  registration_status: string;
-  phone?: string;
-  course?: string;
-  created_at: string;
-}
-
-const ROLE_LABELS: Record<SimpleRole, string> = {
-  member: 'Member',
-  super_admin: 'Super Admin',
-  general_admin: 'General Admin',
-  community_admin: 'Community Admin',
-  admin: 'Admin'
-};
-
-const ROLE_COLORS: Record<SimpleRole, 'default' | 'destructive' | 'secondary' | 'outline'> = {
-  member: 'default',
-  super_admin: 'destructive',
-  general_admin: 'secondary',
-  community_admin: 'outline',
-  admin: 'secondary'
-};
+import type { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
 
 const UserManagement = () => {
   const { toast } = useToast();
@@ -52,11 +23,11 @@ const UserManagement = () => {
   const { deleteUserCompletely, loading: deletionLoading } = useUserDeletion();
   
   const [searchEmail, setSearchEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<SimpleRole>('general_admin');
+  const [selectedRole, setSelectedRole] = useState<AppRole>('general_admin');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
-  const grantRole = async (email: string, role: SimpleRole) => {
+  const grantRole = async (email: string, role: AppRole) => {
     try {
       const user = users.find(u => u.email === email);
       if (!user) {
@@ -108,7 +79,7 @@ const UserManagement = () => {
     }
   };
 
-  const removeRole = async (userId: string, roleToRemove: SimpleRole) => {
+  const removeRole = async (userId: string, roleToRemove: AppRole) => {
     try {
       const { error } = await supabase
         .from('user_roles')

@@ -63,7 +63,14 @@ const ProfileEditor = ({ memberData, onUpdate }: ProfileEditorProps) => {
       }
 
       if (data) {
-        setProfile(data);
+        setProfile({
+          id: data.id,
+          user_id: data.user_id,
+          avatar_url: data.avatar_url,
+          phone: data.phone,
+          course: data.course,
+          bio: data.bio
+        });
         setPhone(data.phone || '');
         setCourse(data.course || '');
         setBio(data.bio || '');

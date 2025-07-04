@@ -2,15 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-type SimpleRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
-
-interface UserWithRole {
-  user_id: string;
-  name: string;
-  email: string;
-  roles: SimpleRole[];
-}
+import type { AppRole, UserWithRole } from '@/types/roles';
 
 export const useRoleManagement = (canManageRoles: boolean) => {
   const { toast } = useToast();
@@ -79,13 +71,13 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       const validUsers = memberData
         .filter(member => member.user_id)
         .map(member => {
-          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as SimpleRole) || [];
+          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           
           return {
             user_id: member.user_id!,
             name: member.name,
             email: member.email,
-            roles: userRoles.length > 0 ? userRoles : ['member' as SimpleRole]
+            roles: userRoles.length > 0 ? userRoles : ['member' as AppRole]
           };
         });
       
@@ -105,7 +97,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   }, [canManageRoles, toast, lastFetchTime]);
 
-  const assignRole = async (userId: string, role: SimpleRole) => {
+  const assignRole = async (userId: string, role: AppRole) => {
     try {
       setLoading(true);
       
@@ -137,7 +129,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   };
 
-  const removeRole = async (userId: string, role: SimpleRole) => {
+  const removeRole = async (userId: string, role: AppRole) => {
     try {
       setLoading(true);
       

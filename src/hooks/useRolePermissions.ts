@@ -2,12 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-
-type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
+import type { AppRole } from '@/types/roles';
 
 interface MemberRoleInfo {
-  assignedRole: SimpleRole;
-  inheritedRoles: SimpleRole[];
+  assignedRole: AppRole;
+  inheritedRoles: AppRole[];
   permissions: string[];
 }
 
@@ -35,8 +34,8 @@ export const useRolePermissions = () => {
           setRoleInfo(null);
         } else if (data && data.length > 0) {
           // Get the highest priority role
-          const roles = data.map(r => r.role as SimpleRole);
-          const adminRoles = ['super_admin', 'general_admin', 'community_admin', 'admin'];
+          const roles = data.map(r => r.role as AppRole);
+          const adminRoles = ['super_admin', 'general_admin', 'community_admin', 'admin', 'chairman', 'vice_chairman'];
           const highestRole = roles.find(role => adminRoles.includes(role)) || roles[0] || 'member';
           
           setRoleInfo({
@@ -62,7 +61,7 @@ export const useRolePermissions = () => {
     fetchRoleInfo();
   }, [user]);
 
-  const hasRole = async (role: SimpleRole): Promise<boolean> => {
+  const hasRole = async (role: AppRole): Promise<boolean> => {
     if (!user) return false;
     
     // Super admin always has access to everything
