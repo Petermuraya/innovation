@@ -12,7 +12,9 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
+  const isDashboard = location.pathname.startsWith('/dashboard') || 
+                     location.pathname.startsWith('/admin') ||
+                     location.pathname.startsWith('/community/');
   
   console.log("Layout component rendering");
   

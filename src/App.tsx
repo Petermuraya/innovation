@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -10,7 +9,7 @@ import Layout from '@/components/layout/Layout';
 // Pages
 import Index from '@/pages/Index';
 import About from '@/pages/About';
-import Contact from '@/pages/Contact';
+import Careers from '@/pages/Careers';
 import Projects from '@/pages/Projects';
 import Blog from '@/pages/Blog';
 import BlogPost from '@/pages/BlogPost';
@@ -47,7 +46,7 @@ function App() {
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
+                <Route path="/careers" element={<Careers />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogPost />} />
