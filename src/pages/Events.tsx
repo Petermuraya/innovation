@@ -1,201 +1,87 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SEOHead from "@/components/seo/SEOHead";
-import StructuredData from "@/components/seo/StructuredData";
-import { useEventsData } from "@/components/events/useEventsData";
+import Layout from '@/components/layout/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 
 const Events = () => {
-  const { events, loading } = useEventsData();
-  const [activeTab, setActiveTab] = useState("upcoming");
+  const upcomingEvents = [
+    {
+      id: 1,
+      title: "Tech Innovation Workshop",
+      date: "2024-01-15",
+      time: "2:00 PM - 5:00 PM",
+      location: "Computer Lab A",
+      description: "Join us for an intensive workshop on emerging technologies and innovation methodologies."
+    },
+    {
+      id: 2,
+      title: "Hackathon 2024",
+      date: "2024-01-22",
+      time: "9:00 AM - 6:00 PM",
+      location: "Main Auditorium",
+      description: "24-hour coding challenge to solve real-world problems with innovative solutions."
+    },
+    {
+      id: 3,
+      title: "Industry Networking Session",
+      date: "2024-01-29",
+      time: "3:00 PM - 6:00 PM",
+      location: "Conference Hall",
+      description: "Connect with industry professionals and explore career opportunities in tech."
+    }
+  ];
 
-  const getEventType = (event: any) => {
-    const title = event.title.toLowerCase();
-    if (title.includes('workshop')) return 'Workshop';
-    if (title.includes('hackathon')) return 'Hackathon';
-    if (title.includes('career') || title.includes('job')) return 'Career';
-    if (title.includes('meetup')) return 'Meetup'; 
-    if (title.includes('conference')) return 'Conference';
-    return 'Event';
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
-  const now = new Date();
-  const upcomingEvents = events.filter(event => new Date(event.date) >= now);
-  const pastEvents = events.filter(event => new Date(event.date) < now);
-  const structuredDataEvents = upcomingEvents.map((event, index) => ({
-    id: index + 1, 
-    title: event.title,
-    description: event.description,
-    date: event.date,
-    time: formatTime(event.date),
-    location: event.location,
-    type: getEventType(event)
-  }));
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kic-green-500 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-600">Loading events...</p>
-        </div>
-      </div>
-    );
-  }
   return (
-    <div>
-      <SEOHead
-        title="Events & Workshops"
-        description="Join our upcoming tech events, workshops, hackathons, and networking sessions. Learn, build, and connect with fellow innovators at Karatina University."
-        canonical="/events"
-        keywords={["tech events", "workshops", "hackathons", "networking", "programming bootcamp", "innovation meetups"]}
-      />
-      <StructuredData type="events" events={structuredDataEvents} />
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container-custom">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-bold mb-6">
-              <span className="gradient-text">Events</span>
+    <Layout>
+      <div className="min-h-screen bg-kic-lightGray py-12">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-4xl font-bold text-kic-gray mb-8 text-center">
+              Upcoming Events
             </h1>
-            <p className="text-xl text-gray-600">
-              Join our workshops, hackathons, and tech talks to learn and network
-            </p>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingEvents.map((event) => (
+                <Card key={event.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-xl">{event.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="w-4 h-4" />
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>{event.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.location}</span>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      {event.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="mt-12">
+              <CardHeader>
+                <CardTitle>Stay Updated</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Don't miss out on our exciting events! Follow us on social media and 
+                  check back regularly for updates on new workshops, competitions, and networking opportunities.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </section>
-      <section className="py-16 bg-white">
-        <div className="container-custom">
-          <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-center mb-8">
-              <TabsList>
-                <TabsTrigger value="upcoming">
-                  Upcoming Events ({upcomingEvents.length})
-                </TabsTrigger>
-                <TabsTrigger value="past">
-                  Past Events ({pastEvents.length})
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent value="upcoming">
-              {upcomingEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {upcomingEvents.map((event) => (
-                    <Card key={event.id} className="card-hover overflow-hidden">
-                      <div className="relative">
-                        <div className="w-full h-48 bg-gradient-to-r from-kic-green-500 to-kic-green-600 flex items-center justify-center">
-                          <h3 className="text-white text-xl font-bold text-center px-4">
-                            {event.title}
-                          </h3>
-                        </div>
-                        <Badge className="absolute top-3 right-3">
-                          {getEventType(event)}
-                        </Badge>
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="text-xl">{event.title}</CardTitle>
-                        <CardDescription className="flex flex-col">
-                          <span>{formatDate(event.date)} • {formatTime(event.date)}</span>
-                          <span className="mt-1">{event.location}</span>
-                          {event.max_attendees && (
-                            <span className="mt-1 text-sm">Max attendees: {event.max_attendees}</span>
-                          )}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600">{event.description}</p>
-                        {event.price > 0 && (
-                          <div className="mt-2 font-semibold text-kic-green-600">
-                            Price: KSh {event.price}
-                          </div>
-                        )}
-                      </CardContent>
-                      <CardFooter>
-                        <Button className="w-full" asChild>
-                          <Link to={`/events/${event.id}`}>
-                            {event.requires_registration ? 'Register Now' : 'View Details'}
-                          </Link>
-                        </Button> 
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📅</div>
-                  <p className="text-xl text-gray-600 mb-4">No upcoming events at the moment.</p>
-                  <p className="text-gray-500">Check back soon for new event announcements!</p>
-                </div>
-              )}
-            </TabsContent>
-            <TabsContent value="past">
-              {pastEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pastEvents.map((event) => (
-                    <Card key={event.id} className="card-hover overflow-hidden opacity-90">
-                      <div className="relative">
-                        <div className="w-full h-48 bg-gradient-to-r from-gray-400 to-gray-500 flex items-center justify-center">
-                          <h3 className="text-white text-xl font-bold text-center px-4">
-                            {event.title}
-                          </h3>
-                        </div>
-                        <Badge className="absolute top-3 right-3" variant="outline">
-                          {getEventType(event)}
-                        </Badge>
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="text-xl">{event.title}</CardTitle>
-                        <CardDescription className="flex flex-col">
-                          <span>{formatDate(event.date)} • {formatTime(event.date)}</span>
-                          <span className="mt-1">{event.location}</span>
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600">{event.description}</p>
-                        {event.price > 0 && (
-                          <div className="mt-2 text-gray-500">
-                            Price: KSh {event.price}
-                          </div>
-                        )}
-                      </CardContent>
-                      <CardFooter>
-                        <Button variant="outline" className="w-full" asChild>
-                          <Link to={`/events/${event.id}`}>View Details</Link>
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📚</div>
-                  <p className="text-xl text-gray-600">No past events to display.</p>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-    </div>
+      </div>
+    </Layout>
   );
 };
 
