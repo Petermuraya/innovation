@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +21,6 @@ const MemberRegistrationForm = () => {
     email: "",
     fullName: "",
     phone: "",
-    course: "",
     password: "",
     confirmPassword: ""
   });
@@ -30,13 +28,6 @@ const MemberRegistrationForm = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors.length > 0) {
-      setErrors([]);
-    }
-  };
-
-  const handleCourseChange = (value: string) => {
-    setFormData(prev => ({ ...prev, course: value }));
     if (errors.length > 0) {
       setErrors([]);
     }
@@ -59,8 +50,7 @@ const MemberRegistrationForm = () => {
       console.log('Starting member registration with data:', {
         email: formData.email.toLowerCase().trim(),
         fullName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
-        course: formData.course
+        phone: formData.phone.trim()
       });
 
       // Create member account with email verification
@@ -74,7 +64,6 @@ const MemberRegistrationForm = () => {
             full_name: formData.fullName.trim(),
             fullName: formData.fullName.trim(), // Keep both for compatibility
             phone: formData.phone.trim(),
-            course: formData.course,
             department: "School of Computing and Information Technology",
           },
         },
@@ -117,7 +106,7 @@ const MemberRegistrationForm = () => {
     }
   };
 
-  const isFormValid = formData.email && formData.fullName && formData.phone && formData.course && formData.password && formData.confirmPassword;
+  const isFormValid = formData.email && formData.fullName && formData.phone && formData.password && formData.confirmPassword;
 
   return (
     <Card className="bg-white border-gray-200">
@@ -181,24 +170,6 @@ const MemberRegistrationForm = () => {
               onChange={handleInputChange}
               required
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="course">Course</Label>
-            <Select value={formData.course} onValueChange={handleCourseChange}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select your course" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-                <SelectItem value="computer_science">Computer Science</SelectItem>
-                <SelectItem value="information_technology">Information Technology</SelectItem>
-                <SelectItem value="software_engineering">Software Engineering</SelectItem>
-                <SelectItem value="business_it">Business Information Technology</SelectItem>
-                <SelectItem value="data_science">Data Science</SelectItem>
-                <SelectItem value="cybersecurity">Cybersecurity</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           
           <div className="space-y-2">

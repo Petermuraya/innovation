@@ -1,28 +1,19 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface RegistrationFormFieldsProps {
   formData: {
     name: string;
     email: string;
     phone: string;
-    course: string;
     password: string;
     confirmPassword: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleCourseChange: (value: string) => void;
 }
 
-const RegistrationFormFields = ({ formData, handleChange, handleCourseChange }: RegistrationFormFieldsProps) => {
+const RegistrationFormFields = ({ formData, handleChange }: RegistrationFormFieldsProps) => {
   return (
     <>
       <div className="space-y-2">
@@ -65,25 +56,6 @@ const RegistrationFormFields = ({ formData, handleChange, handleCourseChange }: 
           required
           className="border-kic-lightGray focus:border-kic-green-500"
         />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="course" className="text-kic-gray">Course</Label>
-        <Select 
-          value={formData.course} 
-          onValueChange={handleCourseChange}
-        >
-          <SelectTrigger className="border-kic-lightGray focus:border-kic-green-500">
-            <SelectValue placeholder="Select your course" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="computer_science">Computer Science</SelectItem>
-            <SelectItem value="information_technology">Information Technology</SelectItem>
-            <SelectItem value="software_engineering">Software Engineering</SelectItem>
-            <SelectItem value="business_it">Business Information Technology</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       
       <div className="space-y-2">

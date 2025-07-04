@@ -3,7 +3,6 @@ export interface RegistrationFormData {
   email: string;
   fullName: string;
   phone: string;
-  course: string;
   password: string;
   confirmPassword: string;
 }
@@ -58,10 +57,6 @@ export const validateRegistrationForm = (formData: RegistrationFormData): { isVa
 
   if (formData.password !== formData.confirmPassword) {
     errors.push("Passwords do not match");
-  }
-
-  if (!formData.course) {
-    errors.push("Please select your course");
   }
 
   return { isValid: errors.length === 0, errors };
