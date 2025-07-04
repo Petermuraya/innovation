@@ -1,5 +1,5 @@
 
-import { Outlet } from 'react-router-dom';
+import { ReactNode } from 'react';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import DashboardSidebar from './sidebar/DashboardSidebar';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import ScrollToTop from '@/components/ui/scroll-to-top';
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50">
@@ -44,7 +48,7 @@ const DashboardLayout = () => {
 
           {/* Main Content */}
           <main className="flex-1 p-6">
-            <Outlet />
+            {children}
           </main>
         </SidebarInset>
       </div>
