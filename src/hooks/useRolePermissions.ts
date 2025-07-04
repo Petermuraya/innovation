@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
 
-interface UserRoleInfo {
+interface MemberRoleInfo {
   assignedRole: ComprehensiveRole;
   inheritedRoles: ComprehensiveRole[];
   permissions: string[];
@@ -13,7 +13,7 @@ interface UserRoleInfo {
 
 export const useRolePermissions = () => {
   const { user } = useAuth();
-  const [roleInfo, setRoleInfo] = useState<UserRoleInfo | null>(null);
+  const [roleInfo, setRoleInfo] = useState<MemberRoleInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,19 +26,29 @@ export const useRolePermissions = () => {
 
       try {
         const { data, error } = await supabase
-          .from('user_roles_with_hierarchy')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+          .from('member_roles')
+          .select('role')
+          .eq('user_id', user.id);
 
         if (error) {
           console.error('Error fetching role info:', error);
           setRoleInfo(null);
+        } else if (data && data.length > 0) {
+          // Get the highest priority role
+          const roles = data.map(r => r.role as ComprehensiveRole);
+          const adminRoles = ['super_admin', 'chairman', 'vice_chairman', 'general_admin'];
+          const highestRole = roles.find(role => adminRoles.includes(role)) || roles[0] || 'member';
+          
+          setRoleInfo({
+            assignedRole: highestRole,
+            inheritedRoles: roles,
+            permissions: ['read', 'write'] // Basic permissions
+          });
         } else {
           setRoleInfo({
-            assignedRole: data.assigned_role,
-            inheritedRoles: data.inherited_roles || [],
-            permissions: data.permissions || []
+            assignedRole: 'member',
+            inheritedRoles: ['member'],
+            permissions: ['read']
           });
         }
       } catch (error) {
@@ -58,16 +68,7 @@ export const useRolePermissions = () => {
     // Super admin always has access to everything
     if (roleInfo?.assignedRole === 'super_admin') return true;
     
-    try {
-      const { data, error } = await supabase.rpc('has_role_or_higher', {
-        _user_id: user.id,
-        _required_role: role
-      });
-      
-      return error ? false : data;
-    } catch {
-      return false;
-    }
+    return roleInfo?.inheritedRoles.includes(role) || false;
   };
 
   const hasPermission = async (permission: string): Promise<boolean> => {
@@ -76,16 +77,7 @@ export const useRolePermissions = () => {
     // Super admin always has all permissions
     if (roleInfo?.assignedRole === 'super_admin') return true;
     
-    try {
-      const { data, error } = await supabase.rpc('has_permission', {
-        _user_id: user.id,
-        _permission_key: permission
-      });
-      
-      return error ? false : data;
-    } catch {
-      return false;
-    }
+    return roleInfo?.permissions.includes(permission) || false;
   };
 
   const isAdmin = roleInfo?.assignedRole !== 'member' && roleInfo?.assignedRole !== null;

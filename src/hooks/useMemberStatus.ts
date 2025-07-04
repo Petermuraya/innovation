@@ -15,7 +15,7 @@ interface MemberData {
   bio?: string;
   year_of_study?: string;
   skills?: string[];
-  github_username?: string;
+  github_url?: string;
   linkedin_url?: string;
   created_at: string;
   updated_at: string;
@@ -37,7 +37,7 @@ export const useMemberStatus = () => {
       try {
         // Check if user has any admin role
         const { data: roles, error: rolesError } = await supabase
-          .from('user_roles')
+          .from('member_roles')
           .select('role')
           .eq('user_id', user.id);
 
