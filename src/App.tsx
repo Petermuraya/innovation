@@ -41,7 +41,7 @@ function App() {
       <AuthProvider>
         <NotificationProvider>
           <Router>
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-background w-full">
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Index />} />

@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberDashboard } from '@/hooks/useMemberDashboard';
-import UserDashboard from './UserDashboard';
+import ModernUserDashboard from './ModernUserDashboard';
 import AdminDashboard from './AdminDashboard';
 import ViewSwitcher from './components/ViewSwitcher';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import DashboardLayout from './DashboardLayout';
 
 const SecureDashboard = () => {
   const { member } = useAuth();
@@ -15,44 +16,50 @@ const SecureDashboard = () => {
 
   if (authLoading || roleLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
-          <CardContent className="p-6">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-kic-green-500" />
-            <p className="text-gray-600">Loading dashboard...</p>
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Card>
+            <CardContent className="p-6">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-kic-green-500" />
+              <p className="text-gray-600">Loading dashboard...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (!member || !memberData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-red-600">Authentication required. Please log in.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-red-600">Authentication required. Please log in.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (!isApproved) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-yellow-600">Your membership is pending approval. Please wait for admin approval.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-yellow-600">Your membership is pending approval. Please wait for admin approval.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-kic-lightGray p-6">
-      <div className="max-w-7xl mx-auto">
+    <DashboardLayout>
+      <div className="space-y-6">
         {hasAdminAccess && (
           <ViewSwitcher 
             currentView={currentView} 
@@ -63,10 +70,10 @@ const SecureDashboard = () => {
         {currentView === 'admin' && hasAdminAccess ? (
           <AdminDashboard />
         ) : (
-          <UserDashboard />
+          <ModernUserDashboard />
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

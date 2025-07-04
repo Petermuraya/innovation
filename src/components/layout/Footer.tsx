@@ -36,6 +36,17 @@ interface ContactInfo {
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  const handleLinkClick = (path: string) => {
+    scrollToTop();
+  };
+
   const socialLinks: SocialLink[] = [
     { icon: <FaTwitter className="h-5 w-5" />, url: "https://twitter.com/", label: "Twitter" },
     { icon: <FaGithub className="h-5 w-5" />, url: "https://github.com/", label: "GitHub" },
@@ -127,6 +138,7 @@ const Footer = () => {
           >
             <Link
               to={link.path}
+              onClick={() => handleLinkClick(link.path)}
               className="text-kic-green-100 hover:text-white transition-all duration-300 flex items-center gap-3 group py-1"
             >
               <motion.div
@@ -191,7 +203,7 @@ const Footer = () => {
             variants={itemVariants} 
             className="lg:col-span-2 space-y-8 text-center md:text-left"
           >
-            <Link to="/" className="inline-flex items-center gap-4 group mx-auto md:mx-0">
+            <Link to="/" onClick={() => handleLinkClick('/')} className="inline-flex items-center gap-4 group mx-auto md:mx-0">
               <motion.div
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -309,6 +321,7 @@ const Footer = () => {
                 <Link
                   key={index}
                   to={link.path}
+                  onClick={() => handleLinkClick(link.path)}
                   className="text-xs text-kic-green-200 hover:text-white transition-colors duration-300 hover:underline underline-offset-4"
                 >
                   {link.label}
