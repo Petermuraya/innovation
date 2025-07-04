@@ -38,6 +38,26 @@ export interface Member {
   created_at: string;
 }
 
+// Add missing User interface for compatibility
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  roles: AppRole[];
+  registration_status: string;
+  phone?: string;
+  course?: string;
+  created_at: string;
+}
+
+// Add missing UserWithRole interface
+export interface UserWithRole {
+  user_id: string;
+  name: string;
+  email: string;
+  roles: AppRole[];
+}
+
 // Helper function to map AppRole to DatabaseRole
 export const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
   switch (role) {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,222 +7,125 @@ interface Blog {
   id: string;
   title: string;
   content: string;
-  excerpt: string | null;
-  featured_image: string | null;
-  video_url: string | null;
+  excerpt?: string;
+  featured_image?: string;
+  video_url?: string;
+  tags?: string[];
   status: string;
-  tags: string[] | null;
-  published_at: string | null;
-  created_at: string;
-  view_count: number | null;
-  user_id: string;
   admin_verified: boolean;
+  view_count: number;
+  created_at: string;
+  published_at?: string;
+  user_id: string;
   author_name?: string;
   likes_count?: number;
   comments_count?: number;
-  is_liked?: boolean;
+  user_has_liked?: boolean;
 }
 
 export const useBlogData = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [allTags, setAllTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchBlogs = async () => {
-    console.log('useBlogData: Starting fetchBlogs');
+    setLoading(true);
     try {
-      // Get blogs with basic info first - only show published and verified blogs
-      const { data: blogsData, error } = await supabase
+      let query = supabase
         .from('blogs')
-        .select(`*`)
-        .eq('status', 'published')
-        .eq('admin_verified', true)
-        .order('published_at', { ascending: false });
+        .select(`*, author_name:members(name)`)
+        .order('created_at', { ascending: false });
+
+      if (selectedTags.length > 0) {
+        query = query.contains('tags', selectedTags);
+      }
+
+      if (searchTerm) {
+        query = query.ilike('title', `%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
-        console.error('useBlogData: Error fetching blogs:', error);
         throw error;
       }
 
-      console.log('useBlogData: Fetched blogs data:', blogsData?.length || 0, 'blogs');
-
-      // Safely handle empty data
-      if (!blogsData || !Array.isArray(blogsData)) {
-        console.log('useBlogData: No blogs data or invalid format, setting empty array');
-        setBlogs([]);
-        setLoading(false);
-        return;
-      }
-
-      // Enrich blogs with author names and interaction counts
-      const enrichedBlogs = await Promise.all(
-        blogsData.map(async (blog, index) => {
-          console.log(`useBlogData: Processing blog ${index + 1}/${blogsData.length}: ${blog.id}`);
-          
-          try {
-            // Get author name from members table
-            const { data: member } = await supabase
-              .from('members')
-              .select('name')
-              .eq('user_id', blog.user_id)
-              .single();
-
-            // Get likes count
-            const { count: likesCount } = await supabase
-              .from('blog_likes')
-              .select('*', { count: 'exact', head: true })
-              .eq('blog_id', blog.id);
-
-            // Get comments count
-            const { count: commentsCount } = await supabase
-              .from('blog_comments')
-              .select('*', { count: 'exact', head: true })
-              .eq('blog_id', blog.id);
-
-            // Check if current user liked this blog
-            let isLiked = false;
-            if (user) {
-              const { data: like } = await supabase
-                .from('blog_likes')
-                .select('id')
-                .eq('blog_id', blog.id)
-                .eq('user_id', user.id)
-                .single();
-              isLiked = !!like;
-            }
-
-            return {
-              ...blog,
-              author_name: member?.name || 'Anonymous',
-              likes_count: likesCount || 0,
-              comments_count: commentsCount || 0,
-              is_liked: isLiked,
-            };
-          } catch (enrichError) {
-            console.error(`useBlogData: Error enriching blog ${blog.id}:`, enrichError);
-            // Return blog with default values if enrichment fails
-            return {
-              ...blog,
-              author_name: 'Anonymous',
-              likes_count: 0,
-              comments_count: 0,
-              is_liked: false,
-            };
-          }
-        })
-      );
-
-      console.log('useBlogData: Successfully enriched blogs:', enrichedBlogs.length);
-      setBlogs(enrichedBlogs);
+      setBlogs(data || []);
     } catch (error) {
-      console.error('useBlogData: Error in fetchBlogs:', error);
+      console.error('Error fetching blogs:', error);
       toast({
         title: "Error",
         description: "Failed to load blogs",
         variant: "destructive",
       });
-      // Set empty array on error to prevent undefined issues
-      setBlogs([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTags = async () => {
-    console.log('useBlogData: Starting fetchTags');
-    try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('tags')
-        .eq('status', 'published')
-        .eq('admin_verified', true);
+  useEffect(() => {
+    fetchBlogs();
+  }, [selectedTags, searchTerm]);
 
-      if (error) {
-        console.error('useBlogData: Error fetching tags:', error);
-        throw error;
-      }
-
-      const tagSet = new Set<string>();
-      if (data && Array.isArray(data)) {
-        data.forEach(blog => {
-          if (blog.tags && Array.isArray(blog.tags)) {
-            blog.tags.forEach((tag: string) => {
-              if (tag && typeof tag === 'string') {
-                tagSet.add(tag);
-              }
-            });
-          }
-        });
-      }
-
-      const tagsArray = Array.from(tagSet);
-      console.log('useBlogData: Fetched tags:', tagsArray.length);
-      setAllTags(tagsArray);
-    } catch (error) {
-      console.error('useBlogData: Error fetching tags:', error);
-      setAllTags([]);
-    }
-  };
-
-  const toggleLike = async (blogId: string) => {
-    if (!user) {
+  const likeBlog = async (blogId: string) => {
+    if (!member) {
       toast({
         title: "Authentication required",
-        description: "Please log in to like posts",
+        description: "Please log in to like this blog",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const blog = blogs.find(b => b.id === blogId);
-      if (!blog) return;
+      const { data, error } = await supabase.rpc('like_blog', {
+        blog_id: blogId,
+        user_id: member.id,
+      });
 
-      if (blog.is_liked) {
-        // Unlike
-        await supabase
-          .from('blog_likes')
-          .delete()
-          .eq('blog_id', blogId)
-          .eq('user_id', user.id);
-      } else {
-        // Like
-        await supabase
-          .from('blog_likes')
-          .insert({
-            blog_id: blogId,
-            user_id: user.id,
-          });
+      if (error) {
+        throw error;
       }
 
-      // Refresh blogs to update counts
-      await fetchBlogs();
+      // Optimistically update the like count
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog.id === blogId
+            ? {
+                ...blog,
+                likes_count: (blog.likes_count || 0) + (blog.user_has_liked ? -1 : 1),
+                user_has_liked: !blog.user_has_liked,
+              }
+            : blog
+        )
+      );
+
+      toast({
+        title: "Blog Liked",
+        description: "You have liked this blog",
+      });
     } catch (error) {
-      console.error('useBlogData: Error toggling like:', error);
+      console.error('Error liking blog:', error);
       toast({
         title: "Error",
-        description: "Failed to update like",
+        description: "Failed to like this blog",
         variant: "destructive",
       });
     }
   };
 
-  const refreshData = async () => {
-    await Promise.all([fetchBlogs(), fetchTags()]);
-  };
-
-  useEffect(() => {
-    console.log('useBlogData: Hook mounted, starting data fetch');
-    refreshData();
-  }, []);
-
   return {
     blogs,
     loading,
-    allTags,
-    toggleLike,
-    refreshData,
+    selectedTags,
+    setSelectedTags,
+    searchTerm,
+    setSearchTerm,
+    fetchBlogs,
+    likeBlog,
+    availableTags: [...new Set(blogs.flatMap(blog => blog.tags || []))],
   };
 };

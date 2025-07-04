@@ -1,81 +1,70 @@
 
-import RegistrationPending from '@/components/auth/RegistrationPending';
-import DashboardSwitcher from '@/components/dashboard/DashboardSwitcher';
-import DashboardLoadingState from '@/components/dashboard/components/DashboardLoadingState';
-import DashboardErrorStates from '@/components/dashboard/components/DashboardErrorStates';
-import DashboardContent from '@/components/dashboard/components/DashboardContent';
-import { useDashboardPermissions } from '@/components/dashboard/hooks/useDashboardPermissions';
-import { useDashboardState } from '@/components/dashboard/hooks/useDashboardState';
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMemberDashboard } from '@/hooks/useMemberDashboard';
+import UserDashboard from './UserDashboard';
+import AdminDashboard from './AdminDashboard';
+import ViewSwitcher from './components/ViewSwitcher';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 
 const SecureDashboard = () => {
-  const {
-    user,
-    memberData,
-    isApproved,
-    adminCommunities,
-    roleInfo,
-    hasAdminAccess,
-    isLoading,
-    authLoading,
-    roleLoading
-  } = useDashboardPermissions();
+  const { member } = useAuth();
+  const { memberData, isApproved, adminCommunities, roleInfo, hasAdminAccess, isLoading, authLoading, roleLoading } = useMemberDashboard();
+  const [currentView, setCurrentView] = useState<'admin' | 'user'>('user');
 
-  const { dashboardView, direction, handleViewChange } = useDashboardState({
-    hasAdminAccess,
-    authLoading,
-    roleLoading
-  });
-
-  if (isLoading) {
-    return <DashboardLoadingState />;
+  if (authLoading || roleLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
+        <Card>
+          <CardContent className="p-6">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-kic-green-500" />
+            <p className="text-gray-600">Loading dashboard...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  if (!user) {
-    return null; // This will be handled by ProtectedRoute
+  if (!member || !memberData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-red-600">Authentication required. Please log in.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
-  // Check for error states (no member data)
-  const errorState = DashboardErrorStates({ memberData, isApproved, hasAdminAccess });
-  if (errorState) {
-    return errorState;
+  if (!isApproved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-yellow-600">Your membership is pending approval. Please wait for admin approval.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-
-  // Regular users need approval, but admins can always access
-  if (!isApproved && !hasAdminAccess) {
-    return <RegistrationPending />;
-  }
-
-  console.log('Dashboard render - hasAdminAccess:', hasAdminAccess, 'dashboardView:', dashboardView, 'roleInfo:', roleInfo);
 
   return (
-    <div className="min-h-screen bg-kic-lightGray">
-      <div className="container mx-auto p-4 sm:p-6">
-        {/* Show dashboard switcher for admin users */}
+    <div className="min-h-screen bg-kic-lightGray p-6">
+      <div className="max-w-7xl mx-auto">
         {hasAdminAccess && (
-          <>
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <p className="text-sm text-blue-800 font-medium">
-                  Admin Access Detected: {roleInfo?.assignedRole || 'Admin'} - You can switch between dashboards
-                </p>
-              </div>
-            </div>
-            <DashboardSwitcher 
-              currentView={dashboardView}
-              onViewChange={handleViewChange}
-            />
-          </>
+          <ViewSwitcher 
+            currentView={currentView} 
+            onViewChange={setCurrentView} 
+          />
         )}
         
-        {/* Animated Dashboard Content */}
-        <DashboardContent
-          dashboardView={dashboardView}
-          hasAdminAccess={hasAdminAccess}
-          roleInfo={roleInfo}
-          adminCommunities={adminCommunities || []}
-          direction={direction}
-        />
+        {currentView === 'admin' && hasAdminAccess ? (
+          <AdminDashboard />
+        ) : (
+          <UserDashboard />
+        )}
       </div>
     </div>
   );

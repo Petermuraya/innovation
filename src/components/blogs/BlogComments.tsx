@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,9 +21,10 @@ interface BlogCommentsProps {
   blogId: string;
   commentsCount?: number;
   onCommentsUpdate?: (count: number) => void;
+  onCommentsChange?: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const BlogComments = ({ blogId, commentsCount = 0, onCommentsUpdate }: BlogCommentsProps) => {
+const BlogComments = ({ blogId, commentsCount = 0, onCommentsUpdate, onCommentsChange }: BlogCommentsProps) => {
   const { member } = useAuth();
   const { toast } = useToast();
   const [comments, setComments] = useState<Comment[]>([]);
@@ -46,7 +48,9 @@ const BlogComments = ({ blogId, commentsCount = 0, onCommentsUpdate }: BlogComme
       if (error) throw error;
 
       setComments(data || []);
-      onCommentsUpdate?.(data?.length || 0);
+      const count = data?.length || 0;
+      onCommentsUpdate?.(count);
+      onCommentsChange?.(count);
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast({

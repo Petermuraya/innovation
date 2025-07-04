@@ -1,45 +1,67 @@
-
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { X, Upload, Video, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import BlogAttachmentUpload from './BlogAttachmentUpload';
 
-interface BlogAttachment {
-  id: string;
-  file_url: string;
-  file_type: 'image' | 'video';
-  file_name: string;
-  file_size: number;
-}
-
-interface BlogCreateFormProps {
-  onBlogCreated: () => void;
-}
-
-const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
-  const { user } = useAuth();
+const BlogCreateForm = () => {
+  const { member } = useAuth();
   const { toast } = useToast();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  // Form state
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [excerpt, setExcerpt] = useState('');
-  const [tags, setTags] = useState('');
-  const [attachments, setAttachments] = useState<BlogAttachment[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
+  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCreateBlog = async () => {
-    if (!user) {
+  const handleTagAdd = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const handleTagRemove = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleFeaturedImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFeaturedImage(e.target.files[0]);
+    }
+  };
+
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setVideoFile(e.target.files[0]);
+    }
+  };
+
+  const handleAttachmentChange = (files: File[]) => {
+    setAttachments(files);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!member) {
       toast({
-        title: "Authentication required",
-        description: "Please log in to create a blog post",
+        title: "Authentication Required",
+        description: "You must be logged in to create a blog post",
         variant: "destructive",
       });
       return;
@@ -47,149 +69,244 @@ const BlogCreateForm = ({ onBlogCreated }: BlogCreateFormProps) => {
 
     if (!title.trim() || !content.trim()) {
       toast({
-        title: "Missing information",
-        description: "Please provide both title and content",
+        title: "Error",
+        description: "Title and content are required",
         variant: "destructive",
       });
       return;
     }
 
-    setSubmitting(true);
+    setLoading(true);
+
     try {
-      const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-      
-      // Create the blog post
-      const { data: blogData, error: blogError } = await supabase
+      let featuredImagePath: string | null = null;
+      let videoPath: string | null = null;
+
+      // Upload featured image
+      if (featuredImage) {
+        const { data, error } = await supabase.storage
+          .from('blog-images')
+          .upload(`${member.id}/${Date.now()}-${featuredImage.name}`, featuredImage, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+        featuredImagePath = data.path;
+      }
+
+      // Upload video file
+      if (videoFile) {
+        const { data, error } = await supabase.storage
+          .from('blog-videos')
+          .upload(`${member.id}/${Date.now()}-${videoFile.name}`, videoFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+        videoPath = data.path;
+      }
+
+      // Upload attachments
+      const attachmentPaths: string[] = [];
+      for (const attachment of attachments) {
+        const { data, error } = await supabase.storage
+          .from('blog-attachments')
+          .upload(`${member.id}/${Date.now()}-${attachment.name}`, attachment, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+        attachmentPaths.push(data.path);
+      }
+
+      // Create blog post
+      const { error: blogError } = await supabase
         .from('blogs')
         .insert({
           title: title.trim(),
           content: content.trim(),
-          excerpt: excerpt.trim() || null,
-          tags: tagsArray.length > 0 ? tagsArray : null,
-          user_id: user.id,
-          status: 'pending',
+          excerpt: excerpt.trim(),
+          tags: tags,
+          featured_image: featuredImagePath,
+          video_url: videoPath || videoUrl,
+          status: 'draft',
           admin_verified: false,
-          featured_image: attachments.find(a => a.file_type === 'image')?.file_url || null,
-          video_url: attachments.find(a => a.file_type === 'video')?.file_url || null,
-        })
-        .select()
-        .single();
+          user_id: member.id,
+          attachment_paths: attachmentPaths,
+        });
 
       if (blogError) throw blogError;
 
-      // Create attachment records
-      if (attachments.length > 0 && blogData) {
-        const attachmentRecords = attachments.map(attachment => ({
-          blog_id: blogData.id,
-          file_url: attachment.file_url,
-          file_type: attachment.file_type,
-          file_size: attachment.file_size,
-          file_name: attachment.file_name,
-        }));
-
-        const { error: attachmentError } = await supabase
-          .from('blog_attachments')
-          .insert(attachmentRecords);
-
-        if (attachmentError) {
-          console.error('Error creating attachment records:', attachmentError);
-        }
-      }
-
       toast({
-        title: "Blog submitted",
-        description: "Your blog post has been submitted for admin review",
+        title: "Success",
+        description: "Blog post created successfully!",
       });
 
-      // Reset form
-      setTitle('');
-      setContent('');
-      setExcerpt('');
-      setTags('');
-      setAttachments([]);
-      setShowCreateForm(false);
-
-      // Refresh blogs
-      onBlogCreated();
+      navigate('/dashboard/admin/blog-management');
     } catch (error) {
-      console.error('BlogCreateForm: Error creating blog:', error);
+      console.error("Error creating blog post:", error);
       toast({
         title: "Error",
         description: "Failed to create blog post",
         variant: "destructive",
       });
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  if (!user) {
-    return null;
-  }
-
   return (
-    <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Create Post
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create Blog Post</DialogTitle>
-          <p className="text-sm text-gray-600">
-            All blog posts require admin verification before being published.
-          </p>
-        </DialogHeader>
-        <div className="space-y-4">
-          <Input
-            placeholder="Blog title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Textarea
-            placeholder="Brief excerpt (optional)"
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            rows={3}
-          />
-          <Textarea
-            placeholder="Write your blog content..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-          />
-          
-          <BlogAttachmentUpload
-            attachments={attachments}
-            onAttachmentsChange={setAttachments}
-            disabled={submitting}
-          />
-          
-          <Input
-            placeholder="Tags (comma-separated)"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-          />
-          <div className="flex gap-2">
-            <Button
-              onClick={handleCreateBlog}
-              disabled={submitting}
-              className="flex-1"
-            >
-              {submitting ? 'Submitting...' : 'Submit for Review'}
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create New Blog Post</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Input
+                type="text"
+                placeholder="Blog Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Textarea
+                placeholder="Blog Content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={8}
+                required
+              />
+            </div>
+            <div>
+              <Textarea
+                placeholder="Excerpt (Short Description)"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            {/* Tags Input */}
+            <div>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Add a tag"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleTagAdd();
+                    }
+                  }}
+                />
+                <Button type="button" size="sm" onClick={handleTagAdd}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Tag
+                </Button>
+              </div>
+              <div className="flex flex-wrap mt-2">
+                {tags.map((tag) => (
+                  <Badge key={tag} className="mr-2 mt-1">
+                    {tag}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-2 -mr-1 h-5 w-5"
+                      onClick={() => handleTagRemove(tag)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Featured Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Featured Image
+              </label>
+              <div className="mt-1 flex items-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFeaturedImageChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Image
+                </Button>
+                {featuredImage && (
+                  <span className="ml-2 text-gray-500">{featuredImage.name}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Video Upload or URL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Video Upload (or URL)
+              </label>
+              <div className="mt-1 flex items-center space-x-4">
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
+                  className="hidden"
+                  ref={videoInputRef}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Video className="h-4 w-4 mr-2" />
+                  Upload Video
+                </Button>
+                {videoFile && (
+                  <span className="ml-2 text-gray-500">{videoFile.name}</span>
+                )}
+                <div>
+                  <Input
+                    type="url"
+                    placeholder="Or enter video URL"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Attachment Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Attachments
+              </label>
+              <BlogAttachmentUpload onAttachmentChange={handleAttachmentChange} />
+            </div>
+
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Blog Post'}
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowCreateForm(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

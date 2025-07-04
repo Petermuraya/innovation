@@ -69,10 +69,10 @@ export const useOptimizedMemberManagement = () => {
         return;
       }
 
-      // Get member roles for all members
+      // Get member roles for all members using type assertion for user_roles
       const memberIds = memberData.map(m => m.user_id).filter(Boolean);
       const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
+        .from('user_roles' as any)
         .select('user_id, role')
         .in('user_id', memberIds);
 
@@ -84,7 +84,7 @@ export const useOptimizedMemberManagement = () => {
       const formattedMembers: Member[] = memberData
         .filter(member => member.user_id) // Only include members with valid user_id
         .map(member => {
-          const memberRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
+          const memberRoles = roleData?.filter((r: any) => r.user_id === member.user_id).map((r: any) => r.role as AppRole) || [];
           
           return {
             id: member.user_id!, // Use user_id as the primary identifier
@@ -212,7 +212,7 @@ export const useOptimizedMemberManagement = () => {
       const dbRole = mapAppRoleToDatabase(role);
       
       const { error } = await supabase
-        .from('user_roles')
+        .from('user_roles' as any)
         .insert({ user_id: memberId, role: dbRole })
         .select();
 
@@ -251,7 +251,7 @@ export const useOptimizedMemberManagement = () => {
       const dbRole = mapAppRoleToDatabase(role);
       
       const { error } = await supabase
-        .from('user_roles')
+        .from('user_roles' as any)
         .delete()
         .eq('user_id', memberId)
         .eq('role', dbRole);
