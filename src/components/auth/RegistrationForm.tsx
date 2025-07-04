@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -57,54 +56,61 @@ const RegistrationForm = () => {
     }
 
     try {
-      console.log('Starting user registration with data:', {
-        email: formData.email,
-        fullName: formData.fullName,
-        phone: formData.phone,
+      console.log('Starting user registration with cleaned data:', {
+        email: formData.email.toLowerCase().trim(),
+        fullName: formData.fullName.trim(),
+        phone: formData.phone.trim(),
         course: formData.course
       });
 
-      // Create the user account with email verification and complete profile data
+      // Create user with email verification enabled
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email.toLowerCase().trim(),
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/login`,
           data: {
+            // Send clean, consistent data to the database
             full_name: formData.fullName.trim(),
-            fullName: formData.fullName.trim(), // Include both formats for compatibility
             phone: formData.phone.trim(),
-            course: formData.course, // This will be stored as text (e.g., "computer_science")
+            course: formData.course,
             department: "School of Computing and Information Technology",
           },
         },
       });
 
       if (authError) {
-        console.error('Auth error:', authError);
+        console.error('Registration error:', authError);
+        
+        // Handle specific error types
         if (authError.message.includes('User already registered')) {
           setErrors(['An account with this email already exists. Please try logging in instead.']);
+        } else if (authError.message.includes('Email rate limit exceeded')) {
+          setErrors(['Too many registration attempts. Please wait a few minutes before trying again.']);
+        } else if (authError.message.includes('Invalid email')) {
+          setErrors(['Please enter a valid email address.']);
         } else {
-          setErrors([authError.message]);
+          setErrors([`Registration failed: ${authError.message}`]);
         }
+        
         setLoading(false);
         return;
       }
 
-      console.log('User registration successful:', authData);
+      console.log('Registration successful:', authData);
 
-      // Show success message with email verification info
+      // Show success message
       toast({
-        title: "Registration successful!",
-        description: "Please check your email and click the verification link to activate your account. Your registration will be pending admin approval after email verification.",
+        title: "Registration Successful! 🎉",
+        description: "Please check your email and click the verification link. After verification, an admin will review your account (this can take up to 12 hours). You can update your profile while waiting for approval.",
       });
 
-      // Navigate to login
+      // Navigate to login page
       navigate("/login");
 
     } catch (err: any) {
-      console.error("Registration error:", err);
-      setErrors([err.message || "Registration failed. Please try again."]);
+      console.error("Unexpected registration error:", err);
+      setErrors([err.message || "An unexpected error occurred. Please try again."]);
     } finally {
       setLoading(false);
     }
@@ -183,7 +189,6 @@ const RegistrationForm = () => {
                 <SelectValue placeholder="Select your course" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-                {/* These values match the database TEXT field expectations */}
                 <SelectItem value="computer_science">Computer Science</SelectItem>
                 <SelectItem value="information_technology">Information Technology</SelectItem>
                 <SelectItem value="software_engineering">Software Engineering</SelectItem>
@@ -232,6 +237,16 @@ const RegistrationForm = () => {
             {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h4 className="font-medium text-blue-900 mb-2">Registration Process:</h4>
+          <ol className="text-sm text-blue-800 space-y-1">
+            <li>1. Create your account</li>
+            <li>2. Check email for verification link</li>
+            <li>3. Wait for admin approval (up to 12 hours)</li>
+            <li>4. You can update your profile while waiting</li>
+          </ol>
+        </div>
         
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{" "}
