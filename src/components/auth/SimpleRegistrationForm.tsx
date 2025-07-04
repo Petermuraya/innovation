@@ -64,25 +64,6 @@ const SimpleRegistrationForm = () => {
 
       console.log('Registration successful:', data);
 
-      // If user was created successfully, try to create profile separately
-      if (data.user) {
-        try {
-          console.log('Attempting to create user profile...');
-          const { error: profileError } = await supabase.rpc('create_user_profile_async', {
-            user_id: data.user.id,
-            email: email.toLowerCase().trim()
-          });
-          
-          if (profileError) {
-            console.log('Profile creation failed but registration succeeded:', profileError);
-          } else {
-            console.log('Profile created successfully');
-          }
-        } catch (profileErr) {
-          console.log('Profile creation error (non-critical):', profileErr);
-        }
-      }
-
       toast({
         title: "Registration Successful! 🎉",
         description: "Please check your email and click the verification link to complete your registration.",
