@@ -8,6 +8,7 @@ export const zIndexLevels = {
   // Navigation
   navbar: 9990,
   navbarDropdown: 9995,
+  mobileMenu: 9998,
   
   // Modals and overlays
   modal: 1000,
