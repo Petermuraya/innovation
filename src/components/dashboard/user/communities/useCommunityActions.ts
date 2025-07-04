@@ -1,118 +1,85 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
-export const useCommunityActions = (userMembershipCount: number, onDataUpdate: () => void) => {
+export const useCommunityActions = (
+  userMembershipCount: number, 
+  refreshData: () => Promise<void>
+) => {
   const { member } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [visitingCommunity, setVisitingCommunity] = useState<string | null>(null);
 
-  const visitCommunity = async (communityId: string, communityName: string) => {
-    if (!member) return;
-
-    try {
-      setVisitingCommunity(communityId);
-
-      // Call the database function to track the visit
-      const { data, error } = await supabase.rpc('track_community_visit', {
-        user_id_param: member.id,
-        community_id_param: communityId
-      });
-
-      if (error) throw error;
-
-      // Show appropriate message based on whether points were awarded
-      if (data) {
-        toast({
-          title: "Community visited!",
-          description: `You visited ${communityName} and earned 5 points!`,
-        });
-      } else {
-        toast({
-          title: "Community visited!",
-          description: `Welcome back to ${communityName}!`,
-        });
-      }
-
-      // Navigate to the community dashboard
-      navigate(`/community-dashboard/${communityId}`);
-    } catch (error) {
-      console.error('Error tracking community visit:', error);
-      toast({
-        title: "Visit recorded",
-        description: `You visited ${communityName}`,
-      });
-      
-      // Still navigate even if tracking fails
-      navigate(`/community-dashboard/${communityId}`);
-    } finally {
+  const visitCommunity = async (communityId: string) => {
+    setVisitingCommunity(communityId);
+    
+    // Small delay for UX
+    setTimeout(() => {
+      navigate(`/community/${communityId}`);
       setVisitingCommunity(null);
-    }
+    }, 500);
   };
 
-  const toggleMembership = async (groupId: string, groupName: string, isMember: boolean) => {
-    if (!member) return;
+  const toggleMembership = async (communityId: string, isJoining: boolean) => {
+    if (!member) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to join communities",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isJoining && userMembershipCount >= 3) {
+      toast({
+        title: "Membership limit reached",
+        description: "You can only be a member of up to 3 communities",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      if (isMember) {
-        // Check if user would have less than 1 community after leaving
-        if (userMembershipCount <= 1) {
-          toast({
-            title: "Cannot leave community",
-            description: "You must be a member of at least one community",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Leave group
-        await supabase
-          .from('community_memberships')
-          .delete()
-          .eq('community_id', groupId)
-          .eq('user_id', member.id);
-
-        toast({
-          title: "Left community",
-          description: `You have left ${groupName}`,
-        });
-      } else {
-        // Check membership limit before joining
-        if (userMembershipCount >= 3) {
-          toast({
-            title: "Membership limit reached",
-            description: "You can only join up to 3 communities",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Join group
-        await supabase
+      if (isJoining) {
+        const { error } = await supabase
           .from('community_memberships')
           .insert({
-            community_id: groupId,
             user_id: member.id,
+            community_id: communityId,
             status: 'active'
           });
 
+        if (error) throw error;
+
         toast({
-          title: "Joined community",
-          description: `Welcome to ${groupName}!`,
+          title: "Success",
+          description: "You've successfully joined the community!",
+        });
+      } else {
+        const { error } = await supabase
+          .from('community_memberships')
+          .delete()
+          .eq('user_id', member.id)
+          .eq('community_id', communityId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "You've left the community",
         });
       }
 
-      // Refresh data
-      onDataUpdate();
+      await refreshData();
     } catch (error) {
-      console.error('Error toggling membership:', error);
+      console.error('Error toggling community membership:', error);
       toast({
         title: "Error",
-        description: "Failed to update membership",
+        description: `Failed to ${isJoining ? 'join' : 'leave'} community`,
         variant: "destructive",
       });
     }
@@ -121,6 +88,6 @@ export const useCommunityActions = (userMembershipCount: number, onDataUpdate: (
   return {
     visitingCommunity,
     visitCommunity,
-    toggleMembership,
+    toggleMembership
   };
 };

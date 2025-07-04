@@ -1,7 +1,6 @@
 
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, Info } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Users, Target, Award } from 'lucide-react';
 
 interface CommunitiesHeaderProps {
   userMembershipCount: number;
@@ -9,24 +8,41 @@ interface CommunitiesHeaderProps {
 
 const CommunitiesHeader = ({ userMembershipCount }: CommunitiesHeaderProps) => {
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-kic-gray">My Communities</h3>
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <Users className="w-3 h-3" />
-          {userMembershipCount}/3
-        </Badge>
-      </div>
-
-      {userMembershipCount === 0 && (
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            You must join at least one community to participate in club activities.
-          </AlertDescription>
-        </Alert>
-      )}
-    </>
+    <Card className="bg-gradient-to-r from-kic-green-500 to-kic-green-600 text-white">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Innovation Communities</h2>
+            <p className="text-kic-green-100">
+              Join specialized communities to collaborate, learn, and build amazing projects together.
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-2">
+                <Users className="w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold">{userMembershipCount}</div>
+              <div className="text-sm text-kic-green-100">Joined</div>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-2">
+                <Target className="w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold">3</div>
+              <div className="text-sm text-kic-green-100">Max Limit</div>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-2">
+                <Award className="w-6 h-6" />
+              </div>
+              <div className="text-2xl font-bold">5</div>
+              <div className="text-sm text-kic-green-100">Available</div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

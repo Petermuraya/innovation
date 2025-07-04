@@ -1,16 +1,16 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar, Award, Settings, Eye, LogIn } from 'lucide-react';
-import { CommunityGroup } from './useCommunityData';
+import { Users, Calendar, ExternalLink, UserMinus, Settings } from 'lucide-react';
+import type { CommunityGroup } from './useCommunityData';
 
 interface JoinedCommunityCardProps {
   community: CommunityGroup;
   visitingCommunity: string | null;
   userMembershipCount: number;
-  onVisit: (communityId: string, communityName: string) => void;
-  onToggleMembership: (groupId: string, groupName: string, isMember: boolean) => void;
+  onVisit: (communityId: string) => void;
+  onToggleMembership: (communityId: string, isJoining: boolean) => void;
 }
 
 const JoinedCommunityCard = ({
@@ -18,83 +18,57 @@ const JoinedCommunityCard = ({
   visitingCommunity,
   userMembershipCount,
   onVisit,
-  onToggleMembership,
+  onToggleMembership
 }: JoinedCommunityCardProps) => {
   return (
-    <Card key={community.id} className="border-green-200 bg-green-50">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-sm">
-          <span>{community.name}</span>
-          <div className="flex items-center gap-2">
-            {community.is_admin && (
-              <Badge variant="default" className="flex items-center gap-1 text-xs">
-                <Award className="w-3 h-3" />
-                Admin
+    <Card className="hover:shadow-lg transition-all duration-300 border-kic-green-200">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">{community.name}</h3>
+              <Badge variant="secondary" className="bg-kic-green-100 text-kic-green-700">
+                Joined
               </Badge>
-            )}
-            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
-              <Users className="w-3 h-3" />
-              {community.member_count}
-            </Badge>
+              {community.is_admin && (
+                <Badge variant="default" className="bg-blue-100 text-blue-700">
+                  <Settings className="w-3 h-3 mr-1" />
+                  Admin
+                </Badge>
+              )}
+            </div>
+            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{community.description}</p>
+            
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{community.member_count} members</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>{community.meeting_schedule}</span>
+              </div>
+            </div>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-sm text-gray-700">{community.description}</p>
-        
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <Calendar className="w-3 h-3" />
-          <span>{community.meeting_schedule}</span>
         </div>
 
-        {community.focus_areas && community.focus_areas.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {community.focus_areas.slice(0, 3).map((area) => (
-              <Badge key={area} variant="outline" className="text-xs">
-                {area}
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-2 pt-2">
-          <Button
-            onClick={() => onVisit(community.id, community.name)}
-            variant="default"
-            size="sm"
-            className="flex-1"
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => onVisit(community.id)}
             disabled={visitingCommunity === community.id}
+            className="flex-1 bg-kic-green-500 hover:bg-kic-green-600"
           >
-            {visitingCommunity === community.id ? (
-              <>
-                <Eye className="w-3 h-3 mr-1 animate-pulse" />
-                Visiting...
-              </>
-            ) : (
-              <>
-                <LogIn className="w-3 h-3 mr-1" />
-                Visit Community
-              </>
-            )}
+            <ExternalLink className="w-4 h-4 mr-2" />
+            {visitingCommunity === community.id ? 'Opening...' : 'Visit Dashboard'}
           </Button>
+          
           <Button
-            onClick={() => onToggleMembership(community.id, community.name, community.is_member)}
             variant="outline"
-            size="sm"
-            className="shrink-0"
-            disabled={userMembershipCount <= 1}
+            onClick={() => onToggleMembership(community.id, false)}
+            className="text-red-600 border-red-200 hover:bg-red-50"
           >
-            Leave
+            <UserMinus className="w-4 h-4" />
           </Button>
-          {community.is_admin && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="shrink-0"
-            >
-              <Settings className="w-3 h-3" />
-            </Button>
-          )}
         </div>
       </CardContent>
     </Card>

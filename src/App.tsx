@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -37,63 +36,60 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <Router>
       <AuthProvider>
-        <NotificationProvider>
-          <Router>
-            <div className="min-h-screen bg-background w-full">
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:id" element={<BlogPost />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/elections" element={<Elections />} />
-                <Route path="/constitution" element={<Constitution />} />
-                <Route path="/payments" element={<Payments />} />
+        <Layout>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/elections" element={<Elections />} />
+            <Route path="/constitution" element={<Constitution />} />
+            <Route path="/payments" element={<Payments />} />
 
-                {/* Protected routes */}
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute requireApproval={false}>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute requireApproval={false}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
 
-                <Route
-                  path="/community-dashboard/:communityId"
-                  element={
-                    <ProtectedRoute>
-                      <CommunityDashboard />
-                    </ProtectedRoute>
-                  }
-                />
+            <Route
+              path="/community-dashboard/:communityId"
+              element={
+                <ProtectedRoute>
+                  <CommunityDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-                {/* Admin routes */}
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <RoleGuard requiredRole="admin">
-                        <AdminDashboard />
-                      </RoleGuard>
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-              <Toaster />
-            </div>
-          </Router>
-        </NotificationProvider>
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <RoleGuard requiredRole="admin">
+                    <AdminDashboard />
+                  </RoleGuard>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/community/:communityId" element={<CommunityDashboard />} />
+          </Routes>
+        </Layout>
       </AuthProvider>
-    </QueryClientProvider>
+    </Router>
   );
 }
 

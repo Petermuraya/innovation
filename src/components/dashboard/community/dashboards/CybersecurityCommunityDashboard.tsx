@@ -1,107 +1,191 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Lock, AlertTriangle, Eye } from 'lucide-react';
+import { 
+  Shield, 
+  Lock, 
+  Eye, 
+  Calendar, 
+  Users, 
+  BookOpen, 
+  AlertTriangle,
+  Key,
+  Bug,
+  Zap
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import CommunityDashboardTabs from '../CommunityDashboardTabs';
-
-interface Community {
-  id: string;
-  name: string;
-  description: string;
-  member_count?: number;
-  is_member: boolean;
-}
+import type { CommunityGroup } from '../../user/communities/useCommunityData';
 
 interface CybersecurityCommunityDashboardProps {
-  community: Community;
+  community: CommunityGroup;
 }
 
 const CybersecurityCommunityDashboard = ({ community }: CybersecurityCommunityDashboardProps) => {
+  const cyberFeatures = [
+    {
+      title: "Ethical Hacking",
+      description: "Penetration testing & vulnerability assessment",
+      icon: Bug,
+      color: "text-red-600",
+      bgColor: "bg-red-50"
+    },
+    {
+      title: "Network Security",
+      description: "Firewall configuration & network monitoring",
+      icon: Shield,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    {
+      title: "Cryptography",
+      description: "Encryption, decryption & secure communications",
+      icon: Key,
+      color: "text-green-600",
+      bgColor: "bg-green-50"
+    },
+    {
+      title: "Incident Response",
+      description: "Security breach analysis & response",
+      icon: AlertTriangle,
+      color: "text-orange-600",
+      bgColor: "bg-orange-50"
+    }
+  ];
+
+  const securityTools = [
+    "Kali Linux", "Wireshark", "Metasploit", "Nessus", 
+    "Burp Suite", "OWASP ZAP", "Nmap", "John the Ripper"
+  ];
+
+  const upcomingChallenges = [
+    "Web Application Security CTF",
+    "Network Penetration Testing Lab", 
+    "Malware Analysis Workshop",
+    "Social Engineering Awareness"
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-kic-lightGray via-kic-nearWhite to-kic-offWhite w-full">
-      <div className="container mx-auto p-4 sm:p-6 w-full max-w-none">
-        {/* Community Header */}
-        <Card className="mb-4 sm:mb-6 border-kic-green-200 bg-white/80 backdrop-blur-sm w-full shadow-lg">
-          <CardHeader className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-                <div className="p-3 rounded-full bg-kic-green-100 flex-shrink-0">
-                  <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-kic-green-600" />
-                </div>
-                <div className="w-full sm:w-auto">
-                  <CardTitle className="text-xl sm:text-2xl text-kic-gray break-words">{community.name}</CardTitle>
-                  <CardDescription className="text-kic-gray/70 text-sm sm:text-base break-words">{community.description}</CardDescription>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                <Badge variant="secondary" className="bg-kic-green-100 text-kic-green-800 text-xs">
-                  Cybersecurity
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100 p-4 sm:p-6">
+      <div className="container mx-auto space-y-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-8 text-white"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+                <Shield className="h-8 w-8" />
+                {community.name}
+              </h1>
+              <p className="text-red-100 text-lg">
+                Defending digital assets and building secure systems
+              </p>
+              <div className="flex items-center gap-4 mt-4">
+                <Badge variant="secondary" className="bg-white/20 text-white">
+                  <Users className="h-4 w-4 mr-1" />
+                  {community.member_count} Members
                 </Badge>
-                <Badge variant="outline" className="border-kic-green-200 text-xs">
-                  {community.member_count || 0} Members
+                <Badge variant="secondary" className="bg-white/20 text-white">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  {community.meeting_schedule}
                 </Badge>
               </div>
             </div>
-          </CardHeader>
-        </Card>
+            <div className="hidden md:flex items-center gap-4">
+              <Lock className="h-16 w-16 text-red-200" />
+              <Eye className="h-16 w-16 text-orange-300" />
+              <Zap className="h-16 w-16 text-red-200" />
+            </div>
+          </div>
+        </motion.div>
 
-        {/* Cybersecurity-specific Features */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <Card className="border-kic-green-200 bg-white/80 backdrop-blur-sm shadow-lg border-0">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-kic-green-600 flex-shrink-0" />
-                <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm text-kic-gray/70">Security Projects</p>
-                  <p className="text-lg sm:text-lg font-semibold text-kic-gray">12</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Cybersecurity Focus Areas */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {cyberFeatures.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-6">
+                  <div className={`p-3 rounded-full ${feature.bgColor} w-fit mb-4`}>
+                    <Icon className={`h-6 w-6 ${feature.color}`} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                  <p className="text-sm text-gray-600">{feature.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </motion.div>
 
-          <Card className="border-kic-green-200 bg-white/80 backdrop-blur-sm shadow-lg border-0">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-kic-green-600 flex-shrink-0" />
-                <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm text-kic-gray/70">Vulnerabilities Found</p>
-                  <p className="text-lg sm:text-lg font-semibold text-kic-gray">34</p>
+        {/* Security Tools and Challenges */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5" />
+                  Security Tools & Frameworks
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">{community.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {securityTools.map((tool, index) => (
+                    <Badge key={index} variant="secondary" className="bg-red-100 text-red-700">
+                      {tool}
+                    </Badge>
+                  ))}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card className="border-kic-green-200 bg-white/80 backdrop-blur-sm shadow-lg border-0">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <Lock className="h-5 w-5 sm:h-6 sm:w-6 text-kic-green-600 flex-shrink-0" />
-                <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm text-kic-gray/70">Patches Applied</p>
-                  <p className="text-lg sm:text-lg font-semibold text-kic-gray">28</p>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Upcoming Challenges
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {upcomingChallenges.map((challenge, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">{challenge}</span>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-kic-green-200 bg-white/80 backdrop-blur-sm shadow-lg border-0">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <Eye className="h-5 w-5 sm:h-6 sm:w-6 text-kic-green-600 flex-shrink-0" />
-                <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm text-kic-gray/70">Security Audits</p>
-                  <p className="text-lg sm:text-lg font-semibold text-kic-gray">7</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
-        {/* Community Tabs */}
-        <Card className="border-kic-green-200 bg-white/80 backdrop-blur-sm w-full shadow-lg border-0">
-          <CardContent className="p-4 sm:p-6 w-full">
-            <CommunityDashboardTabs communityId={community.id} />
-          </CardContent>
-        </Card>
+        {/* Community Dashboard Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <CommunityDashboardTabs communityId={community.id} />
+        </motion.div>
       </div>
     </div>
   );

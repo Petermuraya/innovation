@@ -1,59 +1,61 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar } from 'lucide-react';
-import { CommunityGroup } from './useCommunityData';
+import { Users, Calendar, UserPlus } from 'lucide-react';
+import type { CommunityGroup } from './useCommunityData';
 
 interface AvailableCommunityCardProps {
   community: CommunityGroup;
   userMembershipCount: number;
-  onToggleMembership: (groupId: string, groupName: string, isMember: boolean) => void;
+  onToggleMembership: (communityId: string, isJoining: boolean) => void;
 }
 
 const AvailableCommunityCard = ({
   community,
   userMembershipCount,
-  onToggleMembership,
+  onToggleMembership
 }: AvailableCommunityCardProps) => {
+  const canJoin = userMembershipCount < 3;
+
   return (
-    <Card key={community.id}>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-sm">
-          <span>{community.name}</span>
-          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
-            <Users className="w-3 h-3" />
-            {community.member_count}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-sm text-gray-700">{community.description}</p>
-        
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <Calendar className="w-3 h-3" />
-          <span>{community.meeting_schedule}</span>
+    <Card className="hover:shadow-lg transition-all duration-300">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{community.name}</h3>
+            <p className="text-gray-600 text-sm mb-3 line-clamp-2">{community.description}</p>
+            
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{community.member_count} members</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>{community.meeting_schedule}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {community.focus_areas && community.focus_areas.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {community.focus_areas.slice(0, 3).map((area) => (
-              <Badge key={area} variant="outline" className="text-xs">
-                {area}
-              </Badge>
-            ))}
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => onToggleMembership(community.id, true)}
+            disabled={!canJoin}
+            className="flex-1"
+            variant={canJoin ? "default" : "secondary"}
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            {canJoin ? 'Join Community' : 'Max Limit Reached'}
+          </Button>
+        </div>
 
-        <Button
-          onClick={() => onToggleMembership(community.id, community.name, community.is_member)}
-          variant="default"
-          size="sm"
-          className="w-full mt-3"
-          disabled={userMembershipCount >= 3}
-        >
-          {userMembershipCount >= 3 ? "Limit Reached" : "Join Community"}
-        </Button>
+        {!canJoin && (
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            You can only join up to 3 communities
+          </p>
+        )}
       </CardContent>
     </Card>
   );
