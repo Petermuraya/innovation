@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AppRole } from '@/types/roles';
+import { AppRole, DatabaseRole, mapAppRoleToDatabase } from '@/types/roles';
 
 interface User {
   id: string;
@@ -76,9 +76,12 @@ export const useRoleManagement = (canManageRoles: boolean) => {
 
   const assignRole = async (userId: string, role: AppRole) => {
     try {
+      // Map AppRole to DatabaseRole for database storage
+      const dbRole = mapAppRoleToDatabase(role);
+      
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role });
+        .insert({ user_id: userId, role: dbRole });
 
       if (error) throw error;
 
@@ -101,11 +104,14 @@ export const useRoleManagement = (canManageRoles: boolean) => {
 
   const removeRole = async (userId: string, role: AppRole) => {
     try {
+      // Map AppRole to DatabaseRole for database operations
+      const dbRole = mapAppRoleToDatabase(role);
+      
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role);
+        .eq('role', dbRole);
 
       if (error) throw error;
 

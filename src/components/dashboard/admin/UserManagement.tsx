@@ -15,26 +15,7 @@ import UserList from './components/UserList';
 import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
-import { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
-
-// Database role type - matches what's actually in the database
-type DatabaseRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
-
-// Mapping from AppRole to DatabaseRole
-const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
-  switch (role) {
-    case 'super_admin':
-      return 'super_admin';
-    case 'general_admin':
-      return 'general_admin';
-    case 'community_admin':
-      return 'community_admin';
-    case 'admin':
-      return 'admin';
-    default:
-      return 'member';
-  }
-};
+import { AppRole, User, ROLE_LABELS, ROLE_COLORS, mapAppRoleToDatabase } from '@/types/roles';
 
 const UserManagement = () => {
   const { toast } = useToast();

@@ -1,10 +1,16 @@
 
 // Centralized role type definitions that match the database schema
-export type AppRole = 
+// Database roles (what's actually stored in the database)
+export type DatabaseRole = 
   | 'member'
   | 'super_admin'
   | 'general_admin'
   | 'community_admin'
+  | 'admin';
+
+// Extended app roles (for UI and permissions)
+export type AppRole = 
+  | DatabaseRole
   | 'events_admin'
   | 'projects_admin'
   | 'finance_admin'
@@ -12,8 +18,7 @@ export type AppRole =
   | 'technical_admin'
   | 'marketing_admin'
   | 'chairman'
-  | 'vice_chairman'
-  | 'admin';
+  | 'vice_chairman';
 
 export interface UserWithRole {
   user_id: string;
@@ -32,6 +37,39 @@ export interface User {
   course?: string;
   created_at: string;
 }
+
+// Helper function to map AppRole to DatabaseRole
+export const mapAppRoleToDatabase = (role: AppRole): DatabaseRole => {
+  switch (role) {
+    case 'super_admin':
+      return 'super_admin';
+    case 'general_admin':
+      return 'general_admin';
+    case 'community_admin':
+      return 'community_admin';
+    case 'admin':
+      return 'admin';
+    case 'chairman':
+    case 'vice_chairman':
+    case 'events_admin':
+    case 'projects_admin':
+    case 'finance_admin':
+    case 'content_admin':
+    case 'technical_admin':
+    case 'marketing_admin':
+      return 'admin'; // Map extended roles to 'admin' in database
+    default:
+      return 'member';
+  }
+};
+
+// Helper function to convert User to UserWithRole
+export const convertUserToUserWithRole = (user: User): UserWithRole => ({
+  user_id: user.id,
+  name: user.name,
+  email: user.email,
+  roles: user.roles,
+});
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   member: 'Member',

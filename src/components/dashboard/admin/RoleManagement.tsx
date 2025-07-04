@@ -4,6 +4,7 @@ import RoleAssignmentCard from './components/RoleAssignmentCard';
 import UserRolesList from './components/UserRolesList';
 import RoleManagementAccessDenied from './components/RoleManagementAccessDenied';
 import { useRoleManagement } from './hooks/useRoleManagement';
+import { convertUserToUserWithRole } from '@/types/roles';
 
 const RoleManagement = () => {
   const { isPatron, isChairperson } = useRolePermissions();
@@ -17,16 +18,19 @@ const RoleManagement = () => {
     return <RoleManagementAccessDenied />;
   }
 
+  // Convert User[] to UserWithRole[] for compatibility
+  const usersWithRole = users.map(convertUserToUserWithRole);
+
   return (
     <div className="space-y-6">
       <RoleAssignmentCard 
-        users={users}
+        users={usersWithRole}
         loading={loading}
         onAssignRole={assignRole}
       />
       
       <UserRolesList 
-        users={users}
+        users={usersWithRole}
         loading={loading}
         onRemoveRole={removeRole}
       />
