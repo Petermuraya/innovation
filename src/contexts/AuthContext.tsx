@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string) => Promise<void>;
-  signUp: (email: string, password?: string, userData?: any) => Promise<void>;
+  signUp: (email: string, password?: string, memberData?: any) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      // Check if user has any admin role (including super_admin)
+      // Check if member has any admin role
       const { data: userRole, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -88,16 +88,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password?: string, userData?: any) => {
+  const signUp = async (email: string, password?: string, memberData?: any) => {
     setLoading(true);
     try {
       const signUpData: any = { email };
       if (password) signUpData.password = password;
-      if (userData) signUpData.options = { data: userData };
+      if (memberData) signUpData.options = { data: memberData };
       
       const { error } = await supabase.auth.signUp(signUpData);
       if (error) throw error;
-      alert('Check your email to verify your account.');
+      alert('Check your email to verify your member account.');
     } catch (error) {
       alert(error);
     } finally {
