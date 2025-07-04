@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -81,31 +82,37 @@ export const useBlogData = () => {
     }
 
     try {
-      const { data, error } = await supabase.rpc('like_blog', {
-        blog_id: blogId,
-        user_id: member.id,
-      });
+      // Check if user already liked this blog
+      const { data: existingLike } = await supabase
+        .from('blog_likes')
+        .select('id')
+        .eq('blog_id', blogId)
+        .eq('user_id', member.id)
+        .single();
 
-      if (error) {
-        throw error;
+      if (existingLike) {
+        // Unlike the blog
+        await supabase
+          .from('blog_likes')
+          .delete()
+          .eq('blog_id', blogId)
+          .eq('user_id', member.id);
+      } else {
+        // Like the blog
+        await supabase
+          .from('blog_likes')
+          .insert({
+            blog_id: blogId,
+            user_id: member.id,
+          });
       }
 
-      // Optimistically update the like count
-      setBlogs((prevBlogs) =>
-        prevBlogs.map((blog) =>
-          blog.id === blogId
-            ? {
-                ...blog,
-                likes_count: (blog.likes_count || 0) + (blog.user_has_liked ? -1 : 1),
-                user_has_liked: !blog.user_has_liked,
-              }
-            : blog
-        )
-      );
+      // Refresh blogs to get updated like counts
+      await fetchBlogs();
 
       toast({
-        title: "Blog Liked",
-        description: "You have liked this blog",
+        title: existingLike ? "Blog Unliked" : "Blog Liked",
+        description: existingLike ? "You have unliked this blog" : "You have liked this blog",
       });
     } catch (error) {
       console.error('Error liking blog:', error);

@@ -7,7 +7,7 @@ import BlogFilters from './BlogFilters';
 import { useBlogData } from './useBlogData';
 
 const BlogFeed = () => {
-  const { blogs, loading, allTags, toggleLike, refreshData } = useBlogData();
+  const { blogs, loading, availableTags, likeBlog, fetchBlogs } = useBlogData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('all');
 
@@ -38,7 +38,7 @@ const BlogFeed = () => {
           <h1 className="text-3xl font-bold text-kic-gray">Innovation Blog</h1>
           <p className="text-kic-gray/70">Share your insights and learn from the community</p>
         </div>
-        <BlogCreateForm onBlogCreated={refreshData} />
+        <BlogCreateForm />
       </div>
 
       {/* Filters */}
@@ -47,7 +47,7 @@ const BlogFeed = () => {
         setSearchTerm={setSearchTerm}
         selectedTag={selectedTag}
         setSelectedTag={setSelectedTag}
-        allTags={allTags}
+        allTags={availableTags}
       />
 
       {/* Blog Posts */}
@@ -56,7 +56,7 @@ const BlogFeed = () => {
           <BlogPost
             key={blog.id}
             blog={blog}
-            onToggleLike={toggleLike}
+            onToggleLike={likeBlog}
           />
         ))}
 

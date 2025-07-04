@@ -1,181 +1,177 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Download, Share2, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
-import { Download, Award, Calendar, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const MemberCertificates = () => {
-  const { user } = useAuth();
-  const [certificates, setCertificates] = useState<any[]>([]);
+  const { member } = useAuth();
+  const { toast } = useToast();
+  const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchCertificates();
-    }
-  }, [user]);
+    fetchCertificates();
+  }, [member]);
 
   const fetchCertificates = async () => {
+    if (!member) return;
+
     try {
       const { data, error } = await supabase
         .from('certificates')
-        .select(`
-          *,
-          events (title, date, location)
-        `)
-        .eq('user_id', user?.id)
-        .order('issue_date', { ascending: false });
+        .select('*')
+        .eq('user_id', member.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setCertificates(data || []);
     } catch (error) {
       console.error('Error fetching certificates:', error);
-      toast.error('Failed to load certificates');
+      toast({
+        title: "Error",
+        description: "Failed to load certificates",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const getCertificateTypeIcon = (type: string) => {
-    switch (type) {
-      case 'completion':
-        return '🎓';
-      case 'participation':
-        return '🏆';
-      case 'achievement':
-        return '🥇';
-      case 'membership':
-        return '📜';
-      default:
-        return '🏅';
+  const handleDownload = async (certificateUrl: string, fileName: string) => {
+    try {
+      const response = await fetch(certificateUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading certificate:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download certificate",
+        variant: "destructive",
+      });
     }
   };
 
-  const getCertificateTypeColor = (type: string) => {
-    switch (type) {
-      case 'completion':
-        return 'bg-green-100 text-green-800';
-      case 'participation':
-        return 'bg-blue-100 text-blue-800';
-      case 'achievement':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'membership':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const handleShare = async (certificate: any) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Certificate: ${certificate.achievement_type}`,
+          text: `Check out my certificate for ${certificate.achievement_type}!`,
+          url: certificate.certificate_url,
+        });
+      } catch (error) {
+        console.error('Error sharing certificate:', error);
+      }
+    } else {
+      // Fallback to copying URL to clipboard
+      try {
+        await navigator.clipboard.writeText(certificate.certificate_url);
+        toast({
+          title: "Link Copied",
+          description: "Certificate link copied to clipboard",
+        });
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+      }
     }
   };
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>My Certificates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded animate-pulse"></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-kic-green-500"></div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Award className="h-5 w-5 text-kic-green-500" />
-          My Certificates
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {certificates.length === 0 ? (
-          <div className="text-center py-8">
-            <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No certificates yet</p>
-            <p className="text-sm text-gray-400 mt-1">
-              Complete events and workshops to earn certificates
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {certificates.map((cert) => (
-              <div
-                key={cert.id}
-                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">
-                        {getCertificateTypeIcon(cert.certificate_type)}
-                      </span>
-                      <div>
-                        <h4 className="font-medium text-kic-gray">
-                          {cert.events?.title || 'General Certificate'}
-                        </h4>
-                        <Badge className={getCertificateTypeColor(cert.certificate_type)}>
-                          {cert.certificate_type.charAt(0).toUpperCase() + cert.certificate_type.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>Issued: {new Date(cert.issue_date).toLocaleDateString()}</span>
-                      </div>
-                      {cert.events?.date && (
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Event Date: {new Date(cert.events.date).toLocaleDateString()}</span>
-                        </div>
-                      )}
-                      {cert.events?.location && (
-                        <p>Location: {cert.events.location}</p>
-                      )}
-                    </div>
-                  </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-kic-gray">My Certificates</h2>
+        <Badge variant="secondary" className="bg-kic-green-100 text-kic-green-800">
+          {certificates.length} Certificate{certificates.length !== 1 ? 's' : ''}
+        </Badge>
+      </div>
 
-                  <div className="flex items-center space-x-2">
+      {certificates.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Award className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Certificates Yet</h3>
+            <p className="text-gray-600">
+              Participate in events and complete achievements to earn certificates!
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {certificates.map((certificate: any) => (
+            <Card key={certificate.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Award className="h-5 w-5 text-kic-green-600" />
+                  {certificate.achievement_type || 'Certificate'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {certificate.description && (
+                  <p className="text-sm text-gray-600">{certificate.description}</p>
+                )}
+                
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <span>Issued:</span>
+                  <span>{new Date(certificate.issue_date).toLocaleDateString()}</span>
+                </div>
+
+                {certificate.verification_code && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Verification:</span>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {certificate.verification_code.slice(0, 8)}...
+                    </Badge>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownload(certificate.certificate_url, `certificate-${certificate.id}.pdf`)}
+                    className="flex-1"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  
+                  {certificate.social_share_enabled && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => window.open(cert.certificate_url, '_blank')}
+                      onClick={() => handleShare(certificate)}
                     >
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
+                      <Share2 className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      className="bg-kic-green-500 hover:bg-kic-green-600"
-                      asChild
-                    >
-                      <a
-                        href={cert.certificate_url}
-                        download={`certificate_${cert.id}.pdf`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Download
-                      </a>
-                    </Button>
-                  </div>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

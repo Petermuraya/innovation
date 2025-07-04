@@ -297,7 +297,7 @@ const BlogCreateForm = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Attachments
               </label>
-              <BlogAttachmentUpload onAttachmentChange={handleAttachmentChange} />
+              <BlogAttachmentUpload onAttachmentsChange={handleAttachmentChange} />
             </div>
 
             <Button type="submit" disabled={loading}>
