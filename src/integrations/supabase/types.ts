@@ -104,6 +104,7 @@ export type Database = {
       admin_requests: {
         Row: {
           admin_code: string | null
+          admin_type: string | null
           community_id: string | null
           created_at: string
           email: string
@@ -118,6 +119,7 @@ export type Database = {
         }
         Insert: {
           admin_code?: string | null
+          admin_type?: string | null
           community_id?: string | null
           created_at?: string
           email: string
@@ -132,6 +134,7 @@ export type Database = {
         }
         Update: {
           admin_code?: string | null
+          admin_type?: string | null
           community_id?: string | null
           created_at?: string
           email?: string
@@ -3155,6 +3158,31 @@ export type Database = {
         }
         Relationships: []
       }
+      member_management_view: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          certificates_earned: number | null
+          course: string | null
+          created_at: string | null
+          email: string | null
+          events_attended: number | null
+          github_username: string | null
+          id: string | null
+          linkedin_url: string | null
+          name: string | null
+          phone: string | null
+          projects_submitted: number | null
+          registration_status: string | null
+          roles: Database["public"]["Enums"]["simple_role"][] | null
+          skills: string[] | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string | null
+          year_of_study: string | null
+        }
+        Relationships: []
+      }
       project_leaderboard: {
         Row: {
           admin_notes: string | null
@@ -3430,7 +3458,12 @@ export type Database = {
         | "voting_open"
         | "completed"
         | "cancelled"
-      simple_role: "member" | "admin" | "super_admin"
+      simple_role:
+        | "member"
+        | "admin"
+        | "super_admin"
+        | "general_admin"
+        | "community_admin"
       submission_status: "pending" | "in_progress" | "resolved" | "closed"
       submission_type: "complaint" | "recommendation" | "thought"
     }
@@ -3572,7 +3605,13 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
-      simple_role: ["member", "admin", "super_admin"],
+      simple_role: [
+        "member",
+        "admin",
+        "super_admin",
+        "general_admin",
+        "community_admin",
+      ],
       submission_status: ["pending", "in_progress", "resolved", "closed"],
       submission_type: ["complaint", "recommendation", "thought"],
     },

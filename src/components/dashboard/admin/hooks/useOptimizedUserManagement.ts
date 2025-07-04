@@ -3,13 +3,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
 
 interface User {
   id: string;
   email: string;
   name: string;
-  roles: ComprehensiveRole[];
+  roles: SimpleRole[];
   registration_status: string;
   phone?: string;
   course?: string;
@@ -43,37 +43,61 @@ export const useOptimizedUserManagement = () => {
       setLoading(true);
       console.log('Fetching users with optimized query...');
       
-      // Use a single optimized query with joins
-      const { data: userData, error } = await supabase
-        .from('member_management_view')
-        .select('*')
+      // Use the members table directly since member_management_view might not be available
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .select(`
+          id,
+          user_id,
+          name,
+          email,
+          phone,
+          course,
+          registration_status,
+          created_at
+        `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching users:', error);
-        throw error;
+      if (memberError) {
+        console.error('Error fetching members:', memberError);
+        throw memberError;
       }
 
-      if (!userData || userData.length === 0) {
-        console.log('No users found');
+      if (!memberData || memberData.length === 0) {
+        console.log('No members found');
         setUsers([]);
         setLastFetchTime(now);
         return;
       }
 
+      // Get user roles for all members
+      const userIds = memberData.map(m => m.user_id).filter(Boolean);
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      if (roleError) {
+        console.error('Error fetching roles:', roleError);
+      }
+
       // Format the data
-      const formattedUsers: User[] = userData
-        .filter(user => user.user_id) // Only include users with valid user_id
-        .map(user => ({
-          id: user.user_id!,
-          email: user.email,
-          name: user.name,
-          roles: user.roles || ['member'],
-          registration_status: user.registration_status,
-          phone: user.phone,
-          course: user.course,
-          created_at: user.created_at,
-        }));
+      const formattedUsers: User[] = memberData
+        .filter(member => member.user_id) // Only include members with valid user_id
+        .map(member => {
+          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as SimpleRole) || [];
+          
+          return {
+            id: member.user_id!,
+            email: member.email,
+            name: member.name,
+            roles: userRoles.length > 0 ? userRoles : ['member'],
+            registration_status: member.registration_status,
+            phone: member.phone,
+            course: member.course,
+            created_at: member.created_at,
+          };
+        });
 
       console.log('Successfully fetched and formatted users:', formattedUsers.length);
       setUsers(formattedUsers);

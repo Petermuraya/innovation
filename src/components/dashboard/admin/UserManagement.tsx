@@ -16,47 +16,33 @@ import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
 
 interface User {
   id: string;
   email: string;
   name: string;
-  roles: ComprehensiveRole[];
+  roles: SimpleRole[];
   registration_status: string;
   phone?: string;
   course?: string;
   created_at: string;
 }
 
-const ROLE_LABELS: Record<ComprehensiveRole, string> = {
+const ROLE_LABELS: Record<SimpleRole, string> = {
   member: 'Member',
   super_admin: 'Super Admin',
   general_admin: 'General Admin',
   community_admin: 'Community Admin',
-  events_admin: 'Events Admin',
-  projects_admin: 'Projects Admin',
-  finance_admin: 'Finance Admin',
-  content_admin: 'Content Admin',
-  technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin',
-  chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
+  admin: 'Admin'
 };
 
-const ROLE_COLORS: Record<ComprehensiveRole, 'default' | 'destructive' | 'secondary' | 'outline'> = {
+const ROLE_COLORS: Record<SimpleRole, 'default' | 'destructive' | 'secondary' | 'outline'> = {
   member: 'default',
   super_admin: 'destructive',
   general_admin: 'secondary',
   community_admin: 'outline',
-  events_admin: 'outline',
-  projects_admin: 'outline',
-  finance_admin: 'outline',
-  content_admin: 'outline',
-  technical_admin: 'outline',
-  marketing_admin: 'outline',
-  chairman: 'destructive',
-  vice_chairman: 'secondary'
+  admin: 'secondary'
 };
 
 const UserManagement = () => {
@@ -66,11 +52,11 @@ const UserManagement = () => {
   const { deleteUserCompletely, loading: deletionLoading } = useUserDeletion();
   
   const [searchEmail, setSearchEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<ComprehensiveRole>('general_admin');
+  const [selectedRole, setSelectedRole] = useState<SimpleRole>('general_admin');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
-  const grantRole = async (email: string, role: ComprehensiveRole) => {
+  const grantRole = async (email: string, role: SimpleRole) => {
     try {
       const user = users.find(u => u.email === email);
       if (!user) {
@@ -122,7 +108,7 @@ const UserManagement = () => {
     }
   };
 
-  const removeRole = async (userId: string, roleToRemove: ComprehensiveRole) => {
+  const removeRole = async (userId: string, roleToRemove: SimpleRole) => {
     try {
       const { error } = await supabase
         .from('user_roles')

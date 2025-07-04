@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +8,24 @@ import { Shield, Check, X, Clock, Loader2 } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 import * as Dialog from '@radix-ui/react-dialog';
 
-type AdminRequest = Database['public']['Tables']['admin_requests']['Row'] & {
+type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
+
+interface AdminRequest {
+  id: string;
+  user_id?: string;
+  name: string;
+  email: string;
+  justification: string;
+  status: string;
+  admin_type: string;
+  admin_code?: string;
+  community_id?: string;
+  created_at: string;
+  reviewed_at?: string;
+  reviewed_by?: string;
   reviewed_by_name?: string | null;
   community_name?: string | null;
-};
+}
 
 const AdminRequestsManagement = () => {
   const [requests, setRequests] = useState<AdminRequest[]>([]);
@@ -123,8 +136,15 @@ const AdminRequestsManagement = () => {
           console.log('Member status updated to approved');
         }
 
-        // Assign the appropriate role based on admin type - using the correct enum values
-        const roleToAssign = request.admin_type === 'general_admin' ? 'general_admin' : 'community_admin';
+        // Assign the appropriate role based on admin type - mapping to simple_role enum
+        let roleToAssign: SimpleRole = 'member';
+        if (request.admin_type === 'general_admin') {
+          roleToAssign = 'general_admin';
+        } else if (request.admin_type === 'community_admin') {
+          roleToAssign = 'community_admin';
+        } else {
+          roleToAssign = 'admin'; // fallback for legacy requests
+        }
         
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -189,6 +209,7 @@ const AdminRequestsManagement = () => {
         description: `Admin request has been ${action === 'approve' ? 'approved' : 'rejected'} successfully.`,
       });
 
+      setSelectedRequest(null);
       await fetchAdminRequests();
     } catch (error) {
       console.error(`Error ${action}ing request:`, error);
