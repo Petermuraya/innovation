@@ -33,25 +33,40 @@ export const useBlogData = () => {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      // Only fetch published and admin-verified blogs for public viewing
-      const { data, error } = await supabase
+      // Fetch published and admin-verified blogs
+      const { data: blogsData, error: blogsError } = await supabase
         .from('blogs')
-        .select(`
-          *,
-          author_name:members!blogs_user_id_fkey(name)
-        `)
+        .select('*')
         .eq('status', 'published')
         .eq('admin_verified', true)
         .order('published_at', { ascending: false });
 
-      if (error) {
-        throw error;
+      if (blogsError) {
+        throw blogsError;
       }
 
-      // Process the data to handle the joined author name
-      const processedData = data?.map(blog => ({
+      // Get unique user IDs from blogs
+      const userIds = [...new Set(blogsData?.map(blog => blog.user_id) || [])];
+      
+      // Fetch member information for these user IDs
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('user_id, name')
+        .in('user_id', userIds);
+
+      if (membersError) {
+        console.error('Error fetching member data:', membersError);
+      }
+
+      // Create a map of user_id to member name
+      const memberMap = new Map(
+        membersData?.map(member => [member.user_id, member.name]) || []
+      );
+
+      // Process the blogs data with author names
+      const processedData = blogsData?.map(blog => ({
         ...blog,
-        author_name: blog.author_name?.name || 'Anonymous'
+        author_name: memberMap.get(blog.user_id) || 'Anonymous'
       })) || [];
 
       setBlogs(processedData);
