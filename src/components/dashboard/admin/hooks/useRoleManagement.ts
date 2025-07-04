@@ -3,13 +3,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+type SimpleRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
 
 interface UserWithRole {
   user_id: string;
   name: string;
   email: string;
-  roles: ComprehensiveRole[];
+  roles: SimpleRole[];
 }
 
 export const useRoleManagement = (canManageRoles: boolean) => {
@@ -41,34 +41,53 @@ export const useRoleManagement = (canManageRoles: boolean) => {
       setLoading(true);
       console.log('Fetching users for role management with optimized query...');
       
-      // Use the optimized view
-      const { data: userData, error } = await supabase
-        .from('member_management_view')
-        .select('user_id, name, email, roles')
+      // Use the members table directly since member_management_view might not be available
+      const { data: memberData, error: memberError } = await supabase
+        .from('members')
+        .select(`
+          user_id,
+          name,
+          email
+        `)
         .not('user_id', 'is', null)
         .order('name');
 
-      if (error) {
-        console.error('Error fetching users for role management:', error);
-        throw error;
+      if (memberError) {
+        console.error('Error fetching members for role management:', memberError);
+        throw memberError;
       }
 
-      if (!userData || userData.length === 0) {
-        console.log('No users found for role management');
+      if (!memberData || memberData.length === 0) {
+        console.log('No members found for role management');
         setUsers([]);
         setLastFetchTime(now);
         return;
       }
 
+      // Get user roles for all members
+      const userIds = memberData.map(m => m.user_id).filter(Boolean);
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      if (roleError) {
+        console.error('Error fetching roles for role management:', roleError);
+      }
+
       // Format users with roles
-      const validUsers = userData
-        .filter(user => user.user_id)
-        .map(user => ({
-          user_id: user.user_id!,
-          name: user.name,
-          email: user.email,
-          roles: user.roles || ['member']
-        }));
+      const validUsers = memberData
+        .filter(member => member.user_id)
+        .map(member => {
+          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as SimpleRole) || [];
+          
+          return {
+            user_id: member.user_id!,
+            name: member.name,
+            email: member.email,
+            roles: userRoles.length > 0 ? userRoles : ['member' as SimpleRole]
+          };
+        });
       
       console.log('Fetched users for role management:', validUsers.length);
       setUsers(validUsers);
@@ -86,7 +105,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   }, [canManageRoles, toast, lastFetchTime]);
 
-  const assignRole = async (userId: string, role: ComprehensiveRole) => {
+  const assignRole = async (userId: string, role: SimpleRole) => {
     try {
       setLoading(true);
       
@@ -118,7 +137,7 @@ export const useRoleManagement = (canManageRoles: boolean) => {
     }
   };
 
-  const removeRole = async (userId: string, role: ComprehensiveRole) => {
+  const removeRole = async (userId: string, role: SimpleRole) => {
     try {
       setLoading(true);
       

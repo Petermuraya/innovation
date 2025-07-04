@@ -40,8 +40,8 @@ const MagicLinkTest = () => {
         console.log('Magic link sent successfully!');
         setMessage('Magic link sent! Check your email.');
         
-        // Create basic profile if user doesn't exist
-        if (data.user && data.user.id) {
+        // Create basic profile if user doesn't exist and data.user exists
+        if (data?.user?.id) {
           try {
             const { error: profileError } = await supabase
               .from('profiles')

@@ -13,12 +13,12 @@ import AdminRequestDialog from './components/AdminRequestDialog';
 import { useAdminRequests } from './hooks/useAdminRequests';
 import type { Database } from '@/integrations/supabase/types';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+type SimpleRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
 
 type AdminRequest = Database['public']['Tables']['admin_requests']['Row'] & {
   reviewed_by?: { name: string } | null;
   community?: { name: string } | null;
-  admin_type: ComprehensiveRole;
+  admin_type: string;
 };
 
 type Community = Database['public']['Tables']['community_groups']['Row'];
@@ -114,12 +114,24 @@ const RefactoredAdminRequestsManagement = () => {
           .update({ registration_status: 'approved' })
           .eq('user_id', request.user_id);
 
+        // Map admin_type to SimpleRole
+        let roleToAssign: SimpleRole = 'member';
+        if (request.admin_type === 'general_admin') {
+          roleToAssign = 'general_admin';
+        } else if (request.admin_type === 'community_admin') {
+          roleToAssign = 'community_admin';
+        } else if (request.admin_type === 'super_admin') {
+          roleToAssign = 'super_admin';
+        } else {
+          roleToAssign = 'admin';
+        }
+
         // Assign the requested role
         const { error: roleError } = await supabase
           .from('user_roles')
           .upsert({
             user_id: request.user_id,
-            role: request.admin_type
+            role: roleToAssign
           });
 
         if (roleError) throw roleError;
@@ -138,7 +150,6 @@ const RefactoredAdminRequestsManagement = () => {
 
           if (communityRoleError) {
             console.error('Error assigning community role:', communityRoleError);
-            // Don't throw error, just log it
           } else {
             console.log('Community admin role assigned successfully');
           }

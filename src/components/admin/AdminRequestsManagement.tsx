@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +32,7 @@ const AdminRequestsManagement = () => {
   const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<Record<string, boolean>>({});
+  const [selectedRequest, setSelectedRequest] = useState<AdminRequest | null>(null);
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
@@ -131,7 +133,6 @@ const AdminRequestsManagement = () => {
 
         if (memberError) {
           console.error('Error updating member status:', memberError);
-          // Don't throw error, just log it since the main request was processed
         } else {
           console.log('Member status updated to approved');
         }
@@ -174,7 +175,6 @@ const AdminRequestsManagement = () => {
 
           if (communityRoleError) {
             console.error('Error assigning community role:', communityRoleError);
-            // Don't throw error, just log it
           } else {
             console.log('Community admin role assigned successfully');
           }

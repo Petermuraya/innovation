@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
+type SimpleRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'admin';
 
 interface AdminRequest {
   id: string;
@@ -18,7 +18,7 @@ interface AdminRequest {
   email: string;
   justification: string;
   status: string;
-  admin_type: ComprehensiveRole;
+  admin_type: string;
   admin_code?: string;
   community_id?: string;
   created_at: string;
@@ -34,19 +34,12 @@ interface Community {
   name: string;
 }
 
-const ROLE_LABELS: Record<ComprehensiveRole, string> = {
+const ROLE_LABELS: Record<string, string> = {
   member: 'Member',
   super_admin: 'Super Admin',
   general_admin: 'General Admin',
   community_admin: 'Community Admin',
-  events_admin: 'Events Admin',
-  projects_admin: 'Projects Admin',
-  finance_admin: 'Finance Admin',
-  content_admin: 'Content Admin',
-  technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin',
-  chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
+  admin: 'Admin'
 };
 
 const EnhancedAdminRequestsManagement = () => {
@@ -76,7 +69,13 @@ const EnhancedAdminRequestsManagement = () => {
 
       if (error) throw error;
 
-      setRequests(data || []);
+      // Transform the data to ensure admin_type is a string
+      const transformedData = (data || []).map(request => ({
+        ...request,
+        admin_type: request.admin_type || 'general_admin'
+      }));
+
+      setRequests(transformedData);
     } catch (error) {
       console.error('Error fetching admin requests:', error);
       toast({
@@ -139,12 +138,24 @@ const EnhancedAdminRequestsManagement = () => {
         if (!request) throw new Error("Request not found");
 
         if (request.user_id) {
+          // Map admin_type to SimpleRole
+          let roleToAssign: SimpleRole = 'member';
+          if (request.admin_type === 'general_admin') {
+            roleToAssign = 'general_admin';
+          } else if (request.admin_type === 'community_admin') {
+            roleToAssign = 'community_admin';
+          } else if (request.admin_type === 'super_admin') {
+            roleToAssign = 'super_admin';
+          } else {
+            roleToAssign = 'admin';
+          }
+
           // Assign the requested role
           const { error: roleError } = await supabase
             .from('user_roles')
             .upsert({
               user_id: request.user_id,
-              role: request.admin_type
+              role: roleToAssign
             });
 
           if (roleError) throw roleError;
@@ -204,10 +215,10 @@ const EnhancedAdminRequestsManagement = () => {
     }
   };
 
-  const getAdminTypeBadge = (adminType: ComprehensiveRole) => {
+  const getAdminTypeBadge = (adminType: string) => {
     return <Badge variant="outline" className="flex items-center gap-1">
       <Shield className="h-3 w-3" />
-      {ROLE_LABELS[adminType]}
+      {ROLE_LABELS[adminType] || adminType}
     </Badge>;
   };
 
@@ -283,7 +294,7 @@ const EnhancedAdminRequestsManagement = () => {
                           <strong>Email:</strong> {request.email}
                         </div>
                         <div>
-                          <strong>Admin Type:</strong> {ROLE_LABELS[request.admin_type]}
+                          <strong>Admin Type:</strong> {ROLE_LABELS[request.admin_type] || request.admin_type}
                         </div>
                         {request.community_groups?.name && (
                           <div>

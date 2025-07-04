@@ -150,7 +150,7 @@ const UserManagement = () => {
     }
   };
 
-  const canManageUsers = isSuperAdmin || roleInfo?.assignedRole === 'chairman';
+  const canManageUsers = isSuperAdmin || roleInfo?.assignedRole === 'super_admin';
 
   return (
     <div className="space-y-6">
