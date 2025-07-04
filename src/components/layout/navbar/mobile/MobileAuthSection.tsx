@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 import { User, LogOut } from 'lucide-react';
 
 interface MobileAuthSectionProps {
-  user: any;
+  member: any;
   onSignOut: () => void;
 }
 
-const MobileAuthSection: React.FC<MobileAuthSectionProps> = ({ user, onSignOut }) => {
+const MobileAuthSection: React.FC<MobileAuthSectionProps> = ({ member, onSignOut }) => {
   return (
     <div className="border-t border-kic-green-100 pt-4 mt-4">
-      {user ? (
+      {member ? (
         <div className="space-y-2">
           <Link
             to="/dashboard"

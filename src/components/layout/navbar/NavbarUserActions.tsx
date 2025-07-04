@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const NavbarUserActions = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -32,7 +32,7 @@ const NavbarUserActions = () => {
 
   return (
     <div className="hidden lg:flex items-center space-x-3 ml-6">
-      {user ? (
+      {member ? (
         <div className="flex items-center space-x-3">
           <Link to="/dashboard">
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>

@@ -57,7 +57,7 @@ const EventForm = ({ open, onOpenChange, editingEvent, onEventSaved }: EventForm
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSubmit(e);
+    handleSubmit();
   };
 
   return (

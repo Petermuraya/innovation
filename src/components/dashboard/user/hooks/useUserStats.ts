@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserStats } from '../types';
 
 export const useUserStats = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const [stats, setStats] = useState<UserStats>({
     totalProjects: 0,
     eventsAttended: 0,
@@ -15,7 +15,7 @@ export const useUserStats = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserStats = async () => {
-    if (!user) {
+    if (!member) {
       setIsLoading(false);
       return;
     }
@@ -26,25 +26,25 @@ export const useUserStats = () => {
       const { count: projectCount } = await supabase
         .from('project_submissions')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', member.id);
 
       // Fetch events attended
       const { count: eventsCount } = await supabase
         .from('event_attendance')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', member.id);
 
       // Fetch certificates
       const { count: certificatesCount } = await supabase
         .from('certificates')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', member.id);
 
       // Fetch total points
       const { data: pointsData } = await supabase
         .from('member_points')
         .select('points')
-        .eq('user_id', user.id);
+        .eq('user_id', member.id);
 
       const totalPoints = pointsData?.reduce((sum, point) => sum + (point.points || 0), 0) || 0;
 
@@ -62,12 +62,12 @@ export const useUserStats = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (member) {
       fetchUserStats();
     } else {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [member]);
 
   return { stats, isLoading, refetchUserStats: fetchUserStats };
 };

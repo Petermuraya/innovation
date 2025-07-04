@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAttendanceActions = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
 
   const handleMarkAttendance = async (
@@ -22,7 +22,7 @@ export const useAttendanceActions = () => {
           user_id_param: userId,
           community_id_param: communityId,
           attendance_type_param: activityType,
-          marked_by_param: user?.id,
+          marked_by_param: member?.id,
         };
 
         if (activityType === 'activity') {

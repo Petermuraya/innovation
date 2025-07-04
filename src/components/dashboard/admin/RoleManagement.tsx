@@ -17,10 +17,11 @@ const RoleManagement = () => {
     return <RoleManagementAccessDenied />;
   }
 
-  // Convert members to include default empty roles array if needed
+  // Convert members to include default empty roles array and member_id
   const membersWithRole = members.map(member => ({
     ...member,
-    roles: member.roles || []
+    roles: member.roles || [],
+    member_id: member.id // Add member_id property expected by MemberWithRole type
   }));
 
   return (

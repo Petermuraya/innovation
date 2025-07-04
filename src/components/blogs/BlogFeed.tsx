@@ -10,7 +10,7 @@ interface BlogItem {
   id: string;
   title: string;
   content: string;
-  excerpt: string; // Make required to match Blog type
+  excerpt: string;
   featured_image?: string;
   video_url?: string;
   tags?: string[];
@@ -75,7 +75,15 @@ const BlogFeed = () => {
         {filteredBlogs.map((blog: BlogItem) => (
           <BlogPost
             key={blog.id}
-            blog={blog}
+            blog={{
+              ...blog,
+              excerpt: blog.excerpt || '',
+              featured_image: blog.featured_image || null,
+              video_url: blog.video_url || null,
+              tags: blog.tags || null,
+              published_at: blog.published_at || null,
+              is_liked: blog.user_has_liked || false
+            }}
             onToggleLike={likeBlog}
           />
         ))}

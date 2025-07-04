@@ -6,7 +6,7 @@ import { PriorityLevel } from '../types';
 
 export const useNotificationCreation = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { member } = useAuth();
 
   const createNotification = async (
     type: string, 
@@ -15,7 +15,7 @@ export const useNotificationCreation = () => {
     priority: PriorityLevel = 'medium',
     metadata?: Record<string, any>
   ) => {
-    if (!user) {
+    if (!member) {
       toast({
         title: "Error",
         description: "You must be logged in to create notifications",
@@ -28,7 +28,7 @@ export const useNotificationCreation = () => {
       const { error } = await supabase
         .from('notifications')
         .insert({
-          user_id: user.id,
+          user_id: member.id,
           type: type,
           title: title,
           message: message,

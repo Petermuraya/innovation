@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const useUserData = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
@@ -12,14 +12,14 @@ export const useUserData = () => {
   const [payments, setPayments] = useState<any[]>([]);
 
   const fetchUserData = async () => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       // Fetch notifications
       const { data: notificationsData } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', member.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -29,7 +29,7 @@ export const useUserData = () => {
       const { data: projectsData } = await supabase
         .from('project_submissions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', member.id)
         .order('created_at', { ascending: false });
 
       setProjects(projectsData || []);
@@ -38,7 +38,7 @@ export const useUserData = () => {
       const { data: certificatesData } = await supabase
         .from('certificates')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', member.id)
         .order('created_at', { ascending: false });
 
       setCertificates(certificatesData || []);
@@ -57,7 +57,7 @@ export const useUserData = () => {
       const { data: paymentsData } = await supabase
         .from('mpesa_payments')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', member.id)
         .order('created_at', { ascending: false });
 
       setPayments(paymentsData || []);
@@ -71,7 +71,7 @@ export const useUserData = () => {
             event: '*',
             schema: 'public',
             table: 'mpesa_payments',
-            filter: `user_id=eq.${user.id}`
+            filter: `user_id=eq.${member.id}`
           },
           (payload) => {
             console.log('Payment update received:', payload);
@@ -90,10 +90,10 @@ export const useUserData = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (member) {
       fetchUserData();
     }
-  }, [user]);
+  }, [member]);
 
   return {
     notifications,

@@ -12,7 +12,7 @@ import MobileMenuPanel from './mobile/MobileMenuPanel';
 const NavbarMobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { member } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const location = useLocation();
@@ -63,7 +63,7 @@ const NavbarMobileMenu = () => {
             <MobileMenuOverlay onClose={closeMenu} />
             <MobileMenuPanel
               activeDropdown={activeDropdown}
-              user={user}
+              user={member}
               onToggleDropdown={toggleDropdown}
               onSignOut={handleSignOut}
             />

@@ -15,7 +15,7 @@ interface AvatarUploadProps {
 }
 
 const AvatarUpload = ({ avatarUrl, setAvatarUrl, name, onAvatarUpdate }: AvatarUploadProps) => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [imageKey, setImageKey] = useState(Date.now()); // Force re-render of image
@@ -30,7 +30,7 @@ const AvatarUpload = ({ avatarUrl, setAvatarUrl, name, onAvatarUpdate }: AvatarU
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}/${Math.random()}.${fileExt}`;
+      const fileName = `${member?.id}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -52,13 +52,13 @@ const AvatarUpload = ({ avatarUrl, setAvatarUrl, name, onAvatarUpdate }: AvatarU
       await supabase
         .from('members')
         .update({ avatar_url: newAvatarUrl })
-        .eq('user_id', user?.id);
+        .eq('user_id', member?.id);
 
       // Update the profile's avatar in the database
       await supabase
         .from('profiles')
         .upsert({
-          user_id: user?.id,
+          user_id: member?.id,
           avatar_url: newAvatarUrl,
         });
       

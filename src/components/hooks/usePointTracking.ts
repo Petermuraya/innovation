@@ -4,16 +4,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 export const usePointTracking = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (!member) return;
 
     // Track website visit when user loads the app
     const trackWebsiteVisit = async () => {
       try {
         const { data, error } = await supabase.rpc('track_website_visit', {
-          user_id_param: user.id
+          user_id_param: member.id
         });
 
         if (error) {
@@ -27,14 +27,14 @@ export const usePointTracking = () => {
     };
 
     trackWebsiteVisit();
-  }, [user]);
+  }, [member]);
 
   const awardPoints = async (activityType: string, sourceId?: string, description?: string) => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       const { error } = await supabase.rpc('award_activity_points', {
-        user_id_param: user.id,
+        user_id_param: member.id,
         activity_type_param: activityType,
         source_id_param: sourceId || null,
         description_param: description || null
