@@ -44,25 +44,27 @@ const SimpleRegistrationForm = () => {
     }
 
     try {
-      console.log('Starting ultra-simple registration with email:', email);
+      console.log('Starting completely clean registration with email:', email);
+      console.log('Supabase URL:', supabase.supabaseUrl);
+      console.log('Supabase Key (first 20 chars):', supabase.supabaseKey.substring(0, 20));
 
-      // Ultra-simple registration with NO metadata to avoid any database complications
+      // Completely minimal registration - no options, no metadata, nothing
       const { data, error: authError } = await supabase.auth.signUp({
         email: email.toLowerCase().trim(),
-        password: password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        },
+        password: password
       });
 
+      console.log('Registration response data:', data);
+      console.log('Registration response error:', authError);
+
       if (authError) {
-        console.error('Registration error:', authError);
-        setError(authError.message);
+        console.error('Registration failed:', authError);
+        setError(`Registration failed: ${authError.message}`);
         setLoading(false);
         return;
       }
 
-      console.log('Registration successful:', data);
+      console.log('Registration successful! User:', data.user);
 
       toast({
         title: "Registration Successful! 🎉",
@@ -73,7 +75,7 @@ const SimpleRegistrationForm = () => {
 
     } catch (err: any) {
       console.error("Unexpected registration error:", err);
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      setError(`Unexpected error: ${err.message || "Please try again."}`);
     } finally {
       setLoading(false);
     }
