@@ -1881,6 +1881,27 @@ export type Database = {
         }
         Relationships: []
       }
+      member_roles: {
+        Row: {
+          created_at: string
+          id: number
+          role: Database["public"]["Enums"]["comprehensive_role"]
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          role?: Database["public"]["Enums"]["comprehensive_role"]
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          role?: Database["public"]["Enums"]["comprehensive_role"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           approved_at: string | null
@@ -1898,6 +1919,7 @@ export type Database = {
           membership_expires_at: string | null
           name: string
           phone: string | null
+          registration_fee_paid: boolean | null
           registration_number: string | null
           registration_status: string | null
           registration_year: number | null
@@ -1922,6 +1944,7 @@ export type Database = {
           membership_expires_at?: string | null
           name: string
           phone?: string | null
+          registration_fee_paid?: boolean | null
           registration_number?: string | null
           registration_status?: string | null
           registration_year?: number | null
@@ -1946,6 +1969,7 @@ export type Database = {
           membership_expires_at?: string | null
           name?: string
           phone?: string | null
+          registration_fee_paid?: boolean | null
           registration_number?: string | null
           registration_status?: string | null
           registration_year?: number | null
@@ -2925,6 +2949,33 @@ export type Database = {
           user_id?: string
           visit_count?: number | null
           visit_date?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          course: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+        }
+        Insert: {
+          course?: string | null
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          course?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
         }
         Relationships: []
       }
