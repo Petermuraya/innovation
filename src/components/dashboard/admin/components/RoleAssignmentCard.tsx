@@ -4,40 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings } from 'lucide-react';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
-
-interface UserWithRole {
-  user_id: string;
-  name: string;
-  email: string;
-  roles: ComprehensiveRole[];
-}
-
-const ROLE_LABELS: Record<ComprehensiveRole, string> = {
-  member: 'Member',
-  super_admin: 'Super Admin',
-  general_admin: 'General Admin',
-  community_admin: 'Community Admin',
-  events_admin: 'Events Admin',
-  projects_admin: 'Projects Admin',
-  finance_admin: 'Finance Admin',
-  content_admin: 'Content Admin',
-  technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin',
-  chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
-};
+import { AppRole, UserWithRole, ROLE_LABELS } from '@/types/roles';
 
 interface RoleAssignmentCardProps {
   users: UserWithRole[];
   loading: boolean;
-  onAssignRole: (userId: string, role: ComprehensiveRole) => Promise<void>;
+  onAssignRole: (userId: string, role: AppRole) => Promise<void>;
 }
 
 const RoleAssignmentCard = ({ users, loading, onAssignRole }: RoleAssignmentCardProps) => {
   const [selectedUser, setSelectedUser] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<ComprehensiveRole>('member');
+  const [selectedRole, setSelectedRole] = useState<AppRole>('member');
 
   const handleAssignRole = async () => {
     if (!selectedUser || !selectedRole) return;
@@ -76,7 +53,7 @@ const RoleAssignmentCard = ({ users, loading, onAssignRole }: RoleAssignmentCard
 
             <div>
               <label className="block text-sm font-medium mb-2">Select Role</label>
-              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as ComprehensiveRole)}>
+              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as AppRole)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

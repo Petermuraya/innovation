@@ -16,7 +16,7 @@ const CertificateManager = () => {
   };
 
   return (
-    <RoleGuard requirePermission="certificate_upload">
+    <RoleGuard requiredPermission="upload_documents">
       <div className="space-y-6">
         <Card>
           <CardHeader>

@@ -117,6 +117,10 @@ export const useRolePermissions = () => {
   const isCommunityLead = roleInfo?.assignedRole?.startsWith('community-lead-') || false;
   const isAdmin = isPatron || isChairperson || isViceChairperson;
   const isSuperAdmin = isPatron;
+  
+  // Add missing properties
+  const isChairman = isChairperson;
+  const isViceChairman = isViceChairperson;
 
   return {
     roleInfo,
@@ -132,6 +136,8 @@ export const useRolePermissions = () => {
     isTreasurer,
     isAuditor,
     isSecretary,
-    isCommunityLead
+    isCommunityLead,
+    isChairman,
+    isViceChairman
   };
 };

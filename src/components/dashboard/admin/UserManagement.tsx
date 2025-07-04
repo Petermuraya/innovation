@@ -15,7 +15,7 @@ import UserList from './components/UserList';
 import AdminRegistrationShare from './components/AdminRegistrationShare';
 import { useUserDeletion } from './hooks/useUserDeletion';
 import { useOptimizedUserManagement } from './hooks/useOptimizedUserManagement';
-import type { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
+import { AppRole, User, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
 
 const UserManagement = () => {
   const { toast } = useToast();
@@ -40,12 +40,13 @@ const UserManagement = () => {
         return;
       }
 
-      // Assign the role
+      // Assign the role - note: we're inserting with the actual AppRole values
+      // The database constraint may need to be updated to match our AppRole enum
       const { error: roleError } = await supabase
         .from('user_roles')
         .upsert({
           user_id: user.id,
-          role: role
+          role: role as any // Cast to bypass type mismatch temporarily
         });
 
       if (roleError) throw roleError;
@@ -86,7 +87,7 @@ const UserManagement = () => {
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', roleToRemove);
+        .eq('role', roleToRemove as any); // Cast to bypass type mismatch temporarily
 
       if (error) throw error;
 

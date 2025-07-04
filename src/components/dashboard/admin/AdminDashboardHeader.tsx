@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +12,7 @@ import { Link } from 'react-router-dom';
 
 const AdminDashboardHeader = () => {
   const { user, signOut } = useAuth();
-  const { roleInfo, isSuperAdmin, isChairman, isViceChairman } = useRolePermissions();
+  const { roleInfo, isSuperAdmin, isChairperson, isViceChairperson } = useRolePermissions();
   const [memberData, setMemberData] = useState<any>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -65,34 +66,34 @@ const AdminDashboardHeader = () => {
     const role = roleInfo?.assignedRole || 'member';
     
     switch (role) {
-      case 'super_admin':
+      case 'patron':
         return {
-          title: 'Super Administrator',
+          title: 'Patron',
           icon: Crown,
           color: 'from-purple-500 to-pink-500',
           bgColor: 'bg-purple-100',
           textColor: 'text-purple-800',
           description: 'Full system access and control'
         };
-      case 'chairman':
+      case 'chairperson':
         return {
-          title: 'Chairman',
+          title: 'Chairperson',
           icon: Crown,
           color: 'from-yellow-500 to-orange-500',
           bgColor: 'bg-yellow-100',
           textColor: 'text-yellow-800',
           description: 'Organization leadership and oversight'
         };
-      case 'vice_chairman':
+      case 'vice-chairperson':
         return {
-          title: 'Vice Chairman',
+          title: 'Vice-Chairperson',
           icon: Star,
           color: 'from-blue-500 to-indigo-500',
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-800',
           description: 'Deputy leadership and support'
         };
-      case 'finance_admin':
+      case 'treasurer':
         return {
           title: 'Treasurer',
           icon: Wallet,
@@ -101,14 +102,14 @@ const AdminDashboardHeader = () => {
           textColor: 'text-green-800',
           description: 'Financial management and oversight'
         };
-      case 'general_admin':
+      case 'auditor':
         return {
-          title: 'Administrator',
+          title: 'Auditor',
           icon: Shield,
           color: 'from-red-500 to-pink-500',
           bgColor: 'bg-red-100',
           textColor: 'text-red-800',
-          description: 'Administrative privileges and management'
+          description: 'Financial audit and compliance'
         };
       default:
         return {

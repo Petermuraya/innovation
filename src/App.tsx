@@ -105,7 +105,7 @@ function App() {
                   <Route
                     path="/test-notifications"
                     element={
-                      <ProtectedRoute requireApproval={false} requiredRole="super_admin">
+                      <ProtectedRoute requireApproval={false} requiredRole="patron">
                         <NotificationTesterPage />
                       </ProtectedRoute>
                     }
