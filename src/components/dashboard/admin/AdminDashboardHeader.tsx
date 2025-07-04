@@ -66,50 +66,41 @@ const AdminDashboardHeader = () => {
     const role = roleInfo?.assignedRole || 'member';
     
     switch (role) {
-      case 'patron':
+      case 'super_admin':
         return {
-          title: 'Patron',
+          title: 'Super Admin',
           icon: Crown,
           color: 'from-purple-500 to-pink-500',
           bgColor: 'bg-purple-100',
           textColor: 'text-purple-800',
           description: 'Full system access and control'
         };
-      case 'chairperson':
+      case 'chairman':
         return {
-          title: 'Chairperson',
+          title: 'Chairman',
           icon: Crown,
           color: 'from-yellow-500 to-orange-500',
           bgColor: 'bg-yellow-100',
           textColor: 'text-yellow-800',
           description: 'Organization leadership and oversight'
         };
-      case 'vice-chairperson':
+      case 'vice_chairman':
         return {
-          title: 'Vice-Chairperson',
+          title: 'Vice Chairman',
           icon: Star,
           color: 'from-blue-500 to-indigo-500',
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-800',
           description: 'Deputy leadership and support'
         };
-      case 'treasurer':
+      case 'finance_admin':
         return {
-          title: 'Treasurer',
+          title: 'Finance Admin',
           icon: Wallet,
           color: 'from-green-500 to-emerald-500',
           bgColor: 'bg-green-100',
           textColor: 'text-green-800',
           description: 'Financial management and oversight'
-        };
-      case 'auditor':
-        return {
-          title: 'Auditor',
-          icon: Shield,
-          color: 'from-red-500 to-pink-500',
-          bgColor: 'bg-red-100',
-          textColor: 'text-red-800',
-          description: 'Financial audit and compliance'
         };
       default:
         return {

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import type { AppRole, ROLE_PERMISSIONS, hasPermission } from '@/types/roles';
+import { AppRole, ROLE_PERMISSIONS, hasPermission } from '@/types/roles';
 
 interface MemberRoleInfo {
   assignedRole: AppRole;
@@ -65,6 +65,7 @@ export const useRolePermissions = () => {
       'chairman', 
       'vice_chairman',
       'general_admin',
+      'admin',
       'finance_admin',
       'community_admin',
       'events_admin',
@@ -113,7 +114,7 @@ export const useRolePermissions = () => {
   const isAuditor = roleInfo?.assignedRole === 'finance_admin';
   const isSecretary = ['content_admin', 'events_admin'].includes(roleInfo?.assignedRole || '');
   const isCommunityLead = roleInfo?.assignedRole === 'community_admin';
-  const isAdmin = ['super_admin', 'chairman', 'vice_chairman', 'general_admin'].includes(roleInfo?.assignedRole || '');
+  const isAdmin = ['super_admin', 'chairman', 'vice_chairman', 'general_admin', 'admin'].includes(roleInfo?.assignedRole || '');
   const isSuperAdmin = isPatron;
   
   // Add missing properties for backwards compatibility

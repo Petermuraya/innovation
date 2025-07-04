@@ -12,7 +12,8 @@ export type AppRole =
   | 'technical_admin'
   | 'marketing_admin'
   | 'chairman'
-  | 'vice_chairman';
+  | 'vice_chairman'
+  | 'admin';
 
 export interface UserWithRole {
   user_id: string;
@@ -44,7 +45,8 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   technical_admin: 'Technical Admin',
   marketing_admin: 'Marketing Admin',
   chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
+  vice_chairman: 'Vice Chairman',
+  admin: 'Admin'
 };
 
 export const ROLE_COLORS: Record<AppRole, 'default' | 'destructive' | 'secondary' | 'outline'> = {
@@ -59,7 +61,8 @@ export const ROLE_COLORS: Record<AppRole, 'default' | 'destructive' | 'secondary
   technical_admin: 'outline',
   marketing_admin: 'outline',
   chairman: 'destructive',
-  vice_chairman: 'secondary'
+  vice_chairman: 'secondary',
+  admin: 'secondary'
 };
 
 // Permission definitions based on the database schema
@@ -106,6 +109,16 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'certificate_upload'
   ],
   general_admin: [
+    'view_dashboard',
+    'manage_users',
+    'approve_registrations',
+    'create_events',
+    'post_announcements',
+    'upload_documents',
+    'manage_community_projects',
+    'view_profile'
+  ],
+  admin: [
     'view_dashboard',
     'manage_users',
     'approve_registrations',

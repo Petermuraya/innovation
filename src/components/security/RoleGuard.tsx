@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
-import type { AppRole, hasPermission } from '@/types/roles';
+import { AppRole, hasPermission } from '@/types/roles';
 
 interface RoleGuardProps {
   children: ReactNode;
@@ -45,8 +45,8 @@ const RoleGuard = ({
         } else {
           const userRoles = data?.map(r => r.role as AppRole) || ['member'];
           
-          // Patron has access to everything
-          if (userRoles.includes('patron')) {
+          // Super admin has access to everything
+          if (userRoles.includes('super_admin')) {
             setHasAccess(true);
           } else if (requiredPermission) {
             setHasAccess(hasPermission(userRoles, requiredPermission));

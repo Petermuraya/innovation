@@ -55,7 +55,7 @@ const MagicLinkTest = () => {
                 ignoreDuplicates: true 
               });
 
-            if (!profileError) {
+            if (!profileError && data.user.id) {
               await supabase
                 .from('user_roles')
                 .upsert([

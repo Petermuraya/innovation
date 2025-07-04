@@ -7,14 +7,14 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, UserX } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { AppRole } from '@/types/roles';
+import { AppRole } from '@/types/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireApproval?: boolean;
   requiredRole?: AppRole;
   requiredRoles?: AppRole[];
-  requirePermission?: string;
+  requiredPermission?: string;
   redirectTo?: string;
 }
 
@@ -23,7 +23,7 @@ const ProtectedRoute = ({
   requireApproval = true, 
   requiredRole,
   requiredRoles,
-  requirePermission,
+  requiredPermission,
   redirectTo = '/login' 
 }: ProtectedRouteProps) => {
   const { user, loading: authLoading } = useAuth();
@@ -48,7 +48,7 @@ const ProtectedRoute = ({
   }
 
   // Check specific role requirement
-  if (requiredRole && !roleInfo?.inheritedRoles.includes(requiredRole) && !roleInfo?.inheritedRoles.includes('patron')) {
+  if (requiredRole && !roleInfo?.inheritedRoles.includes(requiredRole) && !roleInfo?.inheritedRoles.includes('super_admin')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
         <Alert variant="destructive" className="max-w-md">
@@ -62,7 +62,7 @@ const ProtectedRoute = ({
   }
 
   // Check multiple roles requirement
-  if (requiredRoles && !requiredRoles.some(role => roleInfo?.inheritedRoles.includes(role)) && !roleInfo?.inheritedRoles.includes('patron')) {
+  if (requiredRoles && !requiredRoles.some(role => roleInfo?.inheritedRoles.includes(role)) && !roleInfo?.inheritedRoles.includes('super_admin')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
         <Alert variant="destructive" className="max-w-md">
@@ -76,7 +76,7 @@ const ProtectedRoute = ({
   }
 
   // Check specific permission requirement
-  if (requirePermission && !hasRolePermission(requirePermission)) {
+  if (requiredPermission && !hasRolePermission(requiredPermission)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
         <Alert variant="destructive" className="max-w-md">
