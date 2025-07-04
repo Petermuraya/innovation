@@ -42,14 +42,13 @@ const MagicLinkTest = () => {
         
         // Create basic profile if user exists and has an id
         // Note: For magic links, the user might not be immediately available
-        const user = data?.user;
-        if (user && user.id) {
+        if (data?.user?.id) {
           try {
             const { error: profileError } = await supabase
               .from('profiles')
               .upsert([
                 {
-                  user_id: user.id,
+                  user_id: data.user.id,
                   email: email.toLowerCase().trim()
                 }
               ], { 
@@ -62,7 +61,7 @@ const MagicLinkTest = () => {
                 .from('user_roles')
                 .upsert([
                   {
-                    user_id: user.id,
+                    user_id: data.user.id,
                     role: 'member' as const
                   }
                 ], { 
