@@ -50,7 +50,7 @@ const Payments = () => {
           </TabsContent>
 
           <TabsContent value="history">
-            <DashboardPayments payments={[]} />
+            <DashboardPayments />
           </TabsContent>
         </Tabs>
       </div>

@@ -21,14 +21,18 @@ interface Event {
   id: string;
   title: string;
   description: string;
-  start_date: string;
-  end_date: string;
+  date: string;
   location: string;
-  max_participants: number;
-  registration_required: boolean;
-  status: string;
+  max_attendees: number;
+  is_published: boolean;
   created_by: string;
   created_at: string;
+  // Adding these to match the expected interface
+  start_date?: string;
+  end_date?: string;
+  max_participants?: number;
+  registration_required?: boolean;
+  status?: string;
 }
 
 const EventsManagementRefactored: React.FC = () => {
@@ -53,7 +57,18 @@ const EventsManagementRefactored: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setEvents(data || []);
+      
+      // Transform the data to match our Event interface
+      const transformedEvents = (data || []).map(event => ({
+        ...event,
+        start_date: event.date,
+        end_date: event.date,
+        max_participants: event.max_attendees,
+        registration_required: true,
+        status: event.is_published ? 'active' : 'draft'
+      }));
+      
+      setEvents(transformedEvents);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -175,7 +190,7 @@ const EventsManagementRefactored: React.FC = () => {
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <CalendarDays className="w-4 h-4" />
-                  {new Date(event.start_date).toLocaleDateString()}
+                  {new Date(event.date).toLocaleDateString()}
                 </div>
                 {event.location && (
                   <div className="flex items-center gap-1">
@@ -183,14 +198,14 @@ const EventsManagementRefactored: React.FC = () => {
                     {event.location}
                   </div>
                 )}
-                {event.max_participants && (
+                {event.max_attendees && (
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
-                    Max {event.max_participants} participants
+                    Max {event.max_attendees} attendees
                   </div>
                 )}
-                <Badge variant={event.status === 'active' ? 'default' : 'secondary'}>
-                  {event.status}
+                <Badge variant={event.is_published ? 'default' : 'secondary'}>
+                  {event.is_published ? 'Published' : 'Draft'}
                 </Badge>
               </div>
             </CardContent>

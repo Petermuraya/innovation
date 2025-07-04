@@ -33,21 +33,30 @@ const SubmissionsManagement = () => {
 
   const fetchSubmissions = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the submissions
+      const { data: submissionsData, error: submissionsError } = await supabase
         .from('project_submissions')
-        .select(`
-          *,
-          members!inner(name, email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (submissionsError) throw submissionsError;
 
-      const submissionsWithMembers = data?.map(submission => ({
-        ...submission,
-        member_name: submission.members?.name,
-        member_email: submission.members?.email
-      })) || [];
+      // Then get member data for each submission
+      const submissionsWithMembers = await Promise.all(
+        (submissionsData || []).map(async (submission) => {
+          const { data: memberData } = await supabase
+            .from('members')
+            .select('name, email')
+            .eq('user_id', submission.user_id)
+            .single();
+
+          return {
+            ...submission,
+            member_name: memberData?.name || 'Unknown User',
+            member_email: memberData?.email || 'No email'
+          };
+        })
+      );
 
       setSubmissions(submissionsWithMembers);
     } catch (error) {
