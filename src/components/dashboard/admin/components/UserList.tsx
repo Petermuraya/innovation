@@ -1,30 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserX } from 'lucide-react';
-import UserCard from './UserCard';
-import UserActionsDropdown from './UserActionsDropdown';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  roles: ComprehensiveRole[];
-  registration_status: string;
-  phone?: string;
-  course?: string;
-  created_at: string;
-}
+import { AppRole, User } from '@/types/roles';
 
 interface UserListProps {
   users: User[];
   loading: boolean;
   canManageUsers: boolean;
-  selectedRole: ComprehensiveRole;
+  selectedRole: AppRole;
   searchEmail: string;
-  onGrantRole: (email: string, role: ComprehensiveRole) => void;
-  onRemoveRole: (userId: string, role: ComprehensiveRole) => void;
+  onGrantRole: (email: string, role: AppRole) => void;
+  onRemoveRole: (userId: string, role: AppRole) => void;
   onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
 }
@@ -61,24 +47,43 @@ const UserList = ({
             {filteredUsers.map((user) => (
               <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50">
                 <div className="flex justify-between items-start">
-                  <UserCard
-                    user={user}
-                    canManageUsers={canManageUsers}
-                    selectedRole={selectedRole}
-                    onGrantRole={onGrantRole}
-                    onRemoveRole={onRemoveRole}
-                    onEditUser={onEditUser}
-                    onDeleteUser={onDeleteUser}
-                    loading={loading}
-                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium text-lg">{user.name}</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{user.email}</p>
+                    {user.phone && (
+                      <p className="text-sm text-gray-500">Phone: {user.phone}</p>
+                    )}
+                    {user.course && (
+                      <p className="text-sm text-gray-500">Course: {user.course}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-1">
+                      Joined: {new Date(user.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                   
                   {canManageUsers && (
-                    <div className="ml-4">
-                      <UserActionsDropdown
-                        user={user}
-                        onEditUser={onEditUser}
-                        onDeleteUser={onDeleteUser}
-                      />
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        onClick={() => onGrantRole(user.email, selectedRole)}
+                        disabled={loading}
+                      >
+                        Grant Role
+                      </button>
+                      <button
+                        className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                        onClick={() => onEditUser(user)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                        onClick={() => onDeleteUser(user)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   )}
                 </div>

@@ -10,13 +10,13 @@ const ContentManagementTabs = () => {
   return (
     <>
       <TabsContent value="certificates" className="mt-0 animate-fade-in">
-        <RoleGuard requirePermission="certificate_upload">
+        <RoleGuard requiredPermission="certificate_upload">
           <CertificateManager />
         </RoleGuard>
       </TabsContent>
 
       <TabsContent value="blogs" className="mt-0 animate-fade-in">
-        <RoleGuard requirePermission="blog_moderation">
+        <RoleGuard requiredPermission="upload_documents">
           <BlogManagement />
         </RoleGuard>
       </TabsContent>

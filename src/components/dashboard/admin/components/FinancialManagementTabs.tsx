@@ -8,7 +8,7 @@ const FinancialManagementTabs = () => {
   return (
     <>
       <TabsContent value="payments" className="mt-0 animate-fade-in">
-        <RoleGuard requirePermission="payment_processing">
+        <RoleGuard requiredPermission="manage_payments">
           <PaymentsManagement payments={[]} />
         </RoleGuard>
       </TabsContent>

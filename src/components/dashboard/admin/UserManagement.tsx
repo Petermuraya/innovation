@@ -24,7 +24,7 @@ const UserManagement = () => {
   const { deleteUserCompletely, loading: deletionLoading } = useUserDeletion();
   
   const [searchEmail, setSearchEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<AppRole>('chairperson');
+  const [selectedRole, setSelectedRole] = useState<AppRole>('general_admin');
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
@@ -40,13 +40,12 @@ const UserManagement = () => {
         return;
       }
 
-      // Assign the role - note: we're inserting with the actual AppRole values
-      // The database constraint may need to be updated to match our AppRole enum
+      // Assign the role
       const { error: roleError } = await supabase
         .from('user_roles')
         .upsert({
           user_id: user.id,
-          role: role as any // Cast to bypass type mismatch temporarily
+          role: role
         });
 
       if (roleError) throw roleError;
@@ -87,7 +86,7 @@ const UserManagement = () => {
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', roleToRemove as any); // Cast to bypass type mismatch temporarily
+        .eq('role', roleToRemove);
 
       if (error) throw error;
 
@@ -141,7 +140,7 @@ const UserManagement = () => {
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="w-4 h-4 text-yellow-600" />
-                  <span className="font-medium text-yellow-800">Patron Mode</span>
+                  <span className="font-medium text-yellow-800">Super Admin Mode</span>
                 </div>
                 <p className="text-sm text-yellow-700">
                   Full system access - manage all users, roles, and perform administrative actions.

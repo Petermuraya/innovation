@@ -61,19 +61,17 @@ export const useRolePermissions = () => {
 
   const getHighestRole = (roles: AppRole[]): AppRole => {
     const hierarchy: AppRole[] = [
-      'patron',
-      'chairperson', 
-      'vice-chairperson',
-      'treasurer',
-      'auditor',
-      'secretary',
-      'vice-secretary',
-      'organizing-secretary',
-      'community-lead-web',
-      'community-lead-cybersecurity',
-      'community-lead-mobile',
-      'community-lead-iot',
-      'community-lead-ml-ai',
+      'super_admin',
+      'chairman', 
+      'vice_chairman',
+      'general_admin',
+      'finance_admin',
+      'community_admin',
+      'events_admin',
+      'projects_admin',
+      'content_admin',
+      'technical_admin',
+      'marketing_admin',
       'member'
     ];
     
@@ -108,17 +106,17 @@ export const useRolePermissions = () => {
     return hasRolePermission(permission);
   };
 
-  const isPatron = roleInfo?.assignedRole === 'patron';
-  const isChairperson = roleInfo?.assignedRole === 'chairperson';
-  const isViceChairperson = roleInfo?.assignedRole === 'vice-chairperson';
-  const isTreasurer = roleInfo?.assignedRole === 'treasurer';
-  const isAuditor = roleInfo?.assignedRole === 'auditor';
-  const isSecretary = ['secretary', 'vice-secretary', 'organizing-secretary'].includes(roleInfo?.assignedRole || '');
-  const isCommunityLead = roleInfo?.assignedRole?.startsWith('community-lead-') || false;
-  const isAdmin = isPatron || isChairperson || isViceChairperson;
+  const isPatron = roleInfo?.assignedRole === 'super_admin';
+  const isChairperson = roleInfo?.assignedRole === 'chairman';
+  const isViceChairperson = roleInfo?.assignedRole === 'vice_chairman';
+  const isTreasurer = roleInfo?.assignedRole === 'finance_admin';
+  const isAuditor = roleInfo?.assignedRole === 'finance_admin';
+  const isSecretary = ['content_admin', 'events_admin'].includes(roleInfo?.assignedRole || '');
+  const isCommunityLead = roleInfo?.assignedRole === 'community_admin';
+  const isAdmin = ['super_admin', 'chairman', 'vice_chairman', 'general_admin'].includes(roleInfo?.assignedRole || '');
   const isSuperAdmin = isPatron;
   
-  // Add missing properties
+  // Add missing properties for backwards compatibility
   const isChairman = isChairperson;
   const isViceChairman = isViceChairperson;
 

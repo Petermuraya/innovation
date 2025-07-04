@@ -4,50 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Users, UserX } from 'lucide-react';
-
-type ComprehensiveRole = 'member' | 'super_admin' | 'general_admin' | 'community_admin' | 'events_admin' | 'projects_admin' | 'finance_admin' | 'content_admin' | 'technical_admin' | 'marketing_admin' | 'chairman' | 'vice_chairman';
-
-interface UserWithRole {
-  user_id: string;
-  name: string;
-  email: string;
-  roles: ComprehensiveRole[];
-}
-
-const ROLE_LABELS: Record<ComprehensiveRole, string> = {
-  member: 'Member',
-  super_admin: 'Super Admin',
-  general_admin: 'General Admin',
-  community_admin: 'Community Admin',
-  events_admin: 'Events Admin',
-  projects_admin: 'Projects Admin',
-  finance_admin: 'Finance Admin',
-  content_admin: 'Content Admin',
-  technical_admin: 'Technical Admin',
-  marketing_admin: 'Marketing Admin',
-  chairman: 'Chairman',
-  vice_chairman: 'Vice Chairman'
-};
-
-const ROLE_COLORS: Record<ComprehensiveRole, string> = {
-  member: 'default',
-  super_admin: 'destructive',
-  general_admin: 'secondary',
-  community_admin: 'outline',
-  events_admin: 'outline',
-  projects_admin: 'outline',
-  finance_admin: 'outline',
-  content_admin: 'outline',
-  technical_admin: 'outline',
-  marketing_admin: 'outline',
-  chairman: 'destructive',
-  vice_chairman: 'secondary'
-};
+import { AppRole, UserWithRole, ROLE_LABELS, ROLE_COLORS } from '@/types/roles';
 
 interface UserRolesListProps {
   users: UserWithRole[];
   loading: boolean;
-  onRemoveRole: (userId: string, role: ComprehensiveRole) => Promise<void>;
+  onRemoveRole: (userId: string, role: AppRole) => Promise<void>;
 }
 
 const UserRolesList = ({ users, loading, onRemoveRole }: UserRolesListProps) => {
@@ -75,7 +37,7 @@ const UserRolesList = ({ users, loading, onRemoveRole }: UserRolesListProps) => 
                     {user.roles && user.roles.length > 0 ? (
                       user.roles.map((role) => (
                         <div key={role} className="flex items-center gap-1">
-                          <Badge variant={ROLE_COLORS[role] as any}>
+                          <Badge variant={ROLE_COLORS[role]}>
                             {ROLE_LABELS[role]}
                           </Badge>
                           {role !== 'member' && (

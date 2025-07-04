@@ -2,14 +2,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-type SimpleRole = 'member' | 'admin' | 'super_admin' | 'general_admin' | 'community_admin';
+import { AppRole } from '@/types/roles';
 
 interface User {
   id: string;
   email: string;
   name: string;
-  roles: SimpleRole[];
+  roles: AppRole[];
   registration_status: string;
   phone?: string;
   course?: string;
@@ -85,7 +84,7 @@ export const useOptimizedUserManagement = () => {
       const formattedUsers: User[] = memberData
         .filter(member => member.user_id) // Only include members with valid user_id
         .map(member => {
-          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as SimpleRole) || [];
+          const userRoles = roleData?.filter(r => r.user_id === member.user_id).map(r => r.role as AppRole) || [];
           
           return {
             id: member.user_id!,

@@ -1,28 +1,34 @@
 
 import { TabsContent } from '@/components/ui/tabs';
 import RoleGuard from '@/components/security/RoleGuard';
-import EnhancedMembersManagement from '../EnhancedMembersManagement';
-import CommunityAdminManagement from '../CommunityAdminManagement';
-import EnhancedAdminRequestsManagement from '../EnhancedAdminRequestsManagement';
 
 const MemberManagementTabs = () => {
   return (
     <>
-      <TabsContent value="members" className="mt-0 animate-fade-in">
+      <TabsContent value="member-approval" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <EnhancedMembersManagement members={[]} updateMemberStatus={async () => {}} />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">Member Approval</h3>
+            <p className="text-muted-foreground">Member approval features will be available here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="community-admins" className="mt-0 animate-fade-in">
+      <TabsContent value="member-points" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <CommunityAdminManagement />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">Member Points</h3>
+            <p className="text-muted-foreground">Member points management will be available here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="admin-requests" className="mt-0 animate-fade-in">
+      <TabsContent value="member-communications" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <EnhancedAdminRequestsManagement />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">Member Communications</h3>
+            <p className="text-muted-foreground">Member communication tools will be available here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
     </>

@@ -1,63 +1,52 @@
 
 import { TabsContent } from '@/components/ui/tabs';
 import RoleGuard from '@/components/security/RoleGuard';
-import EnhancedLeaderboardManager from '@/components/admin/EnhancedLeaderboardManager';
-import PointConfigurationManager from '@/components/admin/PointConfigurationManager';
-import AdminNotificationManager from '@/components/admin/notifications/AdminNotificationManager';
-import NotificationTemplateManager from '@/components/admin/notifications/NotificationTemplateManager';
-import ConstitutionManagement from '../ConstitutionManagement';
-import AdminElectionManagement from '@/components/elections/AdminElectionManagement';
-import AdminAnalytics from '../AdminAnalytics';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const SystemManagementTabs = () => {
   return (
     <>
-      <TabsContent value="leaderboard" className="mt-0 animate-fade-in">
+      <TabsContent value="system-settings" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <div className="space-y-6">
-            <PointConfigurationManager />
-            <EnhancedLeaderboardManager />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">System Settings</h3>
+            <p className="text-muted-foreground">System configuration options will be available here.</p>
           </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="notifications" className="mt-0 animate-fade-in">
+      <TabsContent value="system-analytics" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <div className="space-y-6">
-            <Tabs defaultValue="manage" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="manage">Send Notifications</TabsTrigger>
-                <TabsTrigger value="templates">Manage Templates</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="manage" className="mt-6">
-                <AdminNotificationManager />
-              </TabsContent>
-              
-              <TabsContent value="templates" className="mt-6">
-                <NotificationTemplateManager />
-              </TabsContent>
-            </Tabs>
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">System Analytics</h3>
+            <p className="text-muted-foreground">System analytics and reports will be available here.</p>
           </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="constitution" className="mt-0 animate-fade-in">
+      <TabsContent value="backup-restore" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <ConstitutionManagement />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">Backup & Restore</h3>
+            <p className="text-muted-foreground">Backup and restore functionality will be available here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="elections" className="mt-0 animate-fade-in">
+      <TabsContent value="integrations" className="mt-0 animate-fade-in">
         <RoleGuard requiredRole="general_admin">
-          <AdminElectionManagement />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">Integrations</h3>
+            <p className="text-muted-foreground">Third-party integrations will be managed here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
 
-      <TabsContent value="analytics" className="mt-0 animate-fade-in">
-        <RoleGuard requirePermission="system_analytics">
-          <AdminAnalytics />
+      <TabsContent value="logs" className="mt-0 animate-fade-in">
+        <RoleGuard requiredPermission="full_system_access">
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold">System Logs</h3>
+            <p className="text-muted-foreground">System logs and audit trails will be available here.</p>
+          </div>
         </RoleGuard>
       </TabsContent>
     </>

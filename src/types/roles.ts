@@ -1,20 +1,18 @@
 
-// Centralized role type definitions
+// Centralized role type definitions that match the database schema
 export type AppRole = 
   | 'member'
-  | 'patron' 
-  | 'chairperson'
-  | 'vice-chairperson'
-  | 'treasurer'
-  | 'auditor'
-  | 'secretary'
-  | 'vice-secretary'
-  | 'organizing-secretary'
-  | 'community-lead-web'
-  | 'community-lead-cybersecurity'
-  | 'community-lead-mobile'
-  | 'community-lead-iot'
-  | 'community-lead-ml-ai';
+  | 'super_admin'
+  | 'general_admin'
+  | 'community_admin'
+  | 'events_admin'
+  | 'projects_admin'
+  | 'finance_admin'
+  | 'content_admin'
+  | 'technical_admin'
+  | 'marketing_admin'
+  | 'chairman'
+  | 'vice_chairman';
 
 export interface UserWithRole {
   user_id: string;
@@ -36,41 +34,37 @@ export interface User {
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   member: 'Member',
-  patron: 'Patron',
-  chairperson: 'Chairperson',
-  'vice-chairperson': 'Vice-Chairperson',
-  treasurer: 'Treasurer',
-  auditor: 'Auditor',
-  secretary: 'Secretary',
-  'vice-secretary': 'Vice-Secretary',
-  'organizing-secretary': 'Organizing Secretary',
-  'community-lead-web': 'Web Development Lead',
-  'community-lead-cybersecurity': 'Cybersecurity Lead',
-  'community-lead-mobile': 'Mobile Development Lead',
-  'community-lead-iot': 'IoT Lead',
-  'community-lead-ml-ai': 'ML/AI Lead'
+  super_admin: 'Super Admin',
+  general_admin: 'General Admin',
+  community_admin: 'Community Admin',
+  events_admin: 'Events Admin',
+  projects_admin: 'Projects Admin',
+  finance_admin: 'Finance Admin',
+  content_admin: 'Content Admin',
+  technical_admin: 'Technical Admin',
+  marketing_admin: 'Marketing Admin',
+  chairman: 'Chairman',
+  vice_chairman: 'Vice Chairman'
 };
 
 export const ROLE_COLORS: Record<AppRole, 'default' | 'destructive' | 'secondary' | 'outline'> = {
   member: 'default',
-  patron: 'destructive',
-  chairperson: 'destructive',
-  'vice-chairperson': 'secondary',
-  treasurer: 'secondary',
-  auditor: 'outline',
-  secretary: 'secondary',
-  'vice-secretary': 'outline',
-  'organizing-secretary': 'outline',
-  'community-lead-web': 'outline',
-  'community-lead-cybersecurity': 'outline',
-  'community-lead-mobile': 'outline',
-  'community-lead-iot': 'outline',
-  'community-lead-ml-ai': 'outline'
+  super_admin: 'destructive',
+  general_admin: 'secondary',
+  community_admin: 'outline',
+  events_admin: 'outline',
+  projects_admin: 'outline',
+  finance_admin: 'outline',
+  content_admin: 'outline',
+  technical_admin: 'outline',
+  marketing_admin: 'outline',
+  chairman: 'destructive',
+  vice_chairman: 'secondary'
 };
 
-// Permission definitions based on the matrix
+// Permission definitions based on the database schema
 export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
-  patron: [
+  super_admin: [
     'view_dashboard',
     'manage_users',
     'approve_registrations',
@@ -82,9 +76,10 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'audit_financial_records',
     'manage_community_projects',
     'view_profile',
-    'full_system_access'
+    'full_system_access',
+    'certificate_upload'
   ],
-  chairperson: [
+  chairman: [
     'view_dashboard',
     'manage_users',
     'approve_registrations',
@@ -95,9 +90,10 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'upload_documents',
     'audit_financial_records',
     'manage_community_projects',
-    'view_profile'
+    'view_profile',
+    'certificate_upload'
   ],
-  'vice-chairperson': [
+  vice_chairman: [
     'view_dashboard',
     'manage_users',
     'approve_registrations',
@@ -106,22 +102,27 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'upload_documents',
     'audit_financial_records',
     'manage_community_projects',
+    'view_profile',
+    'certificate_upload'
+  ],
+  general_admin: [
+    'view_dashboard',
+    'manage_users',
+    'approve_registrations',
+    'create_events',
+    'post_announcements',
+    'upload_documents',
+    'manage_community_projects',
     'view_profile'
   ],
-  treasurer: [
+  finance_admin: [
     'view_dashboard',
     'manage_financial_records',
     'manage_payments',
     'audit_financial_records',
     'view_profile'
   ],
-  auditor: [
-    'view_dashboard',
-    'view_financial_records',
-    'audit_financial_records',
-    'view_profile'
-  ],
-  secretary: [
+  community_admin: [
     'view_dashboard',
     'create_events',
     'post_announcements',
@@ -129,7 +130,21 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'manage_community_projects',
     'view_profile'
   ],
-  'vice-secretary': [
+  events_admin: [
+    'view_dashboard',
+    'create_events',
+    'post_announcements',
+    'manage_community_projects',
+    'view_profile'
+  ],
+  projects_admin: [
+    'view_dashboard',
+    'create_events',
+    'post_announcements',
+    'manage_community_projects',
+    'view_profile'
+  ],
+  content_admin: [
     'view_dashboard',
     'create_events',
     'post_announcements',
@@ -137,44 +152,16 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'manage_community_projects',
     'view_profile'
   ],
-  'organizing-secretary': [
+  technical_admin: [
     'view_dashboard',
     'create_events',
     'post_announcements',
     'manage_community_projects',
     'view_profile'
   ],
-  'community-lead-web': [
+  marketing_admin: [
     'view_dashboard',
-    'create_community_events',
-    'post_announcements',
-    'manage_community_projects',
-    'view_profile'
-  ],
-  'community-lead-cybersecurity': [
-    'view_dashboard',
-    'create_community_events',
-    'post_announcements',
-    'manage_community_projects',
-    'view_profile'
-  ],
-  'community-lead-mobile': [
-    'view_dashboard',
-    'create_community_events',
-    'post_announcements',
-    'manage_community_projects',
-    'view_profile'
-  ],
-  'community-lead-iot': [
-    'view_dashboard',
-    'create_community_events',
-    'post_announcements',
-    'manage_community_projects',
-    'view_profile'
-  ],
-  'community-lead-ml-ai': [
-    'view_dashboard',
-    'create_community_events',
+    'create_events',
     'post_announcements',
     'manage_community_projects',
     'view_profile'
@@ -189,11 +176,11 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
 
 // Helper functions for permission checking
 export const hasPermission = (userRoles: AppRole[], permission: string): boolean => {
-  return userRoles.some(role => ROLE_PERMISSIONS[role]?.includes(permission) || role === 'patron');
+  return userRoles.some(role => ROLE_PERMISSIONS[role]?.includes(permission) || role === 'super_admin');
 };
 
 export const isHighLevelRole = (role: AppRole): boolean => {
-  return ['patron', 'chairperson', 'vice-chairperson'].includes(role);
+  return ['super_admin', 'chairman', 'vice_chairman'].includes(role);
 };
 
 export const canManageUsers = (userRoles: AppRole[]): boolean => {
