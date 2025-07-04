@@ -58,9 +58,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('Checking admin status for user:', user.id);
       
-      // Get all roles for the user from member_roles table
-      const { data: memberRoles, error } = await supabase
-        .from('member_roles')
+      // Get all roles for the user from user_roles table
+      const { data: userRoles, error } = await supabase
+        .from('user_roles')
         .select('role')
         .eq('user_id', user.id);
 
@@ -71,9 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      console.log('Member roles found:', memberRoles);
+      console.log('User roles found:', userRoles);
 
-      if (!memberRoles || memberRoles.length === 0) {
+      if (!userRoles || userRoles.length === 0) {
         // User has no roles yet, default to member
         setIsAdmin(false);
         setUserRole('member');
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Find the highest role (prioritize admin roles)
       const adminRoles = ['super_admin', 'general_admin', 'community_admin', 'events_admin', 'projects_admin', 'finance_admin', 'content_admin', 'technical_admin', 'marketing_admin', 'chairman', 'vice_chairman'];
-      const roles = memberRoles.map(r => r.role);
+      const roles = userRoles.map(r => r.role);
       
       // Check if user has any admin role
       const hasAdminRole = roles.some(role => adminRoles.includes(role));

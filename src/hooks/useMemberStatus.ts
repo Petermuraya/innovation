@@ -37,7 +37,7 @@ export const useMemberStatus = () => {
       try {
         // Check if user has any admin role
         const { data: roles, error: rolesError } = await supabase
-          .from('member_roles')
+          .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 

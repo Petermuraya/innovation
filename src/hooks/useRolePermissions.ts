@@ -26,7 +26,7 @@ export const useRolePermissions = () => {
 
       try {
         const { data, error } = await supabase
-          .from('member_roles')
+          .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 
