@@ -1,6 +1,7 @@
 
 import RegistrationHeader from "@/components/auth/RegistrationHeader";
 import SimpleRegistrationForm from "@/components/auth/SimpleRegistrationForm";
+import MagicLinkTest from "@/components/auth/MagicLinkTest";
 
 const Register = () => {
   return (
@@ -8,6 +9,7 @@ const Register = () => {
       <div className="max-w-md w-full space-y-8">
         <RegistrationHeader />
         <SimpleRegistrationForm />
+        <MagicLinkTest />
       </div>
     </div>
   );
