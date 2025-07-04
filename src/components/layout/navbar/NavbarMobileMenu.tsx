@@ -63,7 +63,7 @@ const NavbarMobileMenu = () => {
             <MobileMenuOverlay onClose={closeMenu} />
             <MobileMenuPanel
               activeDropdown={activeDropdown}
-              user={member}
+              member={member}
               onToggleDropdown={toggleDropdown}
               onSignOut={handleSignOut}
             />

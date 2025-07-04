@@ -21,42 +21,48 @@ const RoleGuard = ({
   requiredRoles,
   fallback 
 }: RoleGuardProps) => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAccess = async () => {
-      if (!user) {
+      if (!member) {
         setHasAccess(false);
         setLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-        
-        if (error) {
-          console.error('Error checking role:', error);
-          setHasAccess(false);
-        } else {
-          const userRoles = data?.map(r => r.role as AppRole) || ['member'];
+        // Use the has_role function instead of direct query
+        if (requiredRole) {
+          const { data, error } = await supabase.rpc('has_role', {
+            _user_id: member.id,
+            _role: requiredRole
+          });
           
-          // Super admin has access to everything
-          if (userRoles.includes('super_admin')) {
-            setHasAccess(true);
-          } else if (requiredPermission) {
-            setHasAccess(hasPermission(userRoles, requiredPermission));
-          } else if (requiredRole) {
-            setHasAccess(userRoles.includes(requiredRole));
-          } else if (requiredRoles) {
-            setHasAccess(requiredRoles.some(role => userRoles.includes(role)));
+          if (error) {
+            console.error('Error checking role:', error);
+            setHasAccess(false);
           } else {
-            setHasAccess(true);
+            setHasAccess(data || false);
           }
+        } else if (requiredRoles) {
+          // Check if user has any of the required roles
+          let hasAnyRole = false;
+          for (const role of requiredRoles) {
+            const { data, error } = await supabase.rpc('has_role', {
+              _user_id: member.id,
+              _role: role
+            });
+            if (!error && data) {
+              hasAnyRole = true;
+              break;
+            }
+          }
+          setHasAccess(hasAnyRole);
+        } else {
+          setHasAccess(true);
         }
       } catch (error) {
         console.error('Access check failed:', error);
@@ -67,7 +73,7 @@ const RoleGuard = ({
     };
 
     checkAccess();
-  }, [user, requiredRole, requiredPermission, requiredRoles]);
+  }, [member, requiredRole, requiredPermission, requiredRoles]);
 
   if (loading) {
     return <div className="text-center py-8">Verifying permissions...</div>;

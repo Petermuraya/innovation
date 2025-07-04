@@ -18,10 +18,8 @@ interface ProjectSubmission {
   created_at: string;
   user_id: string;
   technologies?: string[];
-  members?: {
-    name: string;
-    email: string;
-  };
+  member_name?: string;
+  member_email?: string;
 }
 
 const SubmissionsManagement = () => {
@@ -47,7 +45,8 @@ const SubmissionsManagement = () => {
 
       const submissionsWithMembers = data?.map(submission => ({
         ...submission,
-        members: submission.members
+        member_name: submission.members?.name,
+        member_email: submission.members?.email
       })) || [];
 
       setSubmissions(submissionsWithMembers);
@@ -109,7 +108,7 @@ const SubmissionsManagement = () => {
                 <div>
                   <CardTitle>{submission.title}</CardTitle>
                   <CardDescription>
-                    By {submission.members?.name} ({submission.members?.email})
+                    By {submission.member_name} ({submission.member_email})
                   </CardDescription>
                 </div>
                 <Badge variant={

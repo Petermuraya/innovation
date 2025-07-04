@@ -30,20 +30,27 @@ const UserManagement = () => {
 
   const fetchMembers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: membersData, error } = await supabase
         .from('members')
-        .select(`
-          *,
-          member_roles!inner(role)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const membersWithRoles = data?.map(member => ({
-        ...member,
-        roles: member.member_roles?.map((r: any) => r.role) || []
-      })) || [];
+      // Fetch roles for each member separately
+      const membersWithRoles = await Promise.all(
+        (membersData || []).map(async (member) => {
+          const { data: rolesData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', member.user_id);
+
+          return {
+            ...member,
+            roles: rolesData?.map((r: any) => r.role) || []
+          };
+        })
+      );
 
       setMembers(membersWithRoles);
     } catch (error) {

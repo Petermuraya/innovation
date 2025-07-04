@@ -1,104 +1,65 @@
 
-import React from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMemberStatus } from '@/hooks/useMemberStatus';
-import { useRolePermissions } from '@/hooks/useRolePermissions';
-import { Navigate, useLocation } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Shield, UserX } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AppRole } from '@/types/roles';
+import { Navigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
   requireApproval?: boolean;
-  requiredRole?: AppRole;
-  requiredRoles?: AppRole[];
-  requiredPermission?: string;
-  redirectTo?: string;
 }
 
-const ProtectedRoute = ({ 
-  children, 
-  requireApproval = true, 
-  requiredRole,
-  requiredRoles,
-  requiredPermission,
-  redirectTo = '/login' 
-}: ProtectedRouteProps) => {
-  const { user, loading: authLoading } = useAuth();
-  const { loading: statusLoading, isApproved } = useMemberStatus();
-  const { isAdmin, hasRolePermission, loading: roleLoading, roleInfo } = useRolePermissions();
-  const location = useLocation();
+const ProtectedRoute = ({ children, requireApproval = false }: ProtectedRouteProps) => {
+  const { member, loading } = useAuth();
+  const [approvalStatus, setApprovalStatus] = useState<string | null>(null);
+  const [checkingApproval, setCheckingApproval] = useState(requireApproval);
 
-  if (authLoading || statusLoading || roleLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray">
-        <Card>
-          <CardContent className="p-6">
-            <p>Verifying access...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  useEffect(() => {
+    const checkApprovalStatus = async () => {
+      if (!member || !requireApproval) {
+        setCheckingApproval(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('members')
+          .select('registration_status')
+          .eq('user_id', member.id)
+          .single();
+
+        if (error) {
+          console.error('Error checking approval status:', error);
+          setApprovalStatus('pending');
+        } else {
+          setApprovalStatus(data?.registration_status || 'pending');
+        }
+      } catch (error) {
+        console.error('Error checking approval status:', error);
+        setApprovalStatus('pending');
+      } finally {
+        setCheckingApproval(false);
+      }
+    };
+
+    checkApprovalStatus();
+  }, [member, requireApproval]);
+
+  if (loading || checkingApproval) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  if (!member) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Check specific role requirement
-  if (requiredRole && !roleInfo?.inheritedRoles.includes(requiredRole) && !roleInfo?.inheritedRoles.includes('super_admin')) {
+  if (requireApproval && approvalStatus !== 'approved') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-        <Alert variant="destructive" className="max-w-md">
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            You need {requiredRole.replace('-', ' ')} privileges to access this page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Check multiple roles requirement
-  if (requiredRoles && !requiredRoles.some(role => roleInfo?.inheritedRoles.includes(role)) && !roleInfo?.inheritedRoles.includes('super_admin')) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-        <Alert variant="destructive" className="max-w-md">
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            You don't have the required role to access this page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Check specific permission requirement
-  if (requiredPermission && !hasRolePermission(requiredPermission)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-        <Alert variant="destructive" className="max-w-md">
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            You don't have the required permissions to access this page.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Member approval requirement (skip for admins)
-  if (requireApproval && !isAdmin && !isApproved) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-        <Alert variant="destructive" className="max-w-md">
-          <UserX className="h-4 w-4" />
-          <AlertDescription>
-            Your membership is pending approval. Please wait for an administrator to approve your account.
-          </AlertDescription>
-        </Alert>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Account Pending Approval</h2>
+          <p className="text-gray-600">Your account is pending approval. Please wait for admin approval.</p>
+        </div>
       </div>
     );
   }

@@ -18,27 +18,27 @@ export interface CommunityGroup {
 }
 
 export const useCommunityData = () => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const [communities, setCommunities] = useState<CommunityGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [userMembershipCount, setUserMembershipCount] = useState(0);
 
   useEffect(() => {
-    if (user) {
+    if (member) {
       fetchCommunities();
       fetchUserMembershipCount();
     }
-  }, [user]);
+  }, [member]);
 
   const fetchUserMembershipCount = async () => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       const { count } = await supabase
         .from('community_memberships')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', member.id)
         .eq('status', 'active');
 
       setUserMembershipCount(count || 0);
@@ -70,12 +70,12 @@ export const useCommunityData = () => {
           // Check if current user is a member
           let isMember = false;
           let isAdmin = false;
-          if (user) {
+          if (member) {
             const { data: membership } = await supabase
               .from('community_memberships')
               .select('id')
               .eq('community_id', group.id)
-              .eq('user_id', user.id)
+              .eq('user_id', member.id)
               .eq('status', 'active')
               .single();
             isMember = !!membership;
@@ -85,7 +85,7 @@ export const useCommunityData = () => {
               .from('community_admins')
               .select('id')
               .eq('community_id', group.id)
-              .eq('user_id', user.id)
+              .eq('user_id', member.id)
               .eq('is_active', true)
               .single();
             isAdmin = !!adminRole;

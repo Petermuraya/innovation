@@ -10,10 +10,11 @@ import { CreditCard, Receipt, AlertCircle } from 'lucide-react';
 interface Payment {
   id: string;
   amount: number;
-  purpose: string;
   status: string;
   created_at: string;
   phone_number?: string;
+  payment_type?: string;
+  purpose?: string;
 }
 
 const DashboardPayments: React.FC = () => {
@@ -38,7 +39,19 @@ const DashboardPayments: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPayments(data || []);
+      
+      // Transform the data to match our Payment interface
+      const transformedPayments = data?.map(payment => ({
+        id: payment.id,
+        amount: payment.amount,
+        status: payment.status,
+        created_at: payment.created_at,
+        phone_number: payment.phone_number,
+        payment_type: payment.payment_type,
+        purpose: payment.payment_type || 'Payment' // Use payment_type as purpose fallback
+      })) || [];
+      
+      setPayments(transformedPayments);
     } catch (error) {
       console.error('Error fetching payments:', error);
     } finally {

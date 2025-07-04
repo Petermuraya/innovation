@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,20 +6,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 export const useCommunityActions = (userMembershipCount: number, onDataUpdate: () => void) => {
-  const { user } = useAuth();
+  const { member } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [visitingCommunity, setVisitingCommunity] = useState<string | null>(null);
 
   const visitCommunity = async (communityId: string, communityName: string) => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       setVisitingCommunity(communityId);
 
       // Call the database function to track the visit
       const { data, error } = await supabase.rpc('track_community_visit', {
-        user_id_param: user.id,
+        user_id_param: member.id,
         community_id_param: communityId
       });
 
@@ -54,7 +55,7 @@ export const useCommunityActions = (userMembershipCount: number, onDataUpdate: (
   };
 
   const toggleMembership = async (groupId: string, groupName: string, isMember: boolean) => {
-    if (!user) return;
+    if (!member) return;
 
     try {
       if (isMember) {
@@ -73,7 +74,7 @@ export const useCommunityActions = (userMembershipCount: number, onDataUpdate: (
           .from('community_memberships')
           .delete()
           .eq('community_id', groupId)
-          .eq('user_id', user.id);
+          .eq('user_id', member.id);
 
         toast({
           title: "Left community",
@@ -95,7 +96,7 @@ export const useCommunityActions = (userMembershipCount: number, onDataUpdate: (
           .from('community_memberships')
           .insert({
             community_id: groupId,
-            user_id: user.id,
+            user_id: member.id,
             status: 'active'
           });
 
