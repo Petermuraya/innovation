@@ -45,8 +45,6 @@ const SimpleRegistrationForm = () => {
 
     try {
       console.log('Starting completely clean registration with email:', email);
-      console.log('Supabase URL:', supabase.supabaseUrl);
-      console.log('Supabase Key (first 20 chars):', supabase.supabaseKey.substring(0, 20));
 
       // Completely minimal registration - no options, no metadata, nothing
       const { data, error: authError } = await supabase.auth.signUp({
