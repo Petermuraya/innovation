@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight, Sparkle, Zap, Users, Code, Lightbulb } from "lucide-react";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import Image1 from "@/assets/hero-2.png";
 import Image2 from "@/assets/hero-3.png";
 import Image3 from "@/assets/image1.jpg";
@@ -11,28 +12,24 @@ const heroImages = [
   {
     src: Image1,
     alt: "Innovation and technology",
-    icon: <Zap className="w-6 h-6 lg:w-8 lg:h-8" />,
     title: "Cutting-Edge Technology",
     description: "Explore the latest technological advancements"
   },
   {
     src: Image2,
     alt: "Team collaboration",
-    icon: <Users className="w-6 h-6 lg:w-8 lg:h-8" />,
     title: "Collaborative Teams",
     description: "Join forces with like-minded innovators"
   },
   {
     src: Image3,
     alt: "Creative workspace",
-    icon: <Lightbulb className="w-6 h-6 lg:w-8 lg:h-8" />,
     title: "Creative Spaces",
     description: "Foster innovation in inspiring environments"
   },
   {
     src: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
     alt: "Coding and development",
-    icon: <Code className="w-6 h-6 lg:w-8 lg:h-8" />,
     title: "Code The Future",
     description: "Develop solutions that shape tomorrow"
   }
@@ -114,7 +111,35 @@ export default function HeroSection() {
               </p>
               
               {/* Hero Actions */}
-              <HeroActions isVisible={isVisible} isMobile={isMobile} />
+              <div 
+                className={`flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center transition-all duration-700 delay-500 ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+              >
+                <Button 
+                  size={isMobile ? "default" : "lg"}
+                  asChild
+                  className="group relative bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-7 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-green-500/40 transition-all duration-300 overflow-hidden border-2 border-green-400/30 w-full sm:w-auto"
+                >
+                  <Link to="/register">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    <Sparkles className="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
+                    Join Our Community
+                    <ArrowRight className="ml-2 sm:ml-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                
+                <Button 
+                  size={isMobile ? "default" : "lg"}
+                  variant="outline" 
+                  asChild
+                  className="group bg-gradient-to-r from-yellow-500/10 to-green-500/10 backdrop-blur-sm border-2 border-yellow-400/50 text-yellow-200 hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-green-500/20 hover:border-yellow-300 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-7 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-yellow-400/25 transition-all duration-300 w-full sm:w-auto"
+                >
+                  <Link to="/about">
+                    Learn More About Us
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -165,39 +190,5 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
-  );
-}
-
-function HeroActions({ isVisible, isMobile }: { isVisible: boolean; isMobile?: boolean }) {
-  return (
-    <div 
-      className={`flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center transition-all duration-700 delay-500 ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-    >
-      <Button 
-        size={isMobile ? "default" : "lg"}
-        asChild
-        className="group relative bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-7 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-green-500/40 transition-all duration-300 overflow-hidden border-2 border-green-400/30 w-full sm:w-auto"
-      >
-        <Link to="/register">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-          <Sparkles className="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
-          Join Our Community
-          <ArrowRight className="ml-2 sm:ml-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </Button>
-      
-      <Button 
-        size={isMobile ? "default" : "lg"}
-        variant="outline" 
-        asChild
-        className="group bg-gradient-to-r from-yellow-500/10 to-green-500/10 backdrop-blur-sm border-2 border-yellow-400/50 text-yellow-200 hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-green-500/20 hover:border-yellow-300 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-7 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl shadow-xl hover:shadow-yellow-400/25 transition-all duration-300 w-full sm:w-auto"
-      >
-        <Link to="/about">
-          Learn More About Us
-        </Link>
-      </Button>
-    </div>
   );
 }
