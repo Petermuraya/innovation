@@ -1,128 +1,97 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HelmetProvider } from 'react-helmet-async';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import RoleGuard from '@/components/security/RoleGuard';
 
-import Layout from '@/components/layout/Layout';
+// Pages
 import Index from '@/pages/Index';
-import Dashboard from '@/pages/Dashboard';
 import About from '@/pages/About';
+import Contact from '@/pages/Contact';
 import Projects from '@/pages/Projects';
-import Leaderboard from '@/pages/Leaderboard';
+import Blog from '@/pages/Blog';
+import BlogPost from '@/pages/BlogPost';
+import Events from '@/pages/Events';
+import Dashboard from '@/pages/Dashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
+import CommunityDashboard from '@/pages/CommunityDashboard';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
-import Blogs from '@/pages/Blogs';
-import Events from '@/pages/Events';
-import Careers from '@/pages/Careers';
-import CommunityDashboardRouter from '@/components/dashboard/community/CommunityDashboardRouter';
 import Elections from '@/pages/Elections';
-import NotificationTesterPage from '@/pages/NotificationTesterPage';
-import Payments from '@/pages/Payments';
-import ProtectedRoute from '@/components/security/ProtectedRoute';
-import NotFound from '@/pages/NotFound';
+import Constitution from '@/pages/Constitution';
 
-import { AuthProvider } from '@/contexts/AuthContext';
+// Providers
 import { NotificationProvider } from '@/components/notifications/NotificationProvider';
-import { Toaster } from '@/components/ui/toaster';
 
-import './App.css';
-
-// React Query client instance
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 function App() {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <NotificationProvider>
-            <Router>
-              <Layout>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/leaderboard" element={<Leaderboard />} />
-                  <Route path="/blogs" element={<Blogs />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/careers" element={<Careers />} />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <NotificationProvider>
+          <Router>
+            <div className="min-h-screen bg-background">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogPost />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/elections" element={<Elections />} />
+                <Route path="/constitution" element={<Constitution />} />
 
-                  {/* Protected routes */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute requireApproval={false}>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  {/* Member dashboard route */}
-                  <Route
-                    path="/member/user/dashboard"
-                    element={
-                      <ProtectedRoute requireApproval={false}>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="/elections"
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <Elections />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/payments"
-                    element={
-                      <ProtectedRoute requireApproval={false}>
-                        <Payments />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/community/:communityId"
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <CommunityDashboardRouter />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/community-dashboard/:communityId"
-                    element={
-                      <ProtectedRoute requireApproval={true}>
-                        <CommunityDashboardRouter />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/test-notifications"
-                    element={
-                      <ProtectedRoute requireApproval={false} requiredRole="super_admin">
-                        <NotificationTesterPage />
-                      </ProtectedRoute>
-                    }
-                  />
+                {/* Protected routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute requireApproval={false}>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-                  {/* Fallback route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Layout>
+                <Route
+                  path="/community-dashboard/:communityId"
+                  element={
+                    <ProtectedRoute>
+                      <CommunityDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Global toast notifications */}
+                {/* Admin routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <RoleGuard requiredRole="admin">
+                        <AdminDashboard />
+                      </RoleGuard>
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
               <Toaster />
-            </Router>
-          </NotificationProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+            </div>
+          </Router>
+        </NotificationProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

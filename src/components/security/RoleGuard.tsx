@@ -34,7 +34,7 @@ const RoleGuard = ({
       }
 
       try {
-        // Use the has_role function instead of direct query
+        // Check if user has the required role using the has_role function
         if (requiredRole) {
           const { data, error } = await supabase.rpc('has_role', {
             _user_id: member.id,
@@ -45,7 +45,7 @@ const RoleGuard = ({
             console.error('Error checking role:', error);
             setHasAccess(false);
           } else {
-            setHasAccess(data || false);
+            setHasAccess(Boolean(data));
           }
         } else if (requiredRoles) {
           // Check if user has any of the required roles

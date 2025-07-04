@@ -7,13 +7,10 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, UserX, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AppRole } from '@/types/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireApproval?: boolean;
-  requiredRole?: AppRole;
-  requiredRoles?: AppRole[];
   requiredPermission?: string;
   redirectTo?: string;
 }
@@ -21,8 +18,6 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ 
   children, 
   requireApproval = true, 
-  requiredRole,
-  requiredRoles,
   requiredPermission,
   redirectTo = '/login'
 }: ProtectedRouteProps) => {
@@ -49,30 +44,32 @@ const ProtectedRoute = ({
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  // Check if user has required role (for admin-only routes)
-  if (requiredRole) {
-    // For now, we'll use a simple admin check
-    // This can be expanded with more sophisticated role checking
-    if (requiredRole === 'super_admin' && !isAdmin) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
-          <Alert variant="destructive" className="max-w-md">
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              You need administrator privileges to access this page.
-            </AlertDescription>
-          </Alert>
-        </div>
-      );
-    }
+  // Check required permission if specified
+  if (requiredPermission && !hasRolePermission(requiredPermission)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
+        <Alert variant="destructive" className="max-w-md">
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            You don't have the required permissions to access this page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   // For routes that require approval, check member status
-  // Note: The actual approval check would need to be implemented
-  // based on your member status logic
-  if (requireApproval) {
-    // This is a placeholder - you'd implement actual approval checking here
-    // For now, we'll allow access for authenticated users
+  if (requireApproval && !isApproved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-kic-lightGray p-6">
+        <Alert className="max-w-md">
+          <UserX className="h-4 w-4" />
+          <AlertDescription>
+            Your account is pending approval. Please wait for administrator approval.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   return <>{children}</>;

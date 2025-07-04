@@ -2916,6 +2916,57 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_website_visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          visit_count: number | null
+          visit_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number | null
+          visit_date?: string
+        }
+        Relationships: []
+      }
       weekly_meetings: {
         Row: {
           created_at: string
@@ -3285,6 +3336,10 @@ export type Database = {
       }
       has_permission: {
         Args: { _user_id: string; _permission_key: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: { _user_id: string; _role: string }
         Returns: boolean
       }
       increment_payment_reminder: {
