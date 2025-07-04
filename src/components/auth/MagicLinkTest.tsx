@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,14 +42,14 @@ const MagicLinkTest = () => {
         
         // Create basic profile if user exists and has an id
         // Note: For magic links, the user might not be immediately available
-        if (data && data.user && data.user.id) {
-          const userId = data.user.id;
+        const user = data?.user;
+        if (user && user.id) {
           try {
             const { error: profileError } = await supabase
               .from('profiles')
               .upsert([
                 {
-                  user_id: userId,
+                  user_id: user.id,
                   email: email.toLowerCase().trim()
                 }
               ], { 
@@ -61,7 +62,7 @@ const MagicLinkTest = () => {
                 .from('user_roles')
                 .upsert([
                   {
-                    user_id: userId,
+                    user_id: user.id,
                     role: 'member' as const
                   }
                 ], { 
