@@ -96,3 +96,12 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #047857;
 }
+@keyframes particle {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+}
+.animate-particle {
+  animation: particle linear infinite;
+}

@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, MapPin, Users, Clock } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Event {
   id: string;
@@ -71,98 +71,167 @@ const Events = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-kic-lightGray py-12">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-blue-50 py-12">
         <div className="container mx-auto px-6">
-          <div className="text-center">Loading events...</div>
+          <div className="text-center flex flex-col items-center justify-center h-64">
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
+            <p className="text-lg text-gray-600">Loading upcoming events...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-kic-lightGray py-12">
-      <div className="container mx-auto px-6">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold text-kic-gray mb-8 text-center">
-            Upcoming Events
-          </h1>
-          
-          <p className="text-lg text-gray-600 text-center mb-12 max-w-3xl mx-auto">
-            Join us for exciting events, workshops, and networking opportunities that will 
-            enhance your skills and expand your network in the innovation community.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-amber-50 to-blue-50 py-12">
+      <div className="container mx-auto px-4 sm:px-6">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="text-center mb-12">
+            <motion.h1 
+              className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-amber-500 mb-4"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              Upcoming Events
+            </motion.h1>
+            
+            <motion.p 
+              className="text-lg text-gray-600 max-w-3xl mx-auto"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Join us for exciting events, workshops, and networking opportunities that will 
+              enhance your skills and expand your network in the innovation community.
+            </motion.p>
+          </div>
 
-          {events.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Upcoming Events</h3>
-                <p className="text-gray-600">
-                  Check back soon for exciting events and workshops!
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <Card key={event.id} className="hover:shadow-lg transition-shadow">
-                  {event.image_url && (
-                    <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-                      <img 
-                        src={event.image_url} 
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-xl">{event.title}</CardTitle>
-                      {event.price && event.price > 0 && (
-                        <Badge variant="secondary">KSH {event.price}</Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-gray-600">{event.description}</p>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(event.date)}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
-                        <span>{event.location}</span>
-                      </div>
-                      
-                      {event.max_attendees && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Users className="w-4 h-4" />
-                          <span>Max {event.max_attendees} participants</span>
-                        </div>
-                      )}
+          {/* Floating decorative elements */}
+          <div className="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+            <motion.div
+              className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.1, 0.15, 0.1],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-amber-200/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.05, 0.1, 0.05],
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2
+              }}
+            />
+          </div>
 
-                      {event.price && event.price > 0 && (
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          <span>Fee: KSH {event.price}</span>
-                        </div>
-                      )}
+          <AnimatePresence>
+            {events.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Card className="max-w-md mx-auto bg-white/80 backdrop-blur-sm border border-emerald-200/50">
+                  <CardContent className="text-center py-12">
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-8 h-8 text-emerald-600" />
                     </div>
-
-                    <div className="pt-4">
-                      <Button className="w-full">
-                        {event.price && event.price > 0 ? 'Register Now' : 'Learn More'}
-                      </Button>
-                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Upcoming Events</h3>
+                    <p className="text-gray-600">
+                      Check back soon for exciting events and workshops!
+                    </p>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          )}
-        </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, staggerChildren: 0.1 }}
+              >
+                {events.map((event) => (
+                  <motion.div
+                    key={event.id}
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card className="hover:shadow-xl transition-all duration-300 border border-emerald-200/50 bg-white/80 backdrop-blur-sm overflow-hidden group">
+                      {event.image_url && (
+                        <div className="aspect-video w-full overflow-hidden relative">
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                      )}
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-xl text-emerald-800">{event.title}</CardTitle>
+                          {event.price && event.price > 0 && (
+                            <Badge variant="secondary" className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+                              KSH {event.price}
+                            </Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-gray-600">{event.description}</p>
+                        
+                        <div className="space-y-3 text-sm">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Calendar className="w-4 h-4 text-emerald-600" />
+                            <span>{formatDate(event.date)}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <MapPin className="w-4 h-4 text-emerald-600" />
+                            <span>{event.location}</span>
+                          </div>
+                          
+                          {event.max_attendees && (
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Users className="w-4 h-4 text-emerald-600" />
+                              <span>Max {event.max_attendees} participants</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-4">
+                          <Button 
+                            className="w-full bg-gradient-to-r from-emerald-600 to-amber-500 hover:from-emerald-700 hover:to-amber-600 text-white shadow-md transition-all duration-300 hover:shadow-lg"
+                          >
+                            {event.price && event.price > 0 ? 'Register Now' : 'Learn More'}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,0 +1,209 @@
+
+#mvcwid{
+	background-color:transparent;
+	width:100%;
+	padding:10px;
+}
+#mvccount{
+	padding:10px;
+}
+#mvccount img{
+	margin-right:5px;
+}
+#mvctable{
+	padding:10px;
+}
+#mvctable table tr td{
+	width:100%;
+}
+#mvcip{
+	padding:10px;
+	border-top:1px dashed #bcbcb0; 
+}
+#mvcserver{
+	padding:10px;
+	border-top:1px dashed #bcbcb0;
+}
+#mvccredit{
+	padding:10px;
+	border-top:1px dashed #bcbcb0;
+}
+
+
+
+
+/*ADMIN STYLING*/
+.wpsvc_plugins_text .form-table {
+	clear: none;
+}
+.wpsvc_plugins_text .form-table td {
+	vertical-align: top;
+	padding: 16px 20px 5px;
+	line-height: 10px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+}
+.wpsvc_plugins_text .form-table th {
+	width: 200px;
+	padding: 10px 0 12px 9px;
+}
+.wpsvc_plugins_text .form-table input.tog, .wpsvc_plugins_text .form-table input[type=radio] {
+    margin-top: 0px;
+    margin-right: 4px;
+    float: none;
+}
+.wpsvc_right_sidebar {
+	width: 42%;
+	float: right;
+}
+.wpsvc_left_sidebar {
+	width: 55%;
+	margin-left: 10px;
+}
+.wpsvc_plugins_text {
+	margin-bottom: 0px;
+}
+.wpsvc_plugins_text p {
+	padding: 5px 10px 10px 10px;
+	width: 90%;
+}
+.wpsvc_plugins_text h2 {
+	font-size: 14px;
+	padding: 0px;
+	font-weight: bold;
+	line-height: 29px;
+}
+.wpsvc_plugins_wrap .hndle {
+	font-size: 15px;
+	font-weight: 600;
+	padding: 7px 10px;
+	margin: 0;
+	line-height: 1;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-color: rgb(223, 223, 223);
+    text-shadow: 0px 1px 0px rgb(255, 255, 255);
+    box-shadow: 0px 1px 0px rgb(255, 255, 255);
+	background: linear-gradient(to top, rgb(236, 236, 236), rgb(249, 249, 249)) repeat scroll 0% 0% rgb(241, 241, 241);
+	margin-top: 1px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	-moz-user-select: none;
+}
+.wpsvc_option_wrap {
+	border:1px solid rgb(223, 223, 223);
+	width:100%;
+	margin-bottom:30px;
+	height:auto;
+}
+.wpsvc_plugins_text img{
+	max-width: 100%;
+}
+.wps_plugin_main_form{
+	padding: 7px 10px;
+}
+.wps_follow_button a {
+    display: inline-block;
+    padding: 10px 0;
+    padding-left: 10px;
+}
+
+
+
+
+.wps_text_glowing{
+	display: inline-block;
+}
+.wps_text_glowing span{
+	color: #fff;
+	font-family: verdana;
+	font-size: 10px;
+	display: inline-block;
+	-webkit-animation: animate_black 2s linear infinite;
+	-o-animation: animate_black 2s linear infinite;
+	animation: animate_black 2s linear infinite;
+	width: 24px;
+	height: 24px;
+	text-align: center;
+	line-height: 24px;
+	border: 1px solid rgba(255,255,255,.4);
+	margin: 0 -2.5px;
+}
+.wps_text_glowing.effect-white span{
+	-webkit-animation-name: animate_white;
+	-o-animation-name: animate_white;
+	animation-name: animate_white;
+}
+
+@keyframes animate_black
+{
+	0%{
+		color: #f00;
+		box-shadow: 0 2px 10px rgba(255,0,0,1);
+		border: 1px solid rgba(255,0,0,1);
+	}
+	33.33%{
+		color: #ff0;
+		box-shadow: 0 2px 10px rgba(255,255,0,1);
+		border: 1px solid rgba(255,255,0,1);
+	}
+	66.66%{
+		color: #0f0;
+		box-shadow: 0 2px 10px rgba(0,255,0,1);
+		border: 1px solid rgba(0,255,0,1);
+	}
+	100%{
+		color: #f00;
+		box-shadow: 0 2px 10px rgba(255,0,0,1);
+		border: 1px solid rgba(255,0,0,1);
+	}
+}
+
+@keyframes animate_white
+{
+	0%{
+		color: #f00;
+		box-shadow: 0 2px 10px rgba(255,0,0,1);
+		border: 1px solid rgba(255,0,0,1);
+	}
+	33.33%{
+		color: #000;
+		box-shadow: 0 2px 10px rgba(0,0,255,1);
+		border: 1px solid rgba(0,0,255,1);
+	}
+	66.66%{
+		color: #130e0e;
+		box-shadow: 0 2px 10px rgba(0,255,0,1);
+		border: 1px solid rgba(0,255,0,1);
+	}
+	100%{
+		color: #f00;
+		box-shadow: 0 2px 10px rgba(255,0,0,1);
+		border: 1px solid rgba(255,0,0,1);
+	}
+}
+
+
+
+.wps_text_glowing span:nth-child(1){
+	animation-delay: 0s;
+}
+.wps_text_glowing span:nth-child(2){
+	animation-delay: 0.1s;
+}
+.wps_text_glowing span:nth-child(3){
+	animation-delay: 0.2s;
+}
+.wps_text_glowing span:nth-child(4){
+	animation-delay: 0.3s;
+}
+.wps_text_glowing span:nth-child(5){
+	animation-delay: 0.4s;
+}
+.wps_text_glowing span:nth-child(6){
+	animation-delay: 0.5s;
+}
+.wps_text_glowing span:nth-child(7){
+	animation-delay: 0.6s;
+}

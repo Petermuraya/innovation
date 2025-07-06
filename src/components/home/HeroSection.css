@@ -1,0 +1,71 @@
+/* Floating animation for hero icons and cards */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Hero radial gradient background (adjusted to your palette and reference image) */
+.custom-hero-gradient {
+  background: radial-gradient(
+    circle at 0% 0%,
+    #1a1a1a 0%,
+    #007F3F 35%,
+    #FFCC00 70%,
+    #FF7F00 100%
+  );
+  opacity: 0.95;
+}
+
+/* Smooth fade-in/out for hero image */
+.hero-image {
+  transition: opacity 1s ease-in-out;
+}
+
+/* Disable floating icons/cards on very small screens */
+@media (max-width: 640px) {
+  .animate-float {
+    display: none;
+  }
+}
+
+/* Hero card hover scale effect */
+.hero-card-hover {
+  transition: all 0.4s ease;
+}
+
+.hero-card-hover:hover {
+  transform: scale(1.05);
+}
+
+/* Hero card drop shadow effect */
+.hero-card-shadow {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Optional dark overlay blur for hero images or backgrounds */
+.hero-overlay {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Button pulse glow animation for CTA button */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px rgba(255, 255, 255, 0.4);
+  }
+}
+
+.button-glow {
+  animation: pulseGlow 2.5s infinite;
+}

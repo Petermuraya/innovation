@@ -53,8 +53,8 @@ function App() {
                 <Route path="/events" element={<Events />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/elections" element={<Elections />} />
-                <Route path="/constitution" element={<Constitution />} />
+
+                
                 <Route path="/payments" element={<Payments />} />
 
                 {/* Protected routes */}

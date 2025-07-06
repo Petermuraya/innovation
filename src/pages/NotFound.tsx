@@ -35,9 +35,9 @@ const NotFound = () => {
   }, [cursorX, cursorY]);
 
   const floatingElements = [
-    { icon: Rocket, delay: 0, size: 40, x: 15, y: 20, duration: 25 },
-    { icon: Satellite, delay: 2000, size: 32, x: 80, y: 40, duration: 30 },
-    { icon: Orbit, delay: 4000, size: 28, x: 70, y: 70, duration: 40 },
+    { icon: Rocket, delay: 0, size: 40, x: 15, y: 20, duration: 25, color: "from-emerald-400 to-amber-400" },
+    { icon: Satellite, delay: 2000, size: 32, x: 80, y: 40, duration: 30, color: "from-amber-400 to-blue-400" },
+    { icon: Orbit, delay: 4000, size: 28, x: 70, y: 70, duration: 40, color: "from-blue-400 to-purple-400" },
   ];
 
   const gridPattern = {
@@ -52,7 +52,7 @@ const NotFound = () => {
     >
       {/* Custom cursor effect */}
       <motion.div
-        className="fixed w-6 h-6 rounded-full bg-emerald-400/30 pointer-events-none z-50 mix-blend-exclusion"
+        className="fixed w-6 h-6 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400 pointer-events-none z-50 mix-blend-exclusion"
         style={{
           x: springX,
           y: springY,
@@ -79,7 +79,7 @@ const NotFound = () => {
         
         {/* Floating geometric shapes with subtle animation */}
         <motion.div 
-          className="absolute top-1/4 left-1/4 w-40 h-40 bg-emerald-400/10 rounded-full blur-xl"
+          className="absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-r from-emerald-400/20 to-amber-400/20 rounded-full blur-xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.1, 0.15, 0.1],
@@ -92,7 +92,7 @@ const NotFound = () => {
         />
         
         <motion.div 
-          className="absolute bottom-1/3 right-1/3 w-32 h-32 bg-white/5 rounded-full blur-xl"
+          className="absolute bottom-1/3 right-1/3 w-32 h-32 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.05, 0.1, 0.05],
@@ -111,7 +111,7 @@ const NotFound = () => {
         {floatingElements.map((element, index) => (
           <motion.div
             key={index}
-            className="absolute text-emerald-400/40"
+            className="absolute"
             initial={{ opacity: 0 }}
             animate={{ 
               opacity: [0, 0.6, 0],
@@ -126,7 +126,9 @@ const NotFound = () => {
               ease: "linear"
             }}
           >
-            <element.icon size={element.size} />
+            <div className={`bg-gradient-to-r ${element.color} bg-clip-text text-transparent`}>
+              <element.icon size={element.size} />
+            </div>
           </motion.div>
         ))}
       </AnimatePresence>
@@ -142,7 +144,7 @@ const NotFound = () => {
             >
               {/* Glowing 404 text */}
               <div className="relative">
-                <h1 className="text-8xl md:text-[10rem] font-black text-transparent bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-500 bg-clip-text mb-6 leading-none tracking-tighter">
+                <h1 className="text-8xl md:text-[10rem] font-black text-transparent bg-gradient-to-r from-emerald-400 via-amber-400 to-purple-400 bg-clip-text mb-6 leading-none tracking-tighter">
                   404
                 </h1>
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-8xl md:text-[10rem] font-black text-emerald-400/10 blur-xl -z-10">
@@ -156,11 +158,11 @@ const NotFound = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
               >
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
+                <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-gradient-to-r from-emerald-300 to-amber-300 bg-clip-text mb-4 tracking-tight">
                   Lost in Digital Space
                 </h2>
                 <p className="text-lg md:text-xl text-gray-300/80 mb-8 max-w-2xl mx-auto leading-relaxed">
-                  The page at <span className="text-emerald-300 font-mono">{location.pathname}</span> doesn't exist. 
+                  The page at <span className="text-amber-300 font-mono">{location.pathname}</span> doesn't exist. 
                   Maybe it's exploring new frontiers or got caught in a black hole.
                 </p>
               </motion.div>
@@ -175,14 +177,14 @@ const NotFound = () => {
                 <Button 
                   size="lg" 
                   asChild
-                  className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+                  className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
                 >
                   <Link to="/">
                     <span className="relative z-10 flex items-center">
                       <Home className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
                       Return Home
                     </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   </Link>
                 </Button>
                 
@@ -190,7 +192,7 @@ const NotFound = () => {
                   size="lg" 
                   variant="outline" 
                   asChild
-                  className="group relative overflow-hidden border-2 border-emerald-400/30 hover:border-emerald-300 text-emerald-300 hover:text-white px-8 py-6 text-lg font-semibold rounded-xl backdrop-blur-sm transition-all duration-300"
+                  className="group relative overflow-hidden border-2 border-amber-400/30 hover:border-amber-300 text-amber-300 hover:text-white px-8 py-6 text-lg font-semibold rounded-xl backdrop-blur-sm transition-all duration-300"
                   onClick={() => window.history.back()}
                 >
                   <span>
@@ -198,7 +200,7 @@ const NotFound = () => {
                       <ArrowLeft className="mr-2 w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                       Previous Page
                     </span>
-                    <span className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   </span>
                 </Button>
               </motion.div>
@@ -210,16 +212,16 @@ const NotFound = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
               >
-                <div className="bg-white/5 backdrop-blur-md border border-emerald-400/20 rounded-2xl p-6 max-w-md mx-auto transform transition-all hover:scale-[1.02] hover:border-emerald-400/40 duration-300">
+                <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-md border border-amber-400/20 rounded-2xl p-6 max-w-md mx-auto transform transition-all hover:scale-[1.02] hover:border-amber-400/40 duration-300">
                   <div className="flex items-start">
-                    <div className="bg-emerald-400/10 p-3 rounded-lg mr-4">
-                      <Lightbulb className="w-6 h-6 text-emerald-400" />
+                    <div className="bg-gradient-to-r from-amber-400/10 to-emerald-400/10 p-3 rounded-lg mr-4">
+                      <Lightbulb className="w-6 h-6 text-amber-400" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-2">While you're here...</h3>
                       <p className="text-gray-300/80 text-sm">
-                        Explore our <Link to="/projects" className="text-emerald-300 hover:text-emerald-200 underline">innovation projects</Link> or 
-                        join the <Link to="/community" className="text-emerald-300 hover:text-emerald-200 underline">tech community</Link> at Karatina University.
+                        Explore our <Link to="/projects" className="text-amber-300 hover:text-amber-200 underline">innovation projects</Link> or 
+                        join the <Link to="/community" className="text-amber-300 hover:text-amber-200 underline">tech community</Link> at Karatina University.
                       </p>
                     </div>
                   </div>
@@ -233,8 +235,8 @@ const NotFound = () => {
                 animate={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
               >
-                <div className="bg-black/20 backdrop-blur-sm border border-emerald-400/20 rounded-lg px-4 py-2 inline-block">
-                  <code className="text-emerald-300 text-xs font-mono">
+                <div className="bg-gradient-to-r from-black/20 to-black/30 backdrop-blur-sm border border-amber-400/20 rounded-lg px-4 py-2 inline-block">
+                  <code className="text-amber-300 text-xs font-mono">
                     Route not found: {location.pathname}
                   </code>
                 </div>
@@ -246,7 +248,7 @@ const NotFound = () => {
 
       {/* Subtle footer */}
       <motion.div 
-        className="absolute bottom-6 left-0 right-0 text-center text-gray-500 text-sm"
+        className="absolute bottom-6 left-0 right-0 text-center text-transparent bg-gradient-to-r from-emerald-400 to-amber-400 bg-clip-text text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.6 }}
         transition={{ delay: 1.5 }}

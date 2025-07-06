@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,7 +124,7 @@ const Footer = () => {
     >
       <h4 className="text-lg font-semibold text-white relative pb-3 inline-block">
         {title}
-        <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
+        <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-amber-400 to-emerald-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
       </h4>
       <ul className="space-y-3">
         {links.map((link, index) => (
@@ -140,14 +139,16 @@ const Footer = () => {
             <Link
               to={link.path}
               onClick={() => handleLinkClick(link.path)}
-              className="text-kic-green-100 hover:text-white transition-all duration-300 flex items-center gap-3 group py-1"
+              className="text-gray-300 hover:text-white transition-all duration-300 flex items-center gap-3 group py-1"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 whileHover={{ opacity: 1, scale: 1 }}
-                className="w-1.5 h-1.5 bg-kic-green-400 rounded-full"
+                className="w-1.5 h-1.5 bg-gradient-to-r from-amber-400 to-emerald-500 rounded-full"
               />
-              <span className="group-hover:text-kic-green-200">{link.label}</span>
+              <span className="group-hover:bg-gradient-to-r group-hover:from-amber-300 group-hover:to-emerald-400 group-hover:bg-clip-text group-hover:text-transparent">
+                {link.label}
+              </span>
             </Link>
           </motion.li>
         ))}
@@ -156,14 +157,12 @@ const Footer = () => {
   );
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-kic-amber-900 via-kic-amber-800 to-kic-amber-900">
-      {/* Background Elements */}
+    <footer className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Golden Glow Elements */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-kic-green-900/95 via-kic-green-800/90 to-kic-green-900/95" />
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.3%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse" />
-        </div>
-
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-amber-900/20 to-emerald-900/30" />
+        
+        {/* Animated floating elements */}
         <motion.div
           animate={{
             x: [0, 100, 0],
@@ -174,7 +173,7 @@ const Footer = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-kic-green-400/20 to-kic-green-600/10 rounded-full blur-xl"
+          className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-amber-400/10 to-emerald-500/10 rounded-full blur-xl"
         />
         <motion.div
           animate={{
@@ -186,7 +185,7 @@ const Footer = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-kic-green-300/15 to-kic-green-500/10 rounded-full blur-xl"
+          className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-emerald-500/15 to-amber-400/10 rounded-full blur-xl"
         />
       </div>
       
@@ -217,7 +216,7 @@ const Footer = () => {
               </motion.div>
             </Link>
 
-            <p className="text-kic-green-100 leading-relaxed text-base max-w-md mx-auto md:mx-0">
+            <p className="text-gray-300 leading-relaxed text-base max-w-md mx-auto md:mx-0">
               Empowering the next generation of innovators through cutting-edge technology, 
               collaborative learning, and transformative projects that shape the future.
             </p>
@@ -232,9 +231,9 @@ const Footer = () => {
                   <motion.div
                     key={index}
                     whileHover={{ x: 5 }}
-                    className="flex items-center gap-3 text-sm text-kic-green-100 hover:text-white transition-all duration-300 cursor-pointer justify-center md:justify-start"
+                    className="flex items-center gap-3 text-sm text-gray-300 hover:text-white transition-all duration-300 cursor-pointer justify-center md:justify-start"
                   >
-                    <span className="text-kic-green-400 group-hover:text-kic-green-300 transition-colors duration-300 p-2 bg-kic-green-800/50 rounded-lg group-hover:bg-kic-green-700/50">
+                    <span className="bg-gradient-to-r from-amber-500/20 to-emerald-500/20 p-2 rounded-lg group-hover:from-amber-400/30 group-hover:to-emerald-400/30 transition-all duration-300">
                       {contact.icon}
                     </span>
                     <span>{contact.text}</span>
@@ -255,13 +254,13 @@ const Footer = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative p-3 rounded-xl bg-kic-green-800/50 hover:bg-kic-green-700/70 text-kic-green-200 hover:text-white transition-all duration-300 border border-kic-green-700/50 hover:border-kic-green-500/50"
+                    className="group relative p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-all duration-300 border border-gray-700/50 hover:border-amber-400/50"
                     whileHover="hover"
                     whileTap="tap"
                     variants={socialHoverVariants}
                     aria-label={social.label}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-kic-green-400/10 to-kic-green-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-400/10 to-emerald-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
                     <span className="relative z-10">{social.icon}</span>
                   </motion.a>
                 ))}
@@ -282,27 +281,29 @@ const Footer = () => {
           >
             <h4 className="text-lg font-semibold text-white relative pb-3 inline-block">
               Stay Updated
-              <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-kic-green-400 to-kic-green-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
+              <div className="absolute bottom-0 left-1/2 md:left-0 w-12 h-1 bg-gradient-to-r from-amber-400 to-emerald-500 rounded-full transform -translate-x-1/2 md:translate-x-0" />
             </h4>
-            <p className="text-kic-green-100 text-sm leading-relaxed max-w-md mx-auto md:mx-0">
+            <p className="text-gray-300 text-sm leading-relaxed max-w-md mx-auto md:mx-0">
               Get the latest updates on events, projects, and opportunities delivered to your inbox.
             </p>
             <form className="space-y-4 max-w-md mx-auto md:mx-0">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-kic-green-800/50 border-kic-green-600/50 text-white placeholder:text-kic-green-300 focus:border-kic-green-400 focus:ring-2 focus:ring-kic-green-400/30 transition-all duration-300 w-full"
+                className="bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 transition-all duration-300 w-full"
                 required
               />
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-kic-green-500 to-kic-green-600 hover:from-kic-green-400 hover:to-kic-green-500 text-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 border border-kic-green-400/30 hover:border-kic-green-300/50"
+                className="w-full bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-amber-400/30 hover:border-amber-300/50 group"
               >
-                Subscribe Now
-                <FaArrowRight className="ml-2 h-3 w-3" />
+                <span className="group-hover:bg-gradient-to-r group-hover:from-amber-200 group-hover:to-white group-hover:bg-clip-text group-hover:text-transparent">
+                  Subscribe Now
+                </span>
+                <FaArrowRight className="ml-2 h-3 w-3 group-hover:translate-x-1 transition-transform" />
               </Button>
             </form>
-            <p className="text-xs text-kic-green-200 max-w-md mx-auto md:mx-0">
+            <p className="text-xs text-gray-400 max-w-md mx-auto md:mx-0">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </motion.div>
@@ -310,11 +311,11 @@ const Footer = () => {
 
         {/* Divider */}
         <motion.div variants={itemVariants} className="mt-16 pt-8">
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-kic-green-400/50 to-transparent mb-8" />
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent mb-8" />
           
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-sm text-kic-green-200 text-center md:text-left">
-              © {currentYear} Karatina Innovation Club. Crafted by peter muraya.
+            <p className="text-sm text-gray-400 text-center md:text-left">
+              © {currentYear} Karatina Innovation Club. Crafted with ♡ by peter muraya.
             </p>
 
             <div className="flex flex-wrap gap-6 justify-center">
@@ -323,7 +324,7 @@ const Footer = () => {
                   key={index}
                   to={link.path}
                   onClick={() => handleLinkClick(link.path)}
-                  className="text-xs text-kic-green-200 hover:text-white transition-colors duration-300 hover:underline underline-offset-4"
+                  className="text-xs text-gray-400 hover:text-white transition-colors duration-300 hover:underline underline-offset-4"
                 >
                   {link.label}
                 </Link>
@@ -333,8 +334,8 @@ const Footer = () => {
         </motion.div>
       </motion.div>
 
-      {/* Bottom Glow */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-kic-green-500 via-kic-green-400 to-kic-green-500" />
+      {/* Bottom Accent */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-emerald-500 to-amber-500" />
     </footer>
   );
 };

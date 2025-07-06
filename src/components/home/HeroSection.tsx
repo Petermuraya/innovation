@@ -1,131 +1,111 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight, Zap, Rocket, Code2, Brain } from "lucide-react";
+import { Sparkles, Rocket, Plane, Lightbulb, Globe, Leaf, Palette, Calendar, MapPin, ArrowRight } from "lucide-react";
 import Image1 from "@/assets/hero-2.png";
 import Image2 from "@/assets/hero-3.png";
 import Image3 from "@/assets/image1.jpg";
+import "./HeroSection.css";
 
 const heroImages = [
   {
     src: Image1,
     alt: "Innovation and technology",
-    title: "Cutting-Edge Technology",
-    description: "Explore the latest technological advancements",
-    theme: "emerald"
+    title: "Dream Big",
+    description: "Imagine the possibilities of a sustainable future",
+    gradient: "from-emerald-500 to-amber-400"
   },
   {
     src: Image2,
     alt: "Team collaboration",
-    title: "Collaborative Innovation",
-    description: "Join forces with like-minded innovators",
-    theme: "cyan"
+    title: "Create Together",
+    description: "Collaborative solutions for global challenges",
+    gradient: "from-amber-500 to-emerald-400"
   },
   {
     src: Image3,
-    alt: "Creative workspace",
-    title: "Creative Excellence",
-    description: "Foster innovation in inspiring environments",
-    theme: "purple"
+    alt: "Creative Workspace",
+    title: "Inspire Change",
+    description: "Spark ideas that transform communities",
+    gradient: "from-purple-500 to-teal-400"
   },
   {
     src: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80",
     alt: "Coding and development",
-    title: "Code The Future",
-    description: "Develop solutions that shape tomorrow",
-    theme: "orange"
-  }
+    title: "Build Tomorrow",
+    description: "Innovative technologies for a circular economy",
+    gradient: "from-blue-500 to-cyan-400"
+  },
 ];
 
 const floatingElements = [
-  { icon: Code2, delay: 0, position: "top-20 left-[10%]" },
-  { icon: Brain, delay: 1000, position: "top-32 right-[15%]" },
-  { icon: Rocket, delay: 2000, position: "bottom-40 left-[20%]" },
-  { icon: Zap, delay: 1500, position: "bottom-32 right-[10%]" },
+  { icon: Lightbulb, delay: 0, position: "top-20 left-[10%]", text: "Dream", color: "text-amber-300" },
+  { icon: Palette, delay: 1500, position: "top-32 right-[12%]", text: "Create", color: "text-emerald-300" },
+  { icon: Globe, delay: 3000, position: "bottom-36 left-[15%]", text: "Impact", color: "text-blue-300" },
+  { icon: Leaf, delay: 4500, position: "bottom-24 right-[18%]", text: "Sustain", color: "text-teal-300" },
 ];
 
 export default function HeroSection() {
-  const [isVisible, setIsVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
+  const [isAnimating, setIsAnimating] = useState(false);
+  const isMobile = windowWidth < 768;
+  const intervalRef = useRef<NodeJS.Timeout>();
 
-  const isMobile = windowWidth < 640;
-  const currentTheme = heroImages[currentIndex].theme;
-
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Auto-rotate images with smooth transitions
   useEffect(() => {
-    setIsVisible(true);
-  }, []);
+    const changeSlide = (direction: 'next' | 'prev' = 'next') => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentIndex(prev => 
+          direction === 'next' 
+            ? (prev + 1) % heroImages.length 
+            : (prev - 1 + heroImages.length) % heroImages.length
+        );
+        setTimeout(() => setIsAnimating(false), 500);
+      }, 500);
+    };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isHovered) {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-      }
-    }, isMobile ? 4000 : 5000);
-    return () => clearInterval(interval);
+    intervalRef.current = setInterval(() => {
+      if (!isHovered) changeSlide('next');
+    }, isMobile ? 6000 : 8000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [isMobile, isHovered]);
 
-  const getThemeColors = (theme: string) => {
-    const themes = {
-      emerald: {
-        primary: "from-emerald-400 to-emerald-500",
-        secondary: "from-emerald-500 to-emerald-600",
-        accent: "from-emerald-400/20 to-emerald-500/20",
-        glow: "shadow-emerald-500/40"
-      },
-      cyan: {
-        primary: "from-cyan-400 to-cyan-500",
-        secondary: "from-cyan-500 to-cyan-600",
-        accent: "from-cyan-400/20 to-cyan-500/20",
-        glow: "shadow-cyan-500/40"
-      },
-      purple: {
-        primary: "from-purple-400 to-purple-500",
-        secondary: "from-purple-500 to-purple-600",
-        accent: "from-purple-400/20 to-purple-500/20",
-        glow: "shadow-purple-500/40"
-      },
-      orange: {
-        primary: "from-orange-400 to-orange-500",
-        secondary: "from-orange-500 to-orange-600",
-        accent: "from-orange-400/20 to-orange-500/20",
-        glow: "shadow-orange-500/40"
-      }
-    };
-    return themes[theme as keyof typeof themes] || themes.emerald;
+  const handleImageClick = (index: number) => {
+    if (index === currentIndex || isAnimating) return;
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentIndex(index);
+      setTimeout(() => setIsAnimating(false), 500);
+    }, 500);
   };
 
-  const colors = getThemeColors(currentTheme);
-
   return (
-    <section className="relative w-full overflow-hidden">
-      {/* Futuristic Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(34,197,94,0.05)_50%,transparent_75%)]" />
-      </div>
-
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(rgba(34,197,94,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34,197,94,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-          animation: 'grid-move 20s linear infinite'
-        }} />
+    <section className="relative w-full overflow-hidden min-h-[90vh] flex items-center">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className={`absolute inset-0 bg-gradient-to-br ${heroImages[currentIndex].gradient} opacity-90 transition-all duration-1000 ease-in-out`} />
+        <img
+          src={heroImages[currentIndex].src}
+          alt={heroImages[currentIndex].alt}
+          className={`w-full h-full object-cover opacity-30 transition-all duration-1000 ease-in-out ${isAnimating ? 'scale-110 opacity-20' : 'scale-100 opacity-30'}`}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
       </div>
 
       {/* Floating Elements */}
@@ -134,192 +114,148 @@ export default function HeroSection() {
         return (
           <div
             key={index}
-            className={`absolute ${element.position} hidden lg:block animate-float`}
+            className={`absolute ${element.position} hidden lg:flex flex-col items-center animate-float`}
             style={{ animationDelay: `${element.delay}ms` }}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-kic-green-400/20 to-emerald-500/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-kic-green-300/30">
-              <Icon className="w-6 h-6 text-kic-green-400" />
+            <div className={`w-14 h-14 bg-white/5 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/20 shadow-lg hover:scale-110 transition-all duration-300 group`}>
+              <Icon className={`w-6 h-6 ${element.color} group-hover:scale-125 transition-transform`} />
             </div>
+            <span className="mt-2 text-xs font-semibold text-white/80 tracking-wider bg-black/20 px-2 py-1 rounded-full">
+              {element.text}
+            </span>
           </div>
         );
       })}
 
-      {/* Main Content */}
-      <div 
-        className="relative min-h-screen flex items-center justify-center transition-all duration-1000"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0">
-          <img 
-            src={heroImages[currentIndex].src}
-            alt={heroImages[currentIndex].alt}
-            className="w-full h-full object-cover transition-all duration-1000 opacity-30"
+      {/* Animated Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white/10 animate-particle"
+            style={{
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${10 + Math.random() * 20}s`
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-        </div>
+        ))}
+      </div>
 
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-6xl mx-auto">
-            
-            {/* Status Badge */}
-            <div className={`mb-8 transition-all duration-700 delay-100 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}>
-              <Badge className={`bg-gradient-to-r ${colors.primary} text-white border-0 px-6 py-2 text-sm font-semibold shadow-lg ${colors.glow} animate-pulse`}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Next-Gen Innovation Hub
+      {/* Hero Content */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+          {/* Text Content */}
+          <div className="lg:w-[55%] space-y-6 text-center lg:text-left">
+            <div className="inline-flex">
+              <Badge 
+                className="bg-gradient-to-r from-amber-400 via-amber-300 to-emerald-500 text-gray-900 border-0 px-5 py-2 text-sm font-medium shadow-lg shadow-amber-400/30 hover:shadow-emerald-500/40 transition-all duration-500 group"
+                variant="outline"
+              >
+                <Sparkles className="w-4 h-4 mr-2 animate-pulse group-hover:rotate-180 transition-transform" />
+                <span className="group-hover:scale-105 transition-transform">Dream • Create • Inspire</span>
               </Badge>
             </div>
 
-            {/* Main Heading */}
-            <h1 className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-8 transition-all duration-700 delay-200 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}>
-              <span className="block mb-2">
-                <span className="text-white">Shape</span>{' '}
-                <span className={`bg-gradient-to-r ${colors.primary} bg-clip-text text-transparent animate-pulse`}>
-                  Tomorrow
-                </span>
-              </span>
-              <span className="block text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-                Through{' '}
-                <span className={`bg-gradient-to-r ${colors.secondary} bg-clip-text text-transparent`}>
-                  Innovation
-                </span>
-              </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+              <span className="bg-gradient-to-r from-emerald-400 via-amber-400 to-yellow-300 bg-clip-text text-transparent">
+                Imagine
+              </span>{" "}
+              the Future,{" "}
+              <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text text-transparent">
+                Build
+              </span>{" "}
+              the Change
             </h1>
-            
-            {/* Subtitle */}
-            <p className={`text-xl sm:text-2xl md:text-3xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed transition-all duration-700 delay-300 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}>
-              Join Kenya's most dynamic{' '}
-              <span className="text-kic-green-400 font-semibold">tech community</span>{' '}
-              where brilliant minds collaborate to build the future.
+
+            <p className="text-lg sm:text-xl text-gray-200 leading-relaxed max-w-2xl">
+              Where visionary ideas meet actionable solutions. Join us at Karatina Innovation Hub to co-create a sustainable tomorrow through circular economy innovation.
             </p>
-            
-            {/* Feature Highlights */}
-            <div className={`flex flex-wrap justify-center gap-4 mb-12 transition-all duration-700 delay-400 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}>
-              {['AI & Machine Learning', 'Blockchain', 'IoT Innovation', 'Web3 Development'].map((tech, index) => (
-                <Badge key={index} variant="outline" className="bg-white/10 text-gray-300 border-gray-600 px-4 py-2 hover:bg-white/20 transition-colors">
-                  {tech}
-                </Badge>
-              ))}
-            </div>
-            
-            {/* CTA Buttons */}
-            <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center transition-all duration-700 delay-500 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}>
-              <Button 
-                size="lg"
-                asChild
-                className={`group relative bg-gradient-to-r ${colors.secondary} hover:${colors.primary} text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl font-bold rounded-2xl shadow-2xl ${colors.glow} transition-all duration-300 transform hover:scale-105 border-2 border-transparent hover:border-white/20 min-w-[200px]`}
-              >
-                <Link to="/register">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <Rocket className="mr-3 w-5 h-5 lg:w-6 lg:h-6 group-hover:rotate-12 transition-transform" />
-                  Join Revolution
-                  <ArrowRight className="ml-3 w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              
-              <Button 
-                size="lg"
-                variant="outline" 
-                asChild
-                className="group bg-transparent border-2 border-gray-400 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl font-bold rounded-2xl shadow-xl backdrop-blur-sm transition-all duration-300 min-w-[200px]"
-              >
-                <Link to="/about">
-                  <Brain className="mr-3 w-5 h-5 lg:w-6 lg:h-6 group-hover:animate-pulse" />
-                  Explore Vision
-                </Link>
-              </Button>
+
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4 text-white/80">
+              <div className="flex items-center bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+                <Calendar className="w-5 h-5 mr-2 text-amber-300" />
+                <span>15 – 17 September 2025</span>
+              </div>
+              <div className="flex items-center bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+                <MapPin className="w-5 h-5 mr-2 text-blue-300" />
+                <span>Karatina University</span>
+              </div>
             </div>
 
-            {/* Stats */}
-            <div className={`grid grid-cols-2 sm:grid-cols-4 gap-8 mt-16 transition-all duration-700 delay-600 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}>
-              {[
-                { number: "500+", label: "Innovators" },
-                { number: "50+", label: "Projects" },
-                { number: "15+", label: "Partners" },
-                { number: "30+", label: "Events" }
-              ].map((stat, index) => (
-                <div key={index} className="text-center group">
-                  <div className={`text-3xl lg:text-4xl font-black mb-2 bg-gradient-to-r ${colors.primary} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300`}>
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-400 font-medium">{stat.label}</div>
-                </div>
-              ))}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
+              <Link to="/register">
+                <Button 
+                  className="px-8 py-6 text-white font-semibold rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-gray-900 hover:from-emerald-600 hover:via-amber-600 hover:to-black shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-amber-500/40 transition-all duration-500 border-2 border-white/20 hover:border-white/30 group relative overflow-hidden"
+                  size="lg"
+                >
+                  <span className="absolute inset-0 bg-[length:200%_100%] bg-gradient-to-r from-emerald-500 via-amber-500 to-gray-900 group-hover:animate-wave transition-all duration-1000" />
+                  <span className="absolute left-0 top-0 w-full h-full bg-white opacity-0 group-active:opacity-20 group-active:animate-planeTakeoff transition-opacity" />
+                  <span className="relative z-10 flex items-center">
+                    <Rocket className="w-5 h-5 mr-2 group-hover:translate-x-1 group-active:translate-x-[200%] group-active:opacity-0 transition-all duration-700" />
+                    <span className="group-active:translate-x-4 transition-transform">Join the Movement</span>
+                  </span>
+                </Button>
+              </Link>
+              
+              <Link to="/projects">
+                <Button 
+                  variant="outline" 
+                  className="px-8 py-6 font-semibold rounded-full bg-white/10 text-white hover:bg-white/20 shadow-md hover:shadow-white/10 transition-all duration-300 border-2 border-white/20 hover:border-white/30 group"
+                  size="lg"
+                >
+                  <span className="flex items-center">
+                    Explore Innovations
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
-        </div>
 
-        {/* Navigation Arrows */}
-        {!isMobile && (
-          <>
-            <Button
-              variant="ghost"
-              size="lg"
-              className="absolute left-8 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-lg border border-white/20 text-white hover:bg-white/20 transition-all duration-200 shadow-lg group w-14 h-14 rounded-full"
-              onClick={() => setCurrentIndex(currentIndex === 0 ? heroImages.length - 1 : currentIndex - 1)}
-            >
-              <ChevronLeft className="w-7 h-7 group-hover:scale-110 transition-transform" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="lg"
-              className="absolute right-8 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-lg border border-white/20 text-white hover:bg-white/20 transition-all duration-200 shadow-lg group w-14 h-14 rounded-full"
-              onClick={() => setCurrentIndex((currentIndex + 1) % heroImages.length)}
-            >
-              <ChevronRight className="w-7 h-7 group-hover:scale-110 transition-transform" />
-            </Button>
-          </>
-        )}
-
-        {/* Indicators */}
-        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}>
-          {heroImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? `bg-gradient-to-br ${colors.primary} scale-125 shadow-lg ${colors.glow}`
-                  : "bg-white/30 hover:bg-white/50"
-              }`}
-            />
-          ))}
+          {/* Image Gallery */}
+          <div className="lg:w-[42%] grid grid-cols-2 gap-4">
+            {heroImages.map((img, index) => (
+              <div
+                key={index}
+                className={`bg-white/5 p-3 rounded-2xl shadow-xl flex flex-col items-center backdrop-blur-md border-2 transition-all duration-500 hover:scale-[1.03] cursor-pointer group overflow-hidden ${
+                  currentIndex === index 
+                    ? 'border-amber-400/70 shadow-amber-400/20' 
+                    : 'border-white/20 hover:border-white/30'
+                }`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onClick={() => handleImageClick(index)}
+              >
+                <div className="relative overflow-hidden rounded-lg w-full aspect-square mb-3">
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
+                      currentIndex === index ? 'opacity-100' : 'opacity-80'
+                    }`}
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition-opacity ${
+                    currentIndex === index ? 'opacity-80' : 'opacity-60'
+                  }`} />
+                </div>
+                <h3 className="text-md font-bold text-white text-center">{img.title}</h3>
+                <p className="text-xs text-white/70 text-center mt-1">{img.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Custom Animations */}
-      <style>
-        {`
-          @keyframes grid-move {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-          }
-          @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-          }
-          .animate-float {
-            animation: float 6s ease-in-out infinite;
-          }
-        `}
-      </style>
+      {/* Scrolling Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce-slow hidden sm:block">
+        <div className="w-8 h-12 border-2 border-white/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-gradient-to-b from-amber-400 to-emerald-400 rounded-full mt-2 animate-scroll-indicator" />
+        </div>
+      </div>
     </section>
   );
 }
