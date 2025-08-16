@@ -32,7 +32,7 @@ const DashboardTabsContent: React.FC<DashboardTabsContentProps> = ({
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <h3 className="text-lg font-semibold mb-4">Recent Notifications</h3>
-            <DashboardNotifications notifications={notifications.slice(0, 3)} />
+            <DashboardNotifications />
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Upcoming Events</h3>
@@ -65,7 +65,7 @@ const DashboardTabsContent: React.FC<DashboardTabsContentProps> = ({
       </TabsContent>
 
       <TabsContent value="notifications">
-        <DashboardNotifications notifications={notifications} />
+        <DashboardNotifications />
       </TabsContent>
     </>
   );
