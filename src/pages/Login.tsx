@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, memberRole, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -19,9 +20,31 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Function to get appropriate dashboard route based on role
+  const getDashboardRoute = () => {
+    if (isAdmin) {
+      // Admin users go to admin dashboard by default
+      if (memberRole === 'super_admin' || memberRole === 'chairman' || memberRole === 'vice_chairman') {
+        return '/dashboard/admin';
+      }
+      if (memberRole === 'community_admin') {
+        return '/dashboard/community';
+      }
+      return '/dashboard/admin';
+    }
+    // Regular members go to member dashboard
+    return '/dashboard';
+  };
+
   // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user && memberRole) {
+      navigate(getDashboardRoute(), { replace: true });
+    }
+  }, [loading, user, memberRole, isAdmin, navigate]);
+
   if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
+    return null; // Prevent flash while redirecting
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +60,8 @@ const Login = () => {
 
       if (error) {
         setError(error.message);
+      } else {
+        // Login successful - auth context will handle redirect via useEffect
       }
     } catch (err) {
       setError('An unexpected error occurred');
