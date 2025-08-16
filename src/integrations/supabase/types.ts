@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       ad_impressions: {
@@ -236,6 +241,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      blog_drafts: {
+        Row: {
+          content: string
+          created_at: string | null
+          excerpt: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_at: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       blog_likes: {
         Row: {
@@ -1020,6 +1073,9 @@ export type Database = {
           community_id: string
           id: string
           joined_at: string
+          membership_expires_at: string | null
+          membership_fee_paid: boolean | null
+          payment_date: string | null
           status: string | null
           user_id: string
         }
@@ -1027,6 +1083,9 @@ export type Database = {
           community_id: string
           id?: string
           joined_at?: string
+          membership_expires_at?: string | null
+          membership_fee_paid?: boolean | null
+          payment_date?: string | null
           status?: string | null
           user_id: string
         }
@@ -1034,6 +1093,9 @@ export type Database = {
           community_id?: string
           id?: string
           joined_at?: string
+          membership_expires_at?: string | null
+          membership_fee_paid?: boolean | null
+          payment_date?: string | null
           status?: string | null
           user_id?: string
         }
@@ -1841,6 +1903,42 @@ export type Database = {
           earned_at?: string
           id?: string
           points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      member_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          metadata: Json | null
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          metadata?: Json | null
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          metadata?: Json | null
+          title?: string
+          type?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3234,49 +3332,49 @@ export type Database = {
     }
     Functions: {
       approve_member: {
-        Args: { member_id: string; approver_id: string }
+        Args: { approver_id: string; member_id: string }
         Returns: undefined
       }
       award_activity_points: {
         Args: {
-          user_id_param: string
           activity_type_param: string
-          source_id_param?: string
           description_param?: string
+          source_id_param?: string
+          user_id_param: string
         }
         Returns: undefined
       }
       award_points: {
         Args: {
-          user_id_param: string
-          points_param: number
-          source_param: string
-          source_id_param?: string
           description_param?: string
+          points_param: number
+          source_id_param?: string
+          source_param: string
+          user_id_param: string
         }
         Returns: undefined
       }
       calculate_detailed_member_ranking: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
-          name: string
-          email: string
-          total_points: number
-          events_attended: number
-          badges_earned: number
-          projects_created: number
           avg_project_rating: number
+          badges_earned: number
+          email: string
+          events_attended: number
+          name: string
+          projects_created: number
           rank: number
+          total_points: number
+          user_id: string
         }[]
       }
       calculate_member_ranking: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
-          total_points: number
-          rank: number
           badges_count: number
+          rank: number
+          total_points: number
+          user_id: string
         }[]
       }
       calculate_membership_expiry: {
@@ -3294,56 +3392,56 @@ export type Database = {
       get_election_results: {
         Args: { election_id_param: string }
         Returns: {
-          position_type: Database["public"]["Enums"]["election_position"]
           candidate_id: string
           candidate_name: string
+          position_type: Database["public"]["Enums"]["election_position"]
           vote_count: number
         }[]
       }
       get_election_vote_counts: {
         Args: { election_id_param: string }
         Returns: {
-          position_type: Database["public"]["Enums"]["election_position"]
           candidate_id: string
           candidate_name: string
-          vote_count: number
+          position_type: Database["public"]["Enums"]["election_position"]
           total_position_votes: number
+          vote_count: number
         }[]
       }
       get_random_election_ads: {
         Args: { limit_count?: number }
         Returns: {
-          id: string
-          title: string
-          content: string
-          image_url: string
-          video_url: string
           candidate_name: string
-          position_type: Database["public"]["Enums"]["election_position"]
+          content: string
           election_title: string
+          id: string
+          image_url: string
+          position_type: Database["public"]["Enums"]["election_position"]
+          title: string
+          video_url: string
         }[]
       }
       handle_admin_request: {
         Args: {
-          request_id: string
           action: string
+          admin_type: string
+          community_id: string
+          request_id: string
           reviewer_id: string
           user_id: string
-          community_id: string
-          admin_type: string
         }
         Returns: undefined
       }
       has_permission: {
-        Args: { _user_id: string; _permission_key: string }
+        Args: { _permission_key: string; _user_id: string }
         Returns: boolean
       }
       has_role: {
-        Args: { _user_id: string; _role: string }
+        Args: { _role: string; _user_id: string }
         Returns: boolean
       }
       increment_payment_reminder: {
-        Args: { reminder_user_id: string; reminder_type_param: string }
+        Args: { reminder_type_param: string; reminder_user_id: string }
         Returns: undefined
       }
       is_admin_or_patron: {
@@ -3351,7 +3449,7 @@ export type Database = {
         Returns: boolean
       }
       is_community_admin: {
-        Args: { _user_id: string; _community_id: string }
+        Args: { _community_id: string; _user_id: string }
         Returns: boolean
       }
       is_patron: {
@@ -3359,18 +3457,18 @@ export type Database = {
         Returns: boolean
       }
       manage_featured_project: {
-        Args: { project_id: string; make_featured: boolean; admin_id: string }
+        Args: { admin_id: string; make_featured: boolean; project_id: string }
         Returns: undefined
       }
       mark_community_attendance: {
         Args: {
-          user_id_param: string
-          community_id_param: string
-          attendance_type_param: string
           activity_id_param?: string
+          attendance_type_param: string
+          community_id_param: string
           event_id_param?: string
-          workshop_id_param?: string
           marked_by_param?: string
+          user_id_param: string
+          workshop_id_param?: string
         }
         Returns: undefined
       }
@@ -3380,33 +3478,33 @@ export type Database = {
       }
       send_bulk_notification: {
         Args: {
-          p_title: string
           p_message: string
-          p_type?: string
-          p_priority?: string
-          p_target_type?: string
-          p_target_ids?: string[]
-          p_scheduled_for?: string
           p_metadata?: Json
+          p_priority?: string
+          p_scheduled_for?: string
+          p_target_ids?: string[]
+          p_target_type?: string
+          p_title: string
+          p_type?: string
         }
         Returns: string
       }
       track_ad_impression: {
         Args: {
           ad_id: string
-          user_id_param?: string
           ip_address_param?: unknown
-          user_agent_param?: string
           session_id_param?: string
+          user_agent_param?: string
+          user_id_param?: string
         }
         Returns: undefined
       }
       track_community_dashboard_visit: {
-        Args: { user_id_param: string; community_id_param: string }
+        Args: { community_id_param: string; user_id_param: string }
         Returns: boolean
       }
       track_community_visit: {
-        Args: { user_id_param: string; community_id_param: string }
+        Args: { community_id_param: string; user_id_param: string }
         Returns: boolean
       }
       track_website_visit: {
@@ -3455,21 +3553,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -3487,14 +3589,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -3510,14 +3614,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -3533,14 +3639,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -3548,14 +3656,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

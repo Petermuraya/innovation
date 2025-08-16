@@ -104,6 +104,12 @@ const DashboardSidebar = () => {
 
   const resourceItems: SidebarItem[] = [
     {
+      title: 'My Blogs',
+      icon: FileText,
+      href: '/dashboard/blogs',
+      description: 'Write and manage posts'
+    },
+    {
       title: 'Certificates',
       icon: Award,
       href: '/dashboard/certificates',
@@ -124,8 +130,14 @@ const DashboardSidebar = () => {
     {
       title: 'Payments',
       icon: CreditCard,
-      href: '/payments',
-      description: 'Membership fees'
+      href: '/dashboard/payments',
+      description: 'M-Pesa membership fees'
+    },
+    {
+      title: 'Voting',
+      icon: Shield,
+      href: '/elections',
+      description: 'Elections & voting'
     },
   ];
 

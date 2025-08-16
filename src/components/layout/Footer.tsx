@@ -70,7 +70,6 @@ const Footer = () => {
     { label: "Join Us", path: "/register" },
     { label: "Member Login", path: "/login" },
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Elections", path: "/elections" },
     { label: "Constitution", path: "/constitution" },
   ];
 
