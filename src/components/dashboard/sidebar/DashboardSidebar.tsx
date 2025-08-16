@@ -104,12 +104,6 @@ const DashboardSidebar = () => {
 
   const resourceItems: SidebarItem[] = [
     {
-      title: 'My Blogs',
-      icon: FileText,
-      href: '/dashboard/blogs',
-      description: 'Write and manage posts'
-    },
-    {
       title: 'Certificates',
       icon: Award,
       href: '/dashboard/certificates',

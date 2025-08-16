@@ -34,7 +34,10 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      setNotifications(data || []);
+      setNotifications((data || []).map(notification => ({
+        ...notification,
+        type: notification.type as 'info' | 'success' | 'warning' | 'error' | 'welcome'
+      })));
       setUnreadCount((data || []).filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);

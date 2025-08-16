@@ -51,7 +51,7 @@ export const useBlogDrafts = () => {
     }
   };
 
-  const createDraft = async (draftData: Partial<BlogDraft>) => {
+  const createDraft = async (draftData: { title: string; content: string; excerpt?: string; tags?: string[] }) => {
     if (!member) return null;
 
     try {
@@ -59,20 +59,28 @@ export const useBlogDrafts = () => {
         .from('blog_drafts')
         .insert({
           user_id: member.id,
-          ...draftData,
+          title: draftData.title,
+          content: draftData.content,
+          excerpt: draftData.excerpt,
+          tags: draftData.tags,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setDrafts(prev => [data, ...prev]);
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'submitted' | 'approved' | 'rejected'
+      };
+
+      setDrafts(prev => [typedData, ...prev]);
       toast({
         title: "Success",
         description: "Blog draft created successfully",
       });
 
-      return data;
+      return typedData;
     } catch (error) {
       console.error('Error creating blog draft:', error);
       toast({
@@ -84,7 +92,7 @@ export const useBlogDrafts = () => {
     }
   };
 
-  const updateDraft = async (id: string, updates: Partial<BlogDraft>) => {
+  const updateDraft = async (id: string, updates: { title?: string; content?: string; excerpt?: string; tags?: string[] }) => {
     try {
       const { data, error } = await supabase
         .from('blog_drafts')
@@ -98,8 +106,13 @@ export const useBlogDrafts = () => {
 
       if (error) throw error;
 
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'submitted' | 'approved' | 'rejected'
+      };
+
       setDrafts(prev => prev.map(draft => 
-        draft.id === id ? { ...draft, ...data } : draft
+        draft.id === id ? { ...draft, ...typedData } : draft
       ));
 
       toast({
@@ -107,7 +120,7 @@ export const useBlogDrafts = () => {
         description: "Blog draft updated successfully",
       });
 
-      return data;
+      return typedData;
     } catch (error) {
       console.error('Error updating blog draft:', error);
       toast({
@@ -134,8 +147,13 @@ export const useBlogDrafts = () => {
 
       if (error) throw error;
 
+      const typedData = {
+        ...data,
+        status: data.status as 'draft' | 'submitted' | 'approved' | 'rejected'
+      };
+
       setDrafts(prev => prev.map(draft => 
-        draft.id === id ? { ...draft, ...data } : draft
+        draft.id === id ? { ...draft, ...typedData } : draft
       ));
 
       toast({
@@ -143,7 +161,7 @@ export const useBlogDrafts = () => {
         description: "Blog post submitted for admin review",
       });
 
-      return data;
+      return typedData;
     } catch (error) {
       console.error('Error submitting blog for review:', error);
       toast({

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemberDashboard } from '@/hooks/useMemberDashboard';
-import ModernUserDashboard from './ModernUserDashboard';
+import DashboardRoutes from './DashboardRoutes';
 import AdminDashboard from './AdminDashboard';
 import ViewSwitcher from './components/ViewSwitcher';
 import { Card, CardContent } from '@/components/ui/card';
@@ -70,7 +70,9 @@ const SecureDashboard = () => {
         {currentView === 'admin' && hasAdminAccess ? (
           <AdminDashboard />
         ) : (
-          <ModernUserDashboard />
+          <div className="h-full overflow-auto">
+            <DashboardRoutes />
+          </div>
         )}
       </div>
     </DashboardLayout>

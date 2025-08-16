@@ -64,10 +64,7 @@ const Navbar = () => {
           </div>
 
           <div className="lg:hidden flex-shrink-0">
-            <NavbarMobileMenu 
-              isOpen={isMobileMenuOpen}
-              onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
+            <NavbarMobileMenu />
           </div>
         </div>
       </div>
