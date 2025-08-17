@@ -6,6 +6,7 @@ import DashboardCertificates from './user/DashboardCertificates';
 import DashboardPayments from './user/DashboardPayments';
 import DashboardNotifications from './user/DashboardNotifications';
 import DashboardAnalytics from './user/DashboardAnalytics';
+import DashboardConstitution from './user/DashboardConstitution';
 import ModernUserDashboard from './ModernUserDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -21,6 +22,7 @@ const DashboardRoutes = () => {
       <Route path="payments" element={<DashboardPayments />} />
       <Route path="notifications" element={<DashboardNotifications />} />
       <Route path="analytics" element={<DashboardAnalytics />} />
+      <Route path="constitution" element={<DashboardConstitution />} />
       <Route path="settings" element={<DashboardSettings />} />
     </Routes>
   );

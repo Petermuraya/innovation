@@ -15,6 +15,7 @@ import Events from '@/pages/Events';
 import Careers from '@/pages/Careers';
 import CommunityDashboardRouter from '@/components/dashboard/community/CommunityDashboardRouter';
 import Elections from '@/pages/Elections';
+import Constitution from '@/pages/Constitution';
 import NotificationTesterPage from '@/pages/NotificationTesterPage';
 import Payments from '@/pages/Payments';
 import ProtectedRoute from '@/components/security/ProtectedRoute';
@@ -52,7 +53,7 @@ function App() {
 
                   {/* Protected routes */}
                   <Route
-                    path="/dashboard"
+                    path="/dashboard/*"
                     element={
                       <ProtectedRoute requireApproval={false}>
                         <Dashboard />
@@ -72,6 +73,14 @@ function App() {
                     element={
                       <ProtectedRoute requireApproval={false}>
                         <Payments />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/constitution"
+                    element={
+                      <ProtectedRoute requireApproval={false}>
+                        <Constitution />
                       </ProtectedRoute>
                     }
                   />
